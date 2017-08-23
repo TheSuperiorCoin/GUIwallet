@@ -76,10 +76,10 @@ ListView {
             anchors.topMargin: parent.height/2 - this.height/2
             width: 80
             fontSize: 14
-            shadowReleasedColor: "#FF4304"
+            shadowReleasedColor: "#bf9b30"
             shadowPressedColor: "#B32D00"
-            releasedColor: "#FF6C3C"
-            pressedColor: "#FF4304"
+            releasedColor: "#CEAC41"
+            pressedColor: "#bf9b30"
             text: qsTr("Details")
             onClicked: {
                 var tx_key = currentWallet.getTxKey(hash)
@@ -232,7 +232,7 @@ ListView {
                 //elide: Text.ElideRight
                 font.family: "Arial"
                 font.pixelSize: 13
-                color:  (confirmations < 10)? "#FF6C3C" : "#545454"
+                color:  (confirmations < 10)? "#CEAC41" : "#545454"
                 text: {
                     if (!isPending)
                         if(confirmations < 10)

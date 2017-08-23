@@ -211,8 +211,8 @@
     </message>
     <message>
         <location filename="../pages/Dashboard.qml" line="102"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                        looking for security level and address book? go to &lt;a href=&apos;#&apos;&gt;Transfer&lt;/a&gt; tab</source>
-        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                        安全性レベルとアドレス帳をお探しですか? &lt;a href=&apos;#&apos;&gt;送金&lt;/a&gt;タブに移動してください </translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                        looking for security level and address book? go to &lt;a href=&apos;#&apos;&gt;Transfer&lt;/a&gt; tab</source>
+        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                        安全性レベルとアドレス帳をお探しですか? &lt;a href=&apos;#&apos;&gt;送金&lt;/a&gt;タブに移動してください </translation>
     </message>
 </context>
 <context>
@@ -868,8 +868,8 @@
     </message>
     <message>
         <location filename="../pages/Receive.qml" line="335"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                           Tracking &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;help&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
-        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                           トラッキング &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;ヘルプ&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                           Tracking &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;help&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
+        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                           トラッキング &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;ヘルプ&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
     </message>
     <message>
         <location filename="../pages/Receive.qml" line="340"/>
@@ -1204,8 +1204,8 @@
     </message>
     <message>
         <location filename="../pages/Sign.qml" line="444"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                            Signing address &lt;font size=&apos;2&apos;&gt;  ( Paste in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
-        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                            署名者のアドレス &lt;font size=&apos;2&apos;&gt;  ( 直接貼り付けるか、&lt;/font&gt; &lt;a href=&apos;#&apos;&gt;アドレス帳&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;から選択 )&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                            Signing address &lt;font size=&apos;2&apos;&gt;  ( Paste in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
+        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                            署名者のアドレス &lt;font size=&apos;2&apos;&gt;  ( 直接貼り付けるか、&lt;/font&gt; &lt;a href=&apos;#&apos;&gt;アドレス帳&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;から選択 )&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -1417,8 +1417,8 @@
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="44"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;Start daemon&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
-        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;デーモンの開始&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;Start daemon&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
+        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;デーモンの開始&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
     </message>
     <message>
         <source>all</source>
@@ -1441,8 +1441,8 @@
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="223"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                      Address &lt;font size=&apos;2&apos;&gt;  ( Paste in or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
-        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                      アドレス &lt;font size=&apos;2&apos;&gt;  ( 貼り付けるか、&lt;/font&gt; &lt;a href=&apos;#&apos;&gt;アドレス帳&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;から選択 )&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                      Address &lt;font size=&apos;2&apos;&gt;  ( Paste in or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
+        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                      アドレス &lt;font size=&apos;2&apos;&gt;  ( 貼り付けるか、&lt;/font&gt; &lt;a href=&apos;#&apos;&gt;アドレス帳&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;から選択 )&lt;/font&gt;</translation>
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="241"/>
@@ -1630,8 +1630,8 @@ Please upgrade or connect to another daemon</source>
         <translation type="vanished">コスト</translation>
     </message>
     <message>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                    Address &lt;font size=&apos;2&apos;&gt;  ( Type in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; book )&lt;/font&gt;</source>
-        <translation type="vanished">&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                    アドレス &lt;font size=&apos;2&apos;&gt;  (タイプするか、&lt;/font&gt; &lt;a href=&apos;#&apos;&gt;アドレス帳&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; から選択してください )&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                    Address &lt;font size=&apos;2&apos;&gt;  ( Type in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; book )&lt;/font&gt;</source>
+        <translation type="vanished">&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                    アドレス &lt;font size=&apos;2&apos;&gt;  (タイプするか、&lt;/font&gt; &lt;a href=&apos;#&apos;&gt;アドレス帳&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; から選択してください )&lt;/font&gt;</translation>
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="320"/>

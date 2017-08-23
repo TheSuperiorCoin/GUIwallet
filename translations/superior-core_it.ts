@@ -191,7 +191,7 @@
     </message>
     <message>
         <location filename="../pages/Dashboard.qml" line="102"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                        looking for security level and address book? go to &lt;a href=&apos;#&apos;&gt;Transfer&lt;/a&gt; tab</source>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                        looking for security level and address book? go to &lt;a href=&apos;#&apos;&gt;Transfer&lt;/a&gt; tab</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -848,7 +848,7 @@
     </message>
     <message>
         <location filename="../pages/Receive.qml" line="335"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                           Tracking &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;help&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                           Tracking &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;help&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1168,7 +1168,7 @@
     </message>
     <message>
         <location filename="../pages/Sign.qml" line="444"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                            Signing address &lt;font size=&apos;2&apos;&gt;  ( Paste in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                            Signing address &lt;font size=&apos;2&apos;&gt;  ( Paste in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1384,7 +1384,7 @@ Please upgrade or connect to another daemon</source>
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="44"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;Start daemon&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;Start daemon&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1413,7 +1413,7 @@ Please upgrade or connect to another daemon</source>
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="223"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                      Address &lt;font size=&apos;2&apos;&gt;  ( Paste in or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                      Address &lt;font size=&apos;2&apos;&gt;  ( Paste in or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

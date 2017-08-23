@@ -188,8 +188,8 @@
     </message>
     <message>
         <location filename="../pages/Dashboard.qml" line="102"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                        looking for security level and address book? go to &lt;a href=&apos;#&apos;&gt;Transfer&lt;/a&gt; tab</source>
-        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                szukasz ustawień bezpieczeństwa i książki adresowej? przejdź do zakładki &lt;a href=&apos;#&apos;&gt;Przelewy&lt;/a&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                        looking for security level and address book? go to &lt;a href=&apos;#&apos;&gt;Transfer&lt;/a&gt; tab</source>
+        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                szukasz ustawień bezpieczeństwa i książki adresowej? przejdź do zakładki &lt;a href=&apos;#&apos;&gt;Przelewy&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
@@ -822,8 +822,8 @@
     </message>
     <message>
         <location filename="../pages/Receive.qml" line="335"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                           Tracking &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;help&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
-        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                           Śledzenie &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;pomoc&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                           Tracking &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;help&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
+        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                           Śledzenie &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;pomoc&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
     </message>
     <message>
         <location filename="../pages/Receive.qml" line="340"/>
@@ -1154,12 +1154,12 @@
     </message>
     <message>
         <location filename="../pages/Sign.qml" line="444"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                            Signing address &lt;font size=&apos;2&apos;&gt;  ( Paste in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                            Signing address &lt;font size=&apos;2&apos;&gt;  ( Paste in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                            Signing address &lt;font size=&apos;2&apos;&gt;  ( Type in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; book )&lt;/font&gt;</source>
-        <translation type="vanished">&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                            Adres do podpisu &lt;font size=&apos;2&apos;&gt;  ( Wpisz lub wybierz z &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Ksiązki adresowej&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                            Signing address &lt;font size=&apos;2&apos;&gt;  ( Type in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; book )&lt;/font&gt;</source>
+        <translation type="vanished">&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                            Adres do podpisu &lt;font size=&apos;2&apos;&gt;  ( Wpisz lub wybierz z &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Ksiązki adresowej&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -1327,8 +1327,8 @@
         <translation>Koszt transakcji</translation>
     </message>
     <message>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                    Address &lt;font size=&apos;2&apos;&gt;  ( Paste in or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
-        <translation type="vanished">&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                    Adres &lt;font size=&apos;2&apos;&gt;  (Wklej lub wybierz z &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Ksiązki adresowej&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                    Address &lt;font size=&apos;2&apos;&gt;  ( Paste in or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
+        <translation type="vanished">&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                    Adres &lt;font size=&apos;2&apos;&gt;  (Wklej lub wybierz z &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Ksiązki adresowej&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
     </message>
     <message>
         <source>Description &lt;font size=&apos;2&apos;&gt;( Optional - saved to local wallet history )&lt;/font&gt;</source>
@@ -1359,7 +1359,7 @@ Uaktualnij go lub podłącz się do innego procesu</translation>
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="44"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;Start daemon&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;Start daemon&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1443,7 +1443,7 @@ Uaktualnij go lub podłącz się do innego procesu</translation>
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="223"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                      Address &lt;font size=&apos;2&apos;&gt;  ( Paste in or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                      Address &lt;font size=&apos;2&apos;&gt;  ( Paste in or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

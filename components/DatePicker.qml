@@ -9,7 +9,7 @@ Item {
     property date currentDate
     property bool showCurrentDate: true
     property color backgroundColor : "#FFFFFF"
-    property color errorColor : "#FFDDDD"
+    property color errorColor : "#eedd96"
     property bool error: false
 
     height: 37
@@ -251,7 +251,7 @@ Item {
                     Rectangle {
                         anchors.fill: parent
                         radius: parent.implicitHeight / 2
-                        color: dayArea.pressed && styleData.visibleMonth ? "#FF6C3B" : "transparent"
+                        color: dayArea.pressed && styleData.visibleMonth ? "#5777c1" : "transparent"
                     }
 
                     Text {
@@ -263,7 +263,7 @@ Item {
                         color: {
                             if(!styleData.visibleMonth) return "#DBDBDB"
                             if(dayArea.pressed) return "#FFFFFF"
-                            if(styleData.today) return "#FF6C3B"
+                            if(styleData.today) return "#5777c1"
                             return "#4A4848"
                         }
                     }

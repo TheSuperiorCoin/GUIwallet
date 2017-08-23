@@ -108,7 +108,7 @@ Rectangle {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: height
-            color: containsMouse ? "#FF6C3C" : "#000000"
+            color: containsMouse ? "#CEAC41" : "#000000"
 
             Image {
                 anchors.centerIn: parent

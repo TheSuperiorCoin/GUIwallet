@@ -19,7 +19,7 @@ Item {
 
     function getColor(error) {
       if (error)
-        return "#FFDDDD"
+        return "#eedd96"
       else
         return "#FFFFFF"
     }

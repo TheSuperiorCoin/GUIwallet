@@ -210,10 +210,10 @@ Rectangle {
             anchors.topMargin: 17
             width: 60
             text: qsTr("Check") + translationManager.emptyString
-            shadowReleasedColor: "#FF4304"
+            shadowReleasedColor: "#bf9b30"
             shadowPressedColor: "#B32D00"
-            releasedColor: "#FF6C3C"
-            pressedColor: "#FF4304"
+            releasedColor: "#CEAC41"
+            pressedColor: "#bf9b30"
             enabled: checkAddress(addressLine.text, appWindow.persistentSettings.testnet) && checkTxID(txIdLine.text) && checkTxKey(txKeyLine.text)
             onClicked: {
                 console.log("TxKey: Check clicked: address " + addressLine.text + ", txid " << txIdLine.text + ", tx key " + txKeyLine.text);

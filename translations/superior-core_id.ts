@@ -187,8 +187,8 @@
     </message>
     <message>
         <location filename="../pages/Dashboard.qml" line="102"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                        looking for security level and address book? go to &lt;a href=&apos;#&apos;&gt;Transfer&lt;/a&gt; tab</source>
-        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                        mencari tingkatan sekuritas dan buku alamat? Marilah ke &lt;a href=&apos;#&apos;&gt;Transfert&lt;/a&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                        looking for security level and address book? go to &lt;a href=&apos;#&apos;&gt;Transfer&lt;/a&gt; tab</source>
+        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                        mencari tingkatan sekuritas dan buku alamat? Marilah ke &lt;a href=&apos;#&apos;&gt;Transfert&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
@@ -814,8 +814,8 @@
     </message>
     <message>
         <location filename="../pages/Receive.qml" line="335"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                           Tracking &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;help&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
-        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                           Pelacakan &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;help&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                           Tracking &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;help&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
+        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                           Pelacakan &lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;help&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
     </message>
     <message>
         <location filename="../pages/Receive.qml" line="340"/>
@@ -1130,8 +1130,8 @@
     </message>
     <message>
         <location filename="../pages/Sign.qml" line="444"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                            Signing address &lt;font size=&apos;2&apos;&gt;  ( Paste in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
-        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                            Alamat menandatangani &lt;font size=&apos;2&apos;&gt;  ( Merekatkan atau pilih dari &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Buku alamat&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                            Signing address &lt;font size=&apos;2&apos;&gt;  ( Paste in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
+        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                            Alamat menandatangani &lt;font size=&apos;2&apos;&gt;  ( Merekatkan atau pilih dari &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Buku alamat&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</translation>
     </message>
     <message>
         <source>SIGN</source>
@@ -1180,8 +1180,8 @@
         <translation>Nama arsip dengan pesan untuk disahkan</translation>
     </message>
     <message>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                            Signing address &lt;font size=&apos;2&apos;&gt;  ( Type in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; book )&lt;/font&gt;</source>
-        <translation type="vanished">&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                            Alamat penandatanganan &lt;font size=&apos;2&apos;&gt;  ( Mengetikkan atau memilih dari &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Buku alamat&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                            Signing address &lt;font size=&apos;2&apos;&gt;  ( Type in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; book )&lt;/font&gt;</source>
+        <translation type="vanished">&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                            Alamat penandatanganan &lt;font size=&apos;2&apos;&gt;  ( Mengetikkan atau memilih dari &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Buku alamat&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -1320,8 +1320,8 @@
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="44"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;Start daemon&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
-        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;Mulai jurik&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;Start daemon&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
+        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;Mulai jurik&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</translation>
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="125"/>
@@ -1350,8 +1350,8 @@
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="223"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                      Address &lt;font size=&apos;2&apos;&gt;  ( Paste in or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
-        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                      Alamat &lt;font size=&apos;2&apos;&gt;  ( Merekatkan atau memilih dari &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Buku alamat&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                      Address &lt;font size=&apos;2&apos;&gt;  ( Paste in or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address book&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</source>
+        <translation>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                      Alamat &lt;font size=&apos;2&apos;&gt;  ( Merekatkan atau memilih dari &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Buku alamat&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</translation>
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="241"/>
@@ -1578,8 +1578,8 @@ Please upgrade or connect to another daemon</source>
         <translation>Biaya transaksi</translation>
     </message>
     <message>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                    Address &lt;font size=&apos;2&apos;&gt;  ( Type in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; book )&lt;/font&gt;</source>
-        <translation type="vanished">&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;                    Alamat &lt;font size=&apos;2&apos;&gt;  ( Mengetikkan atau memilih dari &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Buku alamat&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</translation>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                    Address &lt;font size=&apos;2&apos;&gt;  ( Type in  or select from &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Address&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; book )&lt;/font&gt;</source>
+        <translation type="vanished">&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #CEAC41; font-size: 14px;}&lt;/style&gt;                    Alamat &lt;font size=&apos;2&apos;&gt;  ( Mengetikkan atau memilih dari &lt;/font&gt; &lt;a href=&apos;#&apos;&gt;Buku alamat&lt;/a&gt;&lt;font size=&apos;2&apos;&gt; )&lt;/font&gt;</translation>
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="320"/>

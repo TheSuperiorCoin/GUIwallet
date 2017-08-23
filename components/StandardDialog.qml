@@ -105,10 +105,10 @@ Window {
                 id: cancelButton
                 width: 120
                 fontSize: 14
-                shadowReleasedColor: "#FF4304"
+                shadowReleasedColor: "#bf9b30"
                 shadowPressedColor: "#B32D00"
-                releasedColor: "#FF6C3C"
-                pressedColor: "#FF4304"
+                releasedColor: "#CEAC41"
+                pressedColor: "#bf9b30"
                 text: qsTr("Cancel") + translationManager.emptyString
                 onClicked: {
                     root.close()
@@ -120,10 +120,10 @@ Window {
                 id: okButton
                 width: 120
                 fontSize: 14
-                shadowReleasedColor: "#FF4304"
+                shadowReleasedColor: "#bf9b30"
                 shadowPressedColor: "#B32D00"
-                releasedColor: "#FF6C3C"
-                pressedColor: "#FF4304"
+                releasedColor: "#CEAC41"
+                pressedColor: "#bf9b30"
                 text: qsTr("Ok")
                 KeyNavigation.tab: cancelButton
                 onClicked: {
