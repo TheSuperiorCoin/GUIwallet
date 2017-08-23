@@ -36,6 +36,7 @@ Rectangle {
     signal checkPaymentClicked(string address, string txid, string txkey);
 
     color: "#F0EEEE"
+    visible: true
 
     onCurrentViewChanged: {
         if (previousView) {
@@ -132,7 +133,7 @@ Rectangle {
         anchors.right: parent.right
 
 
-        Rectangle { height: 4; width: parent.width / 5; color: "#FFE00A" }
+        Rectangle { height: 4; width: parent.width / 5; color: "#FFE00A" ;visible: true }
         Rectangle { height: 4; width: parent.width / 5; color: "#6B0072" }
         Rectangle { height: 4; width: parent.width / 5; color: "#FF6C3C" }
         Rectangle { height: 4; width: parent.width / 5; color: "#FFD781" }
