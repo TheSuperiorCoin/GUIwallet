@@ -5,15 +5,16 @@ Copyright (c) 2014-2017 Part of this may Include Source Code from MONERO Project
 
 ## Development Resources
 
-- Web: [getSuperior.org](https://getSuperior.org)
-- Forum: [forum.getSuperior.org](https://forum.getSuperior.org)
-- Mail: [dev@getSuperior.org](mailto:dev@getSuperior.org)
-- Github: [https://github.com/Superior-project/Superior-core](https://github.com/Superior-project/Superior-core)
-- IRC: [#Superior-dev on Freenode](irc://chat.freenode.net/#Superior-dev)
+- Web: [superior-coin.com](https://superior-coin.com)
+- BCT: [BitCoinTalk](https://bitcointalk.org/index.php?topic=2088169.0)
+- Mail: [admin@Superior-coin.com](mailto:admin@Superior-coin.com)
+- Github: [https://github.com/TheSuperiorCoin/GUIwallet](https://github.com/TheSuperiorCoin/GUIwallet)
+- IRC: [#SuperiorCoin on Freenode](irc://chat.freenode.net/#Superiorcoin)
+- FB: [https://www.facebook.com/TheSuperiorCoin](https://www.facebook.com/TheSuperiorCoin)
 
 ## Introduction
 
-Superior is a private, secure, untraceable, decentralised digital currency. You are your bank, you control your funds, and nobody can trace your transfers unless you allow them to do so.
+SuperiorCoin is a private, secure, untraceable, decentralised digital currency. You are your bank, you control your funds, and nobody can trace your transfers unless you allow them to do so.
 
 **Privacy:** Superior uses a cryptographically sound system to allow you to send and receive funds without your transactions being easily revealed on the blockchain (the ledger of transactions that everyone has). This ensures that your purchases, receipts, and all transfers remain absolutely private by default.
 
@@ -23,7 +24,7 @@ Superior is a private, secure, untraceable, decentralised digital currency. You 
 
 ## About this Project
 
-This is the GUI for the [core Superior implementation](https://github.com/Superior-project/Superior). It is open source and completely free to use without restrictions, except for those specified in the license agreement below. There are no restrictions on anyone creating an alternative implementation of Superior that uses the protocol and network in a compatible manner.
+This is the GUI for the [core Superior implementation](https://github.com/TheSuperiorCoin/TheSuperiorCoin). It is open source and completely free to use without restrictions, except for those specified in the license agreement below. There are no restrictions on anyone creating an alternative implementation of Superior that uses the protocol and network in a compatible manner.
 
 As with many development projects, the repository on Github is considered to be the "staging" area for the latest changes. Before changes are merged into that branch on the main repository, they are tested by individual developers in their own branches, submitted as a pull request, and then subsequently tested by contributors who focus on testing and code reviews. That having been said, the repository should be carefully considered before using it in a production environment, unless there is a patch in the repository for a particular show-stopping issue you are experiencing. It is generally a better idea to use a tagged release for stability.
 
@@ -31,23 +32,13 @@ As with many development projects, the repository on Github is considered to be 
 
 Superior development can be supported directly through donations.
 
-Both Superior and Bitcoin donations can be made to donate.getSuperior.org if using a client that supports the [OpenAlias](https://openalias.org) standard
+Both Superior and Bitcoin donations can be made using address's below
 
-The Superior donation address is: `44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A` (viewkey: `f359631075708155cc3d92a32b75a7d02a5dcf27756707b47a2b31b21c389501`)
+The SuperiorCoin donation address is: `5QaiHzo64sLDo42ky98uXtJ3zswCdpUrk1q5nSidtqovjjiC7FmxRt84Zu3HkpYQX1PLDU72aQMK6Cif4muRxwt3RyZXY6y` (viewkey: `Notupdated`)
 
-The Bitcoin donation address is: `1KTexdemPdxSBcG55heUuTjDRYqbC5ZL8H`
+The Bitcoin donation address is: `1CuZRQKAs8d2c4A1WW4rGgXCyMkFHsezz2`
 
 Core development funding and/or some supporting services are also graciously provided by sponsors:
-
-[<img width="80" src="https://static.getSuperior.org/images/sponsors/mySuperior.png"/>](https://mySuperior.com)
-[<img width="150" src="https://static.getSuperior.org/images/sponsors/kitware.png?1"/>](http://kitware.com)
-[<img width="100" src="https://static.getSuperior.org/images/sponsors/dome9.png"/>](http://dome9.com)
-[<img width="150" src="https://static.getSuperior.org/images/sponsors/araxis.png"/>](http://araxis.com)
-[<img width="150" src="https://static.getSuperior.org/images/sponsors/jetbrains.png"/>](http://www.jetbrains.com/)
-[<img width="150" src="https://static.getSuperior.org/images/sponsors/navicat.png"/>](http://www.navicat.com/)
-[<img width="150" src="https://static.getSuperior.org/images/sponsors/symas.png"/>](http://www.symas.com/)
-
-There are also several mining pools that kindly donate a portion of their fees, [a list of them can be found on our Bitcointalk post](https://bitcointalk.org/index.php?topic=583449.0).
 
 ## License
 
@@ -55,9 +46,7 @@ See [LICENSE](LICENSE).
 
 ## Installing Superior Core from a Package
 
-Packages are available for
-
-* Arch Linux via AUR: [Superior-core-git](https://aur.archlinux.org/packages/Superior-core-git/)
+There are a few pakages availble on the website [SuperiorCoin](http://superior-coin.com)
 
 Packaging for your favorite distribution would be a welcome contribution!
 
@@ -141,17 +130,18 @@ Packaging for your favorite distribution would be a welcome contribution!
 
     make sure this is where Qt 5.x is installed on **your** system eg `$HOME/Qt/5.8/clang_64/bin` if you downloaded from qt.io.
 
-6. Grab an up-to-date copy of the Superior-core repository.
+6. Grab an up-to-date copy of the SuperiorCoinGUi repository.
 
-  `git clone https://github.com/Superior-project/Superior-core.git`
+  `git clone https://github.com/TheSuperiorCoin/GUIwallet.git`
 
 7. Go into the repository.
 
-  `cd Superior-core`
+  `cd GUIwallet`
 
-8. Build libwallet
+8. Grab an up-to-date copy of the git clone https://github.com/TheSuperiorCoin/TheSuperiorCoin.git
 
-  `./get_libwallet_api.sh`
+    change the name of that folder to Superior
+    cd ..
 
 9. Start the build:
 
@@ -205,22 +195,26 @@ More info: http://stackoverflow.com/a/35098040/1683164
 6. Install the latest version of boost, specificly the required static libraries:
     ```
     cd
-    wget http://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.bz2
-    tar xjf boost_1_63_0.tar.bz2
-    cd boost_1_63_0
+    wget http://sourceforge.net/projects/boost/files/boost/1.64.0/boost_1_64_0.tar.bz2
+    tar xjf boost_1_64_0.tar.bz2
+    cd boost_1_64_0
     ./bootstrap.sh mingw
-    ./b2 --prefix=/mingw32/boost --layout=tagged --without-mpi --without-python toolset=gcc address-model=32 variant=debug,release link=static threading=multi runtime-link=static -j$(nproc) install
+    ../b2 --prefix=/mingw32/boost --layout=tagged --without-mpi --without-python toolset=gcc address-model=32 variant=debug,release link=static threading=multi runtime-link=static -j$(nproc) install 
     ```
 
 7. Clone repository:
     ```
     cd
-    git clone https://github.com/Superior-project/Superior-core.git
+    git clone https://github.com/TheSuperiorCoin/GUIwallet.git
     ```
+8.  cd GUIwallet
+    git clone https://github.com/TheSuperiorCoin/TheSuperiorCoin.git
+    Rename to Superior
+    cd
 
 8. Build the GUI:
     ```
-    cd Superior-core
+    cd GUIwallet
     export PATH=$(ls -rd /c/Qt/5.[6,7,8]/mingw53_32/bin | head -1):$PATH
     ./build.sh
     cd build
