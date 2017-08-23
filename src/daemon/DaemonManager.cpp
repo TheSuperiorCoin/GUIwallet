@@ -166,6 +166,8 @@ bool DaemonManager::stopWatcher(bool testnet) const
             qDebug() << "Daemon still running.  " << counter;
             if(counter >= 5) {
                 qDebug() << "Killing it! ";
+
+QStringList argumentstop; //testcode
 #ifdef Q_OS_WIN
 
                 argumentstop << "--stop-service"; //instead of kill we stop service on daemon
