@@ -32,11 +32,18 @@ bool DaemonManager::start(const QString &flags, bool testnet)
 {
     // prepare command line arguments and pass to Superiord
     QStringList arguments;
+    QStringList argumentinstall;// for windows Daemon startupservice
 
     // Start daemon with --detach flag on non-windows platforms
-#ifndef Q_OS_WIN
-    arguments << "--detach";
+
+#ifdef Q_OS_WIN
+     arguments << "--start-service"; //testcode
+     argumentinstall << "--install-service";  //testcode
+#else
+     arguments << "--detach";
 #endif
+//this code above is test code for windows .
+
 
     if(testnet)
         arguments << "--testnet";
@@ -65,6 +72,18 @@ bool DaemonManager::start(const QString &flags, bool testnet)
     // Connect output slots
     connect (m_daemon, SIGNAL(readyReadStandardOutput()), this, SLOT(printOutput()));
     connect (m_daemon, SIGNAL(readyReadStandardError()), this, SLOT(printError()));
+
+﻿{
+#ifdef Q_OS_WIN  //startup service in windows code
+
+                m_daemon->startDetached(m_Superiord, argumentinstall); //testcode
+                QThread::sleep(2);
+
+#endif
+}
+    connect (m_daemon, SIGNAL(readyReadStandardOutput()), this, SLOT(printOutput())); //test add
+    connect (m_daemon, SIGNAL(readyReadStandardError()), this, SLOT(printError()));  //test add
+
 
     // Start Superiord
     bool started = m_daemon->startDetached(m_Superiord, arguments);
@@ -148,7 +167,10 @@ bool DaemonManager::stopWatcher(bool testnet) const
             if(counter >= 5) {
                 qDebug() << "Killing it! ";
 #ifdef Q_OS_WIN
-                QProcess::execute("taskkill /F /IM Superiord.exe");
+
+                argumentstop << "--stop-service"; //instead of kill we stop service on daemon
+                m_daemon->startDetached(m_Superiord, argumentstop);
+
 #else
                 QProcess::execute("pkill Superiord");
 #endif
