@@ -709,7 +709,7 @@ ApplicationWindow {
             informationPopup.title  = qsTr("Payment check") + translationManager.emptyString;
             informationPopup.icon = StandardIcon.Information
             if (received > 0) {
-                received = received / 1e12
+                received = received / 1e8
                 if (height == 0) {
                     informationPopup.text = qsTr("This address received %1 Superior, but the transaction is not yet mined").arg(received);
                 }
@@ -967,8 +967,8 @@ ApplicationWindow {
                 PropertyChanges { target: middlePanel; visible: false }
                 PropertyChanges { target: titleBar; basicButtonVisible: false }
                 PropertyChanges { target: wizard; visible: true }
-                PropertyChanges { target: appWindow; width: 930; }
-                PropertyChanges { target: appWindow; height: 650; }
+                PropertyChanges { target: appWindow; width: rightPanelExpanded ? 1269 : 1269 - 300; }
+                PropertyChanges { target: appWindow; height: maxWindowHeight; }
                 PropertyChanges { target: resizeArea; visible: false }
                 PropertyChanges { target: titleBar; maximizeButtonVisible: false }
                 PropertyChanges { target: frameArea; blocked: true }
