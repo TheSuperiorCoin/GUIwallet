@@ -32,7 +32,7 @@ bool TranslationManager::setLanguage(const QString &language)
     QString dir = qApp->applicationDirPath() + "/translations";
 #endif
 
-    QString filename = "Superior-core_" + language;
+    QString filename = "superior-core_" + language;
 
     qDebug("%s: loading translation file '%s' from '%s",
            __FUNCTION__, qPrintable(filename), qPrintable(dir));

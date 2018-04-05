@@ -1,31 +1,46 @@
-// Copyright (c) 2017-2020, The Superior Project// // All rights reserved.// // Redistribution and use in source and binary forms, with or without modification, are// permitted provided that the following conditions are met:// // 1. Redistributions of source code must retain the above copyright notice, this list of//    conditions and the following disclaimer.// // 2. Redistributions in binary form must reproduce the above copyright notice, this list//    of conditions and the following disclaimer in the documentation and/or other//    materials provided with the distribution.// // 3. Neither the name of the copyright holder nor the names of its contributors may be//    used to endorse or promote products derived from this software without specific//    prior written permission.// // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.//// Parts of this file are originally copyright (c) 2014-2015 The Monero Project
+// Copyright (c) 2014-2018, The X Project
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without modification, are
+// permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice, this list of
+//    conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list
+//    of conditions and the following disclaimer in the documentation and/or other
+//    materials provided with the distribution.
+// 
+// 3. Neither the name of the copyright holder nor the names of its contributors may be
+//    used to endorse or promote products derived from this software without specific
+//    prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
 import "../components"
-import SuperiorComponents.Wallet 1.0
+import superiorComponents.Wallet 1.0
 
 Rectangle {
     id: root
-    color: "#F0EEEE"
+    color: "transparent"
     property var currentHashRate: 0
-
-    function isDaemonLocal() {
-        var daemonAddress = appWindow.persistentSettings.daemon_address
-        if (daemonAddress === "")
-            return false
-        var daemonHost = daemonAddress.split(":")[0]
-        if (daemonHost === "127.0.0.1" || daemonHost === "localhost")
-            return true
-        return false
-    }
 
     /* main layout */
     ColumnLayout {
         id: mainLayout
         anchors.margins: 40
-        anchors.bottomMargin: 10
-
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.right: parent.right
@@ -51,7 +66,7 @@ Rectangle {
                 fontSize: 18
                 color: "#D02020"
                 text: qsTr("(only available for local daemons)")
-                visible: !isDaemonLocal()
+                visible: !walletManager.isDaemonLocal(appWindow.currentDaemonAddress)
             }
 
             Text {
@@ -59,13 +74,16 @@ Rectangle {
                 text: qsTr("Mining with your computer helps strengthen the Superior network. The more that people mine, the harder it is for the network to be attacked, and every little bit helps.<br> <br>Mining also gives you a small chance to earn some Superior. Your computer will create hashes looking for block solutions. If you find a block, you will get the associated reward. Good luck!") + translationManager.emptyString
                 wrapMode: Text.Wrap
                 Layout.fillWidth: true
+                font.family: Style.fontRegular.name
+                font.pixelSize: 14 * scaleRatio
+                color: Style.defaultFontColor
             }
 
             RowLayout {
                 id: soloMinerThreadsRow
                 Label {
                     id: soloMinerThreadsLabel
-                    color: "#4A4949"
+                    color: Style.defaultFontColor
                     text: qsTr("CPU threads") + translationManager.emptyString
                     fontSize: 16
                     Layout.preferredWidth: 120
@@ -80,8 +98,6 @@ Rectangle {
             }
 
             RowLayout {
-                // Disable this option until stable
-                visible: false
                 Layout.leftMargin: 125
                 CheckBox {
                     id: backgroundMining
@@ -89,8 +105,6 @@ Rectangle {
                     checked: persistentSettings.allow_background_mining
                     onClicked: {persistentSettings.allow_background_mining = checked}
                     text: qsTr("Background mining (experimental)") + translationManager.emptyString
-                    checkedIcon: "../images/checkedVioletIcon.png"
-                    uncheckedIcon: "../images/uncheckedIcon.png"
                 }
 
             }
@@ -105,15 +119,13 @@ Rectangle {
                     checked: !persistentSettings.miningIgnoreBattery
                     onClicked: {persistentSettings.miningIgnoreBattery = !checked}
                     text: qsTr("Enable mining when running on battery") + translationManager.emptyString
-                    checkedIcon: "../images/checkedVioletIcon.png"
-                    uncheckedIcon: "../images/uncheckedIcon.png"
                 }
             }
 
             RowLayout {
                 Label {
                     id: manageSoloMinerLabel
-                    color: "#4A4949"
+                    color: Style.defaultFontColor
                     text: qsTr("Manage miner") + translationManager.emptyString
                     fontSize: 16
                 }
@@ -123,19 +135,16 @@ Rectangle {
                     //enabled: !walletManager.isMining()
                     id: startSoloMinerButton
                     width: 110
+                    small: true
                     text: qsTr("Start mining") + translationManager.emptyString
-                    shadowReleasedColor: "#bf9b30"
-                    shadowPressedColor: "#B32D00"
-                    releasedColor: "#CEAC41"
-                    pressedColor: "#bf9b30"
                     onClicked: {
-                        var success = walletManager.startMining(appWindow.currentWallet.address, soloMinerThreadsLine.text, persistentSettings.allow_background_mining, persistentSettings.miningIgnoreBattery)
+                        var success = walletManager.startMining(appWindow.currentWallet.address(0, 0), soloMinerThreadsLine.text, persistentSettings.allow_background_mining, persistentSettings.miningIgnoreBattery)
                         if (success) {
                             update()
                         } else {
                             errorPopup.title  = qsTr("Error starting mining") + translationManager.emptyString;
                             errorPopup.text = qsTr("Couldn't start mining.<br>")
-                            if (!isDaemonLocal())
+                            if (!walletManager.isDaemonLocal(appWindow.currentDaemonAddress))
                                 errorPopup.text += qsTr("Mining is only available on local daemons. Run a local daemon to be able to mine.<br>")
                             errorPopup.icon = StandardIcon.Critical
                             errorPopup.open()
@@ -148,11 +157,8 @@ Rectangle {
                     //enabled:  walletManager.isMining()
                     id: stopSoloMinerButton
                     width: 110
+                    small: true
                     text: qsTr("Stop mining") + translationManager.emptyString
-                    shadowReleasedColor: "#bf9b30"
-                    shadowPressedColor: "#B32D00"
-                    releasedColor: "#CEAC41"
-                    pressedColor: "#bf9b30"
                     onClicked: {
                         walletManager.stopMining()
                         update()
@@ -163,8 +169,8 @@ Rectangle {
 
         Text {
             id: statusText
-            anchors.topMargin: 17
             text: qsTr("Status: not mining")
+            color: Style.defaultFontColor
             textFormat: Text.RichText
             wrapMode: Text.Wrap
         }
@@ -204,7 +210,7 @@ Rectangle {
         console.log("Mining page loaded");
 
         update()
-        timer.running = isDaemonLocal()
+        timer.running = walletManager.isDaemonLocal(appWindow.currentDaemonAddress)
 
     }
     function onPageClosed() {

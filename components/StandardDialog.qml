@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015, The Superior Project
+// Copyright (c) 2014-2018, The X Project
 //
 // All rights reserved.
 //
@@ -27,7 +27,7 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import QtQuick 2.0
-import QtQuick.Controls 1.4
+import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Controls.Styles 1.4
@@ -35,10 +35,10 @@ import QtQuick.Window 2.0
 
 import "../components" as SuperiorComponents
 
-Window {
+Rectangle {
     id: root
-    modality: Qt.ApplicationModal
-    flags: Qt.Window | Qt.FramelessWindowHint
+    color: "transparent"
+    visible: false
     property alias title: dialogTitle.text
     property alias text: dialogContent.text
     property alias content: root.text
@@ -53,32 +53,62 @@ Window {
     // same signals as Dialog has
     signal accepted()
     signal rejected()
+    signal closeCallback();
 
+    Image {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        source: "../images/middlePanelBg.jpg"
+    }
+
+    // Make window draggable
+    MouseArea {
+        anchors.fill: parent
+        property point lastMousePos: Qt.point(0, 0)
+        onPressed: { lastMousePos = Qt.point(mouseX, mouseY); }
+        onMouseXChanged: root.x += (mouseX - lastMousePos.x)
+        onMouseYChanged: root.y += (mouseY - lastMousePos.y)
+    }
 
     function open() {
+        // Center
+        if(!isMobile) {
+            root.x = parent.width/2 - root.width/2
+            root.y = 100
+        }
         show()
+        root.z = 11
+        root.visible = true;
+    }
+
+    function close() {
+        root.visible = false;
+        closeCallback();
     }
 
     // TODO: implement without hardcoding sizes
-    width:  480
-    height: 280
+    width: isMobile ? screenWidth : 520
+    height: isMobile ? screenHeight : 380
 
     ColumnLayout {
         id: mainLayout
         spacing: 10
-        anchors { fill: parent; margins: 35 }
+        anchors { fill: parent; margins: 15 }
 
         RowLayout {
             id: column
             //anchors {fill: parent; margins: 16 }
+            Layout.topMargin: 14 * scaleRatio
             Layout.alignment: Qt.AlignHCenter
 
-            Label {
+            SuperiorComponents.Label {
                 id: dialogTitle
                 horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: 32
-                font.family: "Arial"
-                color: "#555555"
+                fontSize: 18 * scaleRatio
+                fontFamily: "Arial"
+                color: SuperiorComponents.Style.defaultFontColor
             }
 
         }
@@ -88,10 +118,28 @@ Window {
                 id : dialogContent
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                font.family: "Arial"
+                renderType: Text.QtRendering
+                font.family: SuperiorComponents.Style.fontLight.name
                 textFormat: TextEdit.AutoText
                 readOnly: true
-                font.pixelSize: 12
+                font.pixelSize: 14 * scaleRatio
+                selectByMouse: false
+                wrapMode: TextEdit.Wrap
+                color: SuperiorComponents.Style.defaultFontColor
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        appWindow.showStatusMessage(qsTr("Double tap to copy"),3)
+                    }
+                    onDoubleClicked: {
+                        parent.selectAll()
+                        parent.copy()
+                        parent.deselect()
+                        console.log("copied to clipboard");
+                        appWindow.showStatusMessage(qsTr("Content copied to clipboard"),3)
+                    }
+                }
             }
         }
 
@@ -103,12 +151,6 @@ Window {
 
             SuperiorComponents.StandardButton {
                 id: cancelButton
-                width: 120
-                fontSize: 14
-                shadowReleasedColor: "#bf9b30"
-                shadowPressedColor: "#B32D00"
-                releasedColor: "#CEAC41"
-                pressedColor: "#bf9b30"
                 text: qsTr("Cancel") + translationManager.emptyString
                 onClicked: {
                     root.close()
@@ -118,13 +160,7 @@ Window {
 
             SuperiorComponents.StandardButton {
                 id: okButton
-                width: 120
-                fontSize: 14
-                shadowReleasedColor: "#bf9b30"
-                shadowPressedColor: "#B32D00"
-                releasedColor: "#CEAC41"
-                pressedColor: "#bf9b30"
-                text: qsTr("Ok")
+                text: qsTr("OK")
                 KeyNavigation.tab: cancelButton
                 onClicked: {
                     root.close()
@@ -135,7 +171,36 @@ Window {
         }
     }
 
+    // window borders
+    Rectangle{
+        width: 1
+        color: SuperiorComponents.Style.grey
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+    }
+
+    Rectangle{
+        width: 1
+        color: SuperiorComponents.Style.grey
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+    }
+
+    Rectangle{
+        height: 1
+        color: SuperiorComponents.Style.grey
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.right: parent.right
+    }
+
+    Rectangle{
+        height: 1
+        color: SuperiorComponents.Style.grey
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+    }
 }
-
-
-

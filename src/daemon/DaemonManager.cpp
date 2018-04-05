@@ -8,6 +8,10 @@
 #include <QApplication>
 #include <QProcess>
 #include <QTime>
+#include <QStorageInfo>
+#include <QVariantMap>
+#include <QVariant>
+#include <QMap>
 
 namespace {
     static const int DAEMON_START_TIMEOUT_SECONDS = 30;
@@ -28,31 +32,20 @@ DaemonManager *DaemonManager::instance(const QStringList *args)
     return m_instance;
 }
 
-bool DaemonManager::start(const QString &flags, bool testnet)
+bool DaemonManager::start(const QString &flags, NetworkType::Type nettype, const QString &dataDir, const QString &bootstrapNodeAddress)
 {
-    // prepare command line arguments and pass to Superiord
+    // prepare command line arguments and pass to superiord
     QStringList arguments;
-    QStringList argumentinstall;//testcode
-
 
     // Start daemon with --detach flag on non-windows platforms
-/* Commented out for now
 #ifndef Q_OS_WIN
     arguments << "--detach";
 #endif
-*/
-//#ifndef Q_OS_WIN
-#ifdef Q_OS_WIN
-     arguments << "--start-service"; //testcode
-     argumentinstall << "--install-service";  //testcode
-#else
-     arguments << "--detach";
-#endif
-//this code above is test code for windows .
 
-
-    if(testnet)
+    if (nettype == NetworkType::TESTNET)
         arguments << "--testnet";
+    else if (nettype == NetworkType::STAGENET)
+        arguments << "--stagenet";
 
     foreach (const QString &str, m_clArgs) {
           qDebug() << QString(" [%1] ").arg(str);
@@ -67,9 +60,21 @@ bool DaemonManager::start(const QString &flags, bool testnet)
             arguments << str;
     }
 
+    // Custom data-dir
+    if(!dataDir.isEmpty()) {
+        arguments << "--data-dir" << dataDir;
+    }
+
+    // Bootstrap node address
+    if(!bootstrapNodeAddress.isEmpty()) {
+        arguments << "--bootstrap-daemon-address" << bootstrapNodeAddress;
+    }
+
     arguments << "--check-updates" << "disabled";
 
-    qDebug() << "starting Superiord " + m_Superiord;
+
+
+    qDebug() << "starting superiord " + m_superiord;
     qDebug() << "With command line arguments " << arguments;
 
     m_daemon = new QProcess();
@@ -78,19 +83,9 @@ bool DaemonManager::start(const QString &flags, bool testnet)
     // Connect output slots
     connect (m_daemon, SIGNAL(readyReadStandardOutput()), this, SLOT(printOutput()));
     connect (m_daemon, SIGNAL(readyReadStandardError()), this, SLOT(printError()));
-{
-#ifdef Q_OS_WIN  //test code
 
-                m_daemon->startDetached(m_Superiord, argumentinstall); //testcode
-                QThread::sleep(2);
-
-#endif
-}
-    connect (m_daemon, SIGNAL(readyReadStandardOutput()), this, SLOT(printOutput())); //test add
-    connect (m_daemon, SIGNAL(readyReadStandardError()), this, SLOT(printError()));  //test add
-
-        // Start Superiord
-    bool started = m_daemon->startDetached(m_Superiord, arguments);
+    // Start superiord
+    bool started = m_daemon->startDetached(m_superiord, arguments);
 
     // add state changed listener
     connect(m_daemon,SIGNAL(stateChanged(QProcess::ProcessState)),this,SLOT(stateChanged(QProcess::ProcessState)));
@@ -102,7 +97,7 @@ bool DaemonManager::start(const QString &flags, bool testnet)
     }
 
     // Start start watcher
-    QFuture<bool> future = QtConcurrent::run(this, &DaemonManager::startWatcher, testnet);
+    QFuture<bool> future = QtConcurrent::run(this, &DaemonManager::startWatcher, nettype);
     QFutureWatcher<bool> * watcher = new QFutureWatcher<bool>();
     connect(watcher, &QFutureWatcher<bool>::finished,
             this, [this, watcher]() {
@@ -119,14 +114,14 @@ bool DaemonManager::start(const QString &flags, bool testnet)
     return true;
 }
 
-bool DaemonManager::stop(bool testnet)
+bool DaemonManager::stop(NetworkType::Type nettype)
 {
     QString message;
-    sendCommand("exit",testnet,message);
+    sendCommand("exit", nettype, message);
     qDebug() << message;
 
     // Start stop watcher - Will kill if not shutting down
-    QFuture<bool> future = QtConcurrent::run(this, &DaemonManager::stopWatcher, testnet);
+    QFuture<bool> future = QtConcurrent::run(this, &DaemonManager::stopWatcher, nettype);
     QFutureWatcher<bool> * watcher = new QFutureWatcher<bool>();
     connect(watcher, &QFutureWatcher<bool>::finished,
             this, [this, watcher]() {
@@ -141,14 +136,14 @@ bool DaemonManager::stop(bool testnet)
     return true;
 }
 
-bool DaemonManager::startWatcher(bool testnet) const
+bool DaemonManager::startWatcher(NetworkType::Type nettype) const
 {
     // Check if daemon is started every 2 seconds
     QTime timer;
     timer.restart();
     while(true && !m_app_exit && timer.elapsed() / 1000 < DAEMON_START_TIMEOUT_SECONDS  ) {
         QThread::sleep(2);
-        if(!running(testnet)) {
+        if(!running(nettype)) {
             qDebug() << "daemon not running. checking again in 2 seconds.";
         } else {
             qDebug() << "daemon is started. Waiting 5 seconds to let daemon catch up";
@@ -159,28 +154,21 @@ bool DaemonManager::startWatcher(bool testnet) const
     return false;
 }
 
-bool DaemonManager::stopWatcher(bool testnet) const
+bool DaemonManager::stopWatcher(NetworkType::Type nettype) const
 {
     // Check if daemon is running every 2 seconds. Kill if still running after 10 seconds
     int counter = 0;
     while(true && !m_app_exit) {
         QThread::sleep(2);
         counter++;
-        if(running(testnet)) {
+        if(running(nettype)) {
             qDebug() << "Daemon still running.  " << counter;
             if(counter >= 5) {
                 qDebug() << "Killing it! ";
-
-QStringList argumentstop; //testcode
 #ifdef Q_OS_WIN
-
-                //m_daemon = new QProcess();                             //test code
-                //initialized = true;                                    //testcode
-                argumentstop << "--stop-service"; //test code
-                m_daemon->startDetached(m_Superiord, argumentstop); //testcode
-//test removed  QProcess::execute("taskkill /F /IM Superiord.exe");    //testremoved
+                QProcess::execute("taskkill /F /IM superiord.exe");
 #else
-                QProcess::execute("pkill Superiord");
+                QProcess::execute("pkill superiord");
 #endif
             }
 
@@ -221,36 +209,40 @@ void DaemonManager::printError()
     }
 }
 
-bool DaemonManager::running(bool testnet) const
+bool DaemonManager::running(NetworkType::Type nettype) const
 { 
     QString status;
-    sendCommand("status",testnet, status);
+    sendCommand("status", nettype, status);
     qDebug() << status;
-    // `./Superiord status` returns BUSY when syncing.
+    // `./superiord status` returns BUSY when syncing.
     // Treat busy as connected, until fixed upstream.
     if (status.contains("Height:") || status.contains("BUSY") ) {
         return true;
     }
     return false;
 }
-bool DaemonManager::sendCommand(const QString &cmd,bool testnet) const
+bool DaemonManager::sendCommand(const QString &cmd, NetworkType::Type nettype) const
 {
     QString message;
-    return sendCommand(cmd, testnet, message);
+    return sendCommand(cmd, nettype, message);
 }
 
-bool DaemonManager::sendCommand(const QString &cmd,bool testnet, QString &message) const
+bool DaemonManager::sendCommand(const QString &cmd, NetworkType::Type nettype, QString &message) const
 {
     QProcess p;
-    QString external_cmd = m_Superiord + " " + cmd;
+    QStringList external_cmd;
+    external_cmd << cmd;
+
+    // Add network type flag if needed
+    if (nettype == NetworkType::TESTNET)
+        external_cmd << "--testnet";
+    else if (nettype == NetworkType::STAGENET)
+        external_cmd << "--stagenet";
+
     qDebug() << "sending external cmd: " << external_cmd;
 
-    // Add testnet flag if needed
-    if (testnet)
-        external_cmd += " --testnet";
-    external_cmd += "\n";
 
-    p.start(external_cmd);
+    p.start(m_superiord, external_cmd);
 
     bool started = p.waitForFinished(-1);
     message = p.readAllStandardOutput();
@@ -264,18 +256,56 @@ void DaemonManager::exit()
     m_app_exit = true;
 }
 
+QVariantMap DaemonManager::validateDataDir(const QString &dataDir) const
+{
+    QVariantMap result;
+    bool valid = true;
+    bool readOnly = false;
+    int  storageAvailable = 0;
+    bool lmdbExists = true;
+
+    QStorageInfo storage(dataDir);
+    if (storage.isValid() && storage.isReady()) {
+        if (storage.isReadOnly()) {
+            readOnly = true;
+            valid = false;
+        }
+
+        // Make sure there is 20GB storage available
+        storageAvailable = storage.bytesAvailable()/1000/1000/1000;
+        if (storageAvailable < 20) {
+            valid = false;
+        }
+    } else {
+        valid = false;
+    }
+
+
+    if (!QDir(dataDir+"/lmdb").exists()) {
+        lmdbExists = false;
+        valid = false;
+    }
+
+    result.insert("valid", valid);
+    result.insert("lmdbExists", lmdbExists);
+    result.insert("readOnly", readOnly);
+    result.insert("storageAvailable", storageAvailable);
+
+    return result;
+}
+
 DaemonManager::DaemonManager(QObject *parent)
     : QObject(parent)
 {
 
-    // Platform depetent path to Superiord
+    // Platform depetent path to superiord
 #ifdef Q_OS_WIN
-    m_Superiord = QApplication::applicationDirPath() + "/Superiord.exe";
+    m_superiord = QApplication::applicationDirPath() + "/superiord.exe";
 #elif defined(Q_OS_UNIX)
-    m_Superiord = QApplication::applicationDirPath() + "/Superiord";
+    m_superiord = QApplication::applicationDirPath() + "/superiord";
 #endif
 
-    if (m_Superiord.length() == 0) {
+    if (m_superiord.length() == 0) {
         qCritical() << "no daemon binary defined for current platform";
         m_has_daemon = false;
     }

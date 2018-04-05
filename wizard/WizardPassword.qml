@@ -1,5 +1,32 @@
-// Copyright (c) 2017-2020, The Superior Project// // All rights reserved.// // Redistribution and use in source and binary forms, with or without modification, are// permitted provided that the following conditions are met:// // 1. Redistributions of source code must retain the above copyright notice, this list of//    conditions and the following disclaimer.// // 2. Redistributions in binary form must reproduce the above copyright notice, this list//    of conditions and the following disclaimer in the documentation and/or other//    materials provided with the distribution.// // 3. Neither the name of the copyright holder nor the names of its contributors may be//    used to endorse or promote products derived from this software without specific//    prior written permission.// // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.//// Parts of this file are originally copyright (c) 2014-2015 The Monero Project
-import SuperiorComponents.WalletManager 1.0
+// Copyright (c) 2014-2018, The X Project
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without modification, are
+// permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice, this list of
+//    conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list
+//    of conditions and the following disclaimer in the documentation and/or other
+//    materials provided with the distribution.
+// 
+// 3. Neither the name of the copyright holder nor the names of its contributors may be
+//    used to endorse or promote products derived from this software without specific
+//    prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import superiorComponents.WalletManager 1.0
 import QtQuick 2.2
 import QtQuick.Layouts 1.1
 import "../components"
@@ -37,7 +64,6 @@ ColumnLayout {
 
     function onPageClosed(settingsObject) {
         // TODO: set password on the final page
-        // settingsObject.wallet.setPassword(passwordItem.password)
         settingsObject['wallet_password'] = passwordUI.password
         return true
     }
@@ -55,8 +81,8 @@ ColumnLayout {
         ListModel {
             id: dotsModel
             ListElement { dotColor: "#36B05B" }
-            ListElement { dotColor: "#36B05B" }
-            //ListElement { dotColor: "#FFE00A" }
+            ListElement { dotColor: "#FFE00A" }
+            ListElement { dotColor: "#DBDBDB" }
             ListElement { dotColor: "#DBDBDB" }
         }
 
@@ -80,7 +106,7 @@ ColumnLayout {
             Layout.fillWidth: true
             id: titleText
             font.family: "Arial"
-            font.pixelSize: 28
+            font.pixelSize: 28 * scaleRatio
             wrapMode: Text.Wrap
             horizontalAlignment: Text.AlignHCenter
             //renderType: Text.NativeRendering
@@ -90,9 +116,9 @@ ColumnLayout {
 
         Text {
             Layout.fillWidth: true
-            Layout.bottomMargin: 30
+            Layout.bottomMargin: 30 * scaleRatio
             font.family: "Arial"
-            font.pixelSize: 18
+            font.pixelSize: 18 * scaleRatio
             wrapMode: Text.Wrap
             //renderType: Text.NativeRendering
             color: "#4A4646"

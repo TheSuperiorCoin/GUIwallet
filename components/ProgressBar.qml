@@ -1,79 +1,122 @@
-// Copyright (c) 2017-2020, The Superior Project// // All rights reserved.// // Redistribution and use in source and binary forms, with or without modification, are// permitted provided that the following conditions are met:// // 1. Redistributions of source code must retain the above copyright notice, this list of//    conditions and the following disclaimer.// // 2. Redistributions in binary form must reproduce the above copyright notice, this list//    of conditions and the following disclaimer in the documentation and/or other//    materials provided with the distribution.// // 3. Neither the name of the copyright holder nor the names of its contributors may be//    used to endorse or promote products derived from this software without specific//    prior written permission.// // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.//// Parts of this file are originally copyright (c) 2014-2015 The Monero Project
-import QtQuick 2.0
-import SuperiorComponents.Wallet 1.0
+// Copyright (c) 2014-2018, The X Project
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without modification, are
+// permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice, this list of
+//    conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list
+//    of conditions and the following disclaimer in the documentation and/or other
+//    materials provided with the distribution.
+// 
+// 3. Neither the name of the copyright holder nor the names of its contributors may be
+//    used to endorse or promote products derived from this software without specific
+//    prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Item {
+import QtQuick 2.0
+import superiorComponents.Wallet 1.0
+
+import "../components" as SuperiorComponents
+
+Rectangle {
     id: item
     property int fillLevel: 0
-    height: 22
-    anchors.margins:15
+    property string syncType // Wallet or Daemon
+    property string syncText: qsTr("%1 blocks remaining: ").arg(syncType)
     visible: false
-    //clip: true
+    color: "transparent"
 
-    function updateProgress(currentBlock,targetBlock, blocksToSync){
-        if(targetBlock == 1) {
-            fillLevel = 0
-            progressText.text = qsTr("Establishing connection...");
-            progressBar.visible = true
-            return
-        }
-
+    function updateProgress(currentBlock,targetBlock, blocksToSync, statusTxt){
         if(targetBlock > 0) {
-            var remaining = targetBlock - currentBlock
-            // wallet sync
-            if(blocksToSync > 0)
-                var progressLevel = (100*(blocksToSync - remaining)/blocksToSync).toFixed(0);
-            // Daemon sync
-            else
-                var progressLevel = (100*(currentBlock/targetBlock)).toFixed(0);
+            var remaining = (currentBlock < targetBlock) ? targetBlock - currentBlock : 0
+            var progressLevel = (blocksToSync > 0 && blocksToSync != remaining) ? (100*(blocksToSync - remaining)/blocksToSync).toFixed(0) : 100*(currentBlock / targetBlock).toFixed(0)
             fillLevel = progressLevel
-            progressText.text = qsTr("Blocks remaining: %1").arg(remaining.toFixed(0));
-            progressBar.visible = currentBlock < targetBlock
+            if(typeof statusTxt != "undefined" && statusTxt != "") {
+                progressText.text = statusTxt;
+            } else {
+                progressText.text = syncText + remaining.toFixed(0);
+            }
         }
     }
 
-    Rectangle {
-        id: bar
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        height: 22
-        radius: 2
-        color: "#FFFFFF"
+    Item {
+        anchors.top: item.top
+        anchors.topMargin: 10 * scaleRatio
+        anchors.leftMargin: 15 * scaleRatio
+        anchors.rightMargin: 15 * scaleRatio
+        anchors.fill: parent
 
-        Rectangle {
-            id: fillRect
+        Text {
+            id: progressText
             anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.margins: 2
-            height: bar.height
-            property int maxWidth: parent.width - 4
-            width: (maxWidth * fillLevel) / 100
-            color: {
-               if(item.fillLevel < 99 ) return "#CEAC41"
-               //if(item.fillLevel < 99) return "#FFE00A"
-                return "#36B25C"
-            }
-
+            anchors.topMargin: 6
+            font.family: SuperiorComponents.Style.fontMedium.name
+            font.pixelSize: 13 * scaleRatio
+            font.bold: true
+            color: "white"
+            text: qsTr("Synchronizing %1").arg(syncType)
+            height: 18 * scaleRatio
         }
+
+        Text {
+            id: progressTextValue
+            anchors.top: parent.top
+            anchors.topMargin: 6
+            anchors.right: parent.right
+            font.family: SuperiorComponents.Style.fontMedium.name
+            font.pixelSize: 13 * scaleRatio
+            font.bold: true
+            color: "white"
+            height:18 * scaleRatio
+        }
+
 
         Rectangle {
-            color:"#333"
-            anchors.bottom: parent.bottom
+            id: bar
             anchors.left: parent.left
-            anchors.leftMargin: 8
+            anchors.right: parent.right
+            anchors.top: progressText.bottom
+            anchors.topMargin: 4
+            height: 8 * scaleRatio
+            radius: 8 * scaleRatio
+            color: "#333333" // progressbar bg
 
-            Text {
-                id:progressText
+            Rectangle {
+                id: fillRect
+                anchors.top: parent.top
                 anchors.bottom: parent.bottom
-                font.family: "Arial"
-                font.pixelSize: 12
-                color: "#000"
-                text: qsTr("Synchronizing blocks")
-                height:18
+                anchors.left: parent.left
+                height: bar.height
+                property int maxWidth: bar.width - 4 * scaleRatio
+                width: (maxWidth * fillLevel) / 100
+                radius: 8
+                // could change color based on progressbar status; if(item.fillLevel < 99 )
+                color: "#CDAE3E"
+            }
+
+            Rectangle {
+                color:"#333"
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.leftMargin: 8 * scaleRatio
             }
         }
+
     }
+
+
 
 }

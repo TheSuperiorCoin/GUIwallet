@@ -39,19 +39,28 @@ Window {
     id: root
     modality: Qt.ApplicationModal
     flags: Qt.Window | Qt.FramelessWindowHint
-    property int countDown: 5;
+    property int countDown: 10;
     signal rejected()
     signal started();
 
     function open() {
         show()
-        countDown = 5;
+        countDown = 10;
         timer.start();
     }
 
     // TODO: implement without hardcoding sizes
     width: 480
     height: 200
+
+    // Make window draggable
+    MouseArea {
+        anchors.fill: parent
+        property point lastMousePos: Qt.point(0, 0)
+        onPressed: { lastMousePos = Qt.point(mouseX, mouseY); }
+        onMouseXChanged: root.x += (mouseX - lastMousePos.x)
+        onMouseYChanged: root.y += (mouseY - lastMousePos.y)
+    }
 
     ColumnLayout {
         id: mainLayout
@@ -81,7 +90,7 @@ Window {
             }
 
             Text {
-                text: qsTr("Starting Superior daemon in %1 seconds").arg(countDown);
+                text: qsTr("Starting local node in %1 seconds").arg(countDown);
                 font.pixelSize: 18
                 Layout.alignment: Qt.AlignHCenter
                 Layout.fillWidth: true

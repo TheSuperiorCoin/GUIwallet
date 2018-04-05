@@ -1,4 +1,4 @@
-// Copyright (c) 2017, The Superior Project
+// Copyright (c) 2017-2018, The X Project
 // 
 // All rights reserved.
 // 
@@ -28,7 +28,7 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 1.4
-import SuperiorComponents.Wallet 1.0
+import superiorComponents.Wallet 1.0
 
 Item {
     id: item
@@ -75,6 +75,7 @@ Item {
     }
 
     function show(message) {
+        item.visible = true
         item.message = message
         item.active = true
         hider.running = true

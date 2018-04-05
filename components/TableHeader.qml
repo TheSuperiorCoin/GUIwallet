@@ -1,4 +1,31 @@
-// Copyright (c) 2017-2020, The Superior Project// // All rights reserved.// // Redistribution and use in source and binary forms, with or without modification, are// permitted provided that the following conditions are met:// // 1. Redistributions of source code must retain the above copyright notice, this list of//    conditions and the following disclaimer.// // 2. Redistributions in binary form must reproduce the above copyright notice, this list//    of conditions and the following disclaimer in the documentation and/or other//    materials provided with the distribution.// // 3. Neither the name of the copyright holder nor the names of its contributors may be//    used to endorse or promote products derived from this software without specific//    prior written permission.// // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.//// Parts of this file are originally copyright (c) 2014-2015 The Monero Project
+// Copyright (c) 2014-2018, The X Project
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without modification, are
+// permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice, this list of
+//    conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list
+//    of conditions and the following disclaimer in the documentation and/or other
+//    materials provided with the distribution.
+// 
+// 3. Neither the name of the copyright holder nor the names of its contributors may be
+//    used to endorse or promote products derived from this software without specific
+//    prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import QtQuick 2.0
 
 Rectangle {
@@ -9,26 +36,40 @@ Rectangle {
     property int offset: 0
 
     height: 31
-    color: "#FFFFFF"
+    color: "transparent"
+
+    Rectangle{
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        width: 1
+        color: "#808080"
+    }
+
+    Rectangle{
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        width: 1
+        color: "#808080"
+    }
 
     Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         height: 1
-        color: "#DBDBDB"
+        color: "#808080"
     }
 
     Row {
         id: row
-        anchors.horizontalCenter: header.offset !== 0 ? undefined: parent.horizontalCenter
-        anchors.left: header.offset !== 0 ? parent.left : undefined
-        anchors.leftMargin: header.offset
+        anchors.horizontalCenter: parent.horizontalCenter
 
         Rectangle {
             height: 31
             width: 1
-            color: "#DBDBDB"
+            color: "#808080"
         }
 
         Repeater {
@@ -43,6 +84,7 @@ Rectangle {
             delegate: Rectangle {
                 id: delegate
                 property bool desc: false
+                color: "transparent"
                 height: 31
                 width: columnWidth
 
@@ -58,8 +100,8 @@ Rectangle {
                     font.pixelSize: 14
                     color: {
                         if(delegateArea.pressed)
-                            return "#bf9b30"
-                        return index === header.activeSortColumn || delegateArea.containsMouse ? "#CEAC41" : "#4A4949"
+                            return "#BF9B30"
+                        return index === header.activeSortColumn || delegateArea.containsMouse ? "white" : "#808080"
                     }
                     text: qsTr(columnName) + translationManager.emptyString
                 }
@@ -68,6 +110,7 @@ Rectangle {
                     id: delegateArea
                     hoverEnabled: true
                     anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         delegate.desc = !delegate.desc
                         header.activeSortColumn = index
@@ -143,7 +186,7 @@ Rectangle {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     height: 1
-                    color: index === header.activeSortColumn ? "#FFFFFF" : "#DBDBDB"
+                    color: "transparent"
                 }
 
                 Rectangle {
@@ -151,7 +194,7 @@ Rectangle {
                     anchors.bottom: parent.bottom
                     anchors.right: parent.right
                     width: 1
-                    color: "#DBDBDB"
+                    color: "#808080"
                 }
             }
         }

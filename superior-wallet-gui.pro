@@ -2,11 +2,16 @@ TEMPLATE = app
 
 QT += qml quick widgets
 
-WALLET_ROOT=$$PWD/Superior
+WALLET_ROOT=$$PWD/TheSuperiorCoin
 
-CONFIG += c++11
+CONFIG += c++11 link_pkgconfig
+packagesExist(libpcsclite) {
+    PKGCONFIG += libpcsclite
+}
+QMAKE_CXXFLAGS += -fPIC -fstack-protector
+QMAKE_LFLAGS += -fstack-protector
 
-# cleaning "auto-generated" bitSuperior directory on "make distclean"
+# cleaning "auto-generated" bitsuperior directory on "make distclean"
 QMAKE_DISTCLEAN += -r $$WALLET_ROOT
 
 INCLUDEPATH +=  $$WALLET_ROOT/include \
@@ -26,6 +31,7 @@ HEADERS += \
     src/libwalletqt/TransactionInfo.h \
     src/libwalletqt/QRCodeImageProvider.h \
     src/libwalletqt/Transfer.h \
+    src/NetworkType.h \
     oshelper.h \
     TranslationManager.h \
     src/model/TransactionHistoryModel.h \
@@ -35,6 +41,8 @@ HEADERS += \
     src/QR-Code-generator/QrSegment.hpp \
     src/model/AddressBookModel.h \
     src/libwalletqt/AddressBook.h \
+    src/model/SubaddressModel.h \
+    src/libwalletqt/Subaddress.h \
     src/zxcvbn-c/zxcvbn.h \
     src/libwalletqt/UnsignedTransaction.h \
     MainApp.h
@@ -58,9 +66,17 @@ SOURCES += main.cpp \
     src/QR-Code-generator/QrSegment.cpp \
     src/model/AddressBookModel.cpp \
     src/libwalletqt/AddressBook.cpp \
+    src/model/SubaddressModel.cpp \
+    src/libwalletqt/Subaddress.cpp \
     src/zxcvbn-c/zxcvbn.c \
     src/libwalletqt/UnsignedTransaction.cpp \
     MainApp.cpp
+
+CONFIG(DISABLE_PASS_STRENGTH_METER) {
+    HEADERS -= src/zxcvbn-c/zxcvbn.h
+    SOURCES -= src/zxcvbn-c/zxcvbn.c
+    DEFINES += "DISABLE_PASS_STRENGTH_METER"
+}
 
 !ios {
     HEADERS += src/daemon/DaemonManager.h
@@ -79,19 +95,36 @@ SOURCES = *.qml \
 ios:armv7 {
     message("target is armv7")
     LIBS += \
-        -L$$PWD/ofxiOSBoost/build/libs/boost/lib/armv7 \
+        -L$$PWD/../ofxiOSBoost/build/libs/boost/lib/armv7 \
 }
 ios:arm64 {
     message("target is arm64")
     LIBS += \
-        -L$$PWD/ofxiOSBoost/build/libs/boost/lib/arm64 \
+        -L$$PWD/../ofxiOSBoost/build/libs/boost/lib/arm64 \
 }
-!ios {
+!ios:!android {
 LIBS += -L$$WALLET_ROOT/lib \
         -lwallet_merged \
+        -llmdb \
         -lepee \
-        -lunbound
+        -lunbound \
+        -leasylogging \
 }
+
+android {
+    message("Host is Android")
+    LIBS += -L$$WALLET_ROOT/lib \
+        -lwallet_merged \
+        -llmdb \
+        -lepee \
+        -lunbound \
+        -leasylogging
+}
+
+
+
+QMAKE_CXXFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=1 -Wformat -Wformat-security -fstack-protector -fstack-protector-strong
+QMAKE_CFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=1 -Wformat -Wformat-security -fstack-protector -fstack-protector-strong
 
 ios {
     message("Host is IOS")
@@ -101,11 +134,14 @@ ios {
     CONFIG += arm64
     LIBS += -L$$WALLET_ROOT/lib-ios \
         -lwallet_merged \
+        -llmdb \
         -lepee \
-        -lunbound
+        -lunbound \
+        -leasylogging
 
     LIBS+= \
-        -L$$PWD/OpenSSL-for-iPhone/lib \
+        -L$$PWD/../OpenSSL-for-iPhone/lib \
+        -L$$PWD/../ofxiOSBoost/build/libs/boost/lib/arm64 \
         -lboost_serialization \
         -lboost_thread \
         -lboost_system \
@@ -184,14 +220,21 @@ win32 {
     
     LIBS+= \
         -Wl,-Bstatic \
-        -lboost_serialization-mt-s \
-        -lboost_thread-mt-s \
-        -lboost_system-mt-s \
-        -lboost_date_time-mt-s \
-        -lboost_filesystem-mt-s \
-        -lboost_regex-mt-s \
-        -lboost_chrono-mt-s \
-        -lboost_program_options-mt-s \
+        -lboost_serialization-mt \
+        -lboost_thread-mt \
+        -lboost_system-mt \
+        -lboost_date_time-mt \
+        -lboost_filesystem-mt \
+        -lboost_regex-mt \
+        -lboost_chrono-mt \
+        -lboost_program_options-mt \
+        -lboost_locale-mt \
+        -licuio \
+        -licuin \
+        -licuuc \
+        -licudt \
+        -licutu \
+        -liconv \
         -lssl \
         -lcrypto \
         -Wl,-Bdynamic \
@@ -210,6 +253,7 @@ win32 {
         message("Target is 64bit")
     }
 
+    QMAKE_LFLAGS += -Wl,--dynamicbase -Wl,--nxcompat
 }
 
 linux {
@@ -235,6 +279,7 @@ linux {
         -lboost_chrono \
         -lboost_program_options \
         -lssl \
+        -llmdb \
         -lcrypto
 
     if(!android) {
@@ -242,7 +287,7 @@ linux {
             -Wl,-Bdynamic \
             -lGL
     }
-    # currently Superior has an issue with "static" build and linunwind-dev,
+    # currently superior has an issue with "static" build and linunwind-dev,
     # so we link libunwind-dev only for non-Ubuntu distros
     CONFIG(libunwind_off) {
         message(Building without libunwind)
@@ -250,6 +295,8 @@ linux {
         message(Building with libunwind)
         LIBS += -Wl,-Bdynamic -lunwind
     }
+
+    QMAKE_LFLAGS += -pie -Wl,-z,relro -Wl,-z,now -Wl,-z,noexecstack
 }
 
 macx {
@@ -273,29 +320,45 @@ macx {
         -lssl \
         -lcrypto \
         -ldl
+    LIBS+= -framework PCSC
 
+    QMAKE_LFLAGS += -pie
 }
 
 
 # translation stuff
 TRANSLATIONS =  \ # English is default language, no explicit translation file
-                $$PWD/translations/Superior-core_ar.ts \ # Arabic
-                $$PWD/translations/Superior-core_pt-br.ts \ # Portuguese (Brazil)
-                $$PWD/translations/Superior-core_de.ts \ # German
-                $$PWD/translations/Superior-core_eo.ts \ # Esperanto
-                $$PWD/translations/Superior-core_es.ts \ # Spanish
-                $$PWD/translations/Superior-core_fi.ts \ # Finnish
-                $$PWD/translations/Superior-core_fr.ts \ # French
-                $$PWD/translations/Superior-core_hr.ts \ # Croatian
-                $$PWD/translations/Superior-core_id.ts \ # Indonesian
-                $$PWD/translations/Superior-core_hi.ts \ # Hindi
-                $$PWD/translations/Superior-core_it.ts \ # Italian
-                $$PWD/translations/Superior-core_ja.ts \ # Japanese
-                $$PWD/translations/Superior-core_nl.ts \ # Dutch
-                $$PWD/translations/Superior-core_pl.ts \ # Polish
-                $$PWD/translations/Superior-core_ru.ts \ # Russian
-                $$PWD/translations/Superior-core_zh-cn.ts \ # Chinese (Simplified-China)
-                $$PWD/translations/Superior-core_zh-tw.ts \ # Chinese (Traditional-Taiwan)
+                $$PWD/translations/superior-core.ts \ # translation source (copy this file when creating a new translation)
+                $$PWD/translations/superior-core_ar.ts \ # Arabic
+                $$PWD/translations/superior-core_pt-br.ts \ # Portuguese (Brazil)
+                $$PWD/translations/superior-core_de.ts \ # German
+                $$PWD/translations/superior-core_eo.ts \ # Esperanto
+                $$PWD/translations/superior-core_es.ts \ # Spanish
+                $$PWD/translations/superior-core_fi.ts \ # Finnish
+                $$PWD/translations/superior-core_fr.ts \ # French
+                $$PWD/translations/superior-core_hr.ts \ # Croatian
+                $$PWD/translations/superior-core_id.ts \ # Indonesian
+                $$PWD/translations/superior-core_hi.ts \ # Hindi
+                $$PWD/translations/superior-core_it.ts \ # Italian
+                $$PWD/translations/superior-core_ja.ts \ # Japanese
+                $$PWD/translations/superior-core_nl.ts \ # Dutch
+                $$PWD/translations/superior-core_pl.ts \ # Polish
+                $$PWD/translations/superior-core_ru.ts \ # Russian
+                $$PWD/translations/superior-core_sv.ts \ # Swedish
+                $$PWD/translations/superior-core_zh-cn.ts \ # Chinese (Simplified-China)
+                $$PWD/translations/superior-core_zh-tw.ts \ # Chinese (Traditional-Taiwan)
+                $$PWD/translations/superior-core_he.ts \ # Hebrew
+                $$PWD/translations/superior-core_ko.ts \ # Korean
+                $$PWD/translations/superior-core_ro.ts \ # Romanian
+                $$PWD/translations/superior-core_da.ts \ # Danish
+                $$PWD/translations/superior-core_cs.ts \ # Czech
+                $$PWD/translations/superior-core_sk.ts \ # Slovak
+                $$PWD/translations/superior-core_sl.ts \ # Slovenian
+                $$PWD/translations/superior-core_rs.ts \ # Serbian
+                $$PWD/translations/superior-core_cat.ts \ # Catalan
+                $$PWD/translations/superior-core_tr.ts \ # Turkish
+                $$PWD/translations/superior-core_ua.ts \ # Ukrainian
+                $$PWD/translations/superior-core_pt-pt.ts \ # Portuguese (Portugal)
 
 CONFIG(release, debug|release) {
     DESTDIR = release/bin
@@ -357,6 +420,7 @@ macx {
 PRE_TARGETDEPS += langupd compiler_langrel_make_all
 
 RESOURCES += qml.qrc
+CONFIG += qtquickcompiler
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -380,7 +444,7 @@ linux:!android {
 }
 
 android{
-    deploy.commands += make install INSTALL_ROOT=$$DESTDIR && androiddeployqt --input android-libSuperior-wallet-gui.so-deployment-settings.json --output $$DESTDIR --deployment bundled --android-platform android-21 --jdk /usr/lib/jvm/java-8-openjdk-amd64 -qmldir=$$PWD
+    deploy.commands += make install INSTALL_ROOT=$$DESTDIR && androiddeployqt --input android-libsuperior-wallet-gui.so-deployment-settings.json --output $$DESTDIR --deployment bundled --android-platform android-21 --jdk /usr/lib/jvm/java-8-openjdk-amd64 -qmldir=$$PWD
 }
 
 
@@ -390,11 +454,12 @@ OTHER_FILES += \
 
 DISTFILES += \
     notes.txt \
-    Superior/src/wallet/CMakeLists.txt
+    TheSuperiorCoin/src/wallet/CMakeLists.txt \
+    components/MobileHeader.qml
 
 
 # windows application icon
-RC_FILE = Superior-core.rc
+RC_FILE = superior-core.rc
 
 # mac application icon
 ICON = $$PWD/images/appicon.icns

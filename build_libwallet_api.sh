@@ -1,8 +1,8 @@
 #!/bin/bash
 
 
-# Superior_URL=https://github.com/TheSuperiorCoin/GUIwallet.git
-# Superior_BRANCH=master
+# SUPERIOR_URL=https://github.com/TheSuperiorCoin/TheSuperiorCoin.git
+# SUPERIOR_BRANCH=master
 CPU_CORE_COUNT=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || sysctl -n hw.ncpu)
 pushd $(pwd)
 ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -11,16 +11,16 @@ source $ROOT_DIR/utils.sh
 
 
 INSTALL_DIR=$ROOT_DIR/wallet
-Superior_DIR=$ROOT_DIR/Superior
+SUPERIOR_DIR=$ROOT_DIR/TheSuperiorCoin
 
 
-mkdir -p $Superior_DIR/build/release
-pushd $Superior_DIR/build/release
+mkdir -p $SUPERIOR_DIR/build/release
+pushd $SUPERIOR_DIR/build/release
 
 # reusing function from "utils.sh"
 platform=$(get_platform)
 
-pushd $Superior_DIR/build/release/src/wallet
+pushd $SUPERIOR_DIR/build/release/src/wallet
 make -j$CPU_CORE_COUNT
 make install -j$CPU_CORE_COUNT
 popd
@@ -31,7 +31,7 @@ popd
 
 if [ "$platform" != "linux" ]; then
     echo "Building libunbound..."
-    pushd $Superior_DIR/build/release/external/unbound
+    pushd $SUPERIOR_DIR/build/release/external/unbound
     # no need to make, it was already built as dependency for libwallet
     # make -j$CPU_CORE_COUNT
     make install -j$CPU_CORE_COUNT

@@ -1,29 +1,48 @@
-// Copyright (c) 2017-2020, The Superior Project// // All rights reserved.// // Redistribution and use in source and binary forms, with or without modification, are// permitted provided that the following conditions are met:// // 1. Redistributions of source code must retain the above copyright notice, this list of//    conditions and the following disclaimer.// // 2. Redistributions in binary form must reproduce the above copyright notice, this list//    of conditions and the following disclaimer in the documentation and/or other//    materials provided with the distribution.// // 3. Neither the name of the copyright holder nor the names of its contributors may be//    used to endorse or promote products derived from this software without specific//    prior written permission.// // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.//// Parts of this file are originally copyright (c) 2014-2015 The Monero Project
+// Copyright (c) 2014-2018, The X Project
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without modification, are
+// permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice, this list of
+//    conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list
+//    of conditions and the following disclaimer in the documentation and/or other
+//    materials provided with the distribution.
+// 
+// 3. Neither the name of the copyright holder nor the names of its contributors may be
+//    used to endorse or promote products derived from this software without specific
+//    prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import QtQuick 2.0
-import SuperiorComponents.Wallet 1.0
+import QtQuick.Layouts 1.1
 
-Row {
+import superiorComponents.Wallet 1.0
+import "../components" as SuperiorComponents
+
+Rectangle {
     id: item
+    color: "transparent"
     property var connected: Wallet.ConnectionStatus_Disconnected
-
-    function getConnectionStatusImage(status) {
-        if (status == Wallet.ConnectionStatus_Connected)
-            return "../images/statusConnected.png"
-        else
-            return "../images/statusDisconnected.png"
-    }
-
-    function getConnectionStatusColor(status) {
-        if (status == Wallet.ConnectionStatus_Connected)
-            return "#5777c1"
-        else
-            return "#AAAAAA"
-    }
 
     function getConnectionStatusString(status) {
         if (status == Wallet.ConnectionStatus_Connected) {
             if(!appWindow.daemonSynced)
                 return qsTr("Synchronizing")
+            if(appWindow.remoteNodeConnected)
+                return qsTr("Remote node")
             return qsTr("Connected")
         }
         if (status == Wallet.ConnectionStatus_WrongVersion)
@@ -33,37 +52,68 @@ Row {
         return qsTr("Invalid connection status")
     }
 
-    Item {
-        id: iconItem
-        anchors.bottom: parent.bottom
-        width: 50
-        height: 50
+    RowLayout {
+        Layout.preferredHeight: 40 * scaleRatio
 
-        Image {
-            anchors.centerIn: parent
-            source: getConnectionStatusImage(item.connected)
+        Item {
+            id: iconItem
+            anchors.top: parent.top
+            width: 40 * scaleRatio
+            height: 40 * scaleRatio
+            opacity: {
+                if(item.connected == Wallet.ConnectionStatus_Connected){
+                    return 1
+                } else {
+                    return 0.5
+                }
+            }
+
+            Image {
+                anchors.top: parent.top
+                anchors.topMargin: 6
+                anchors.right: parent.right
+                anchors.rightMargin: 11
+                source: {
+                    if(item.connected == Wallet.ConnectionStatus_Connected){
+                        return "../images/lightning.png"
+                    } else {
+                        return "../images/lightning-white.png"
+                    }
+                }
+            }
+        }
+
+        Item {
+            anchors.top: parent.top
+            anchors.left: iconItem.right
+            height: 40 * scaleRatio
+            width: 260 * scaleRatio
+
+            Text {
+                id: statusText
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.topMargin: 0
+                font.family: SuperiorComponents.Style.fontMedium.name
+                font.bold: true
+                font.pixelSize: 13 * scaleRatio
+                color: "white"
+                opacity: 0.5
+                text: qsTr("Network status") + translationManager.emptyString
+            }
+
+            Text {
+                id: statusTextVal
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.topMargin: 14
+                font.family: SuperiorComponents.Style.fontMedium.name
+                font.pixelSize: 20 * scaleRatio
+                color: "white"
+                text: getConnectionStatusString(item.connected) + translationManager.emptyString
+            }
         }
     }
 
-    Column {
-        anchors.bottom: parent.bottom
-        height: 53
-        spacing: 3
 
-        Text {
-            anchors.left: parent.left
-            font.family: "Arial"
-            font.pixelSize: 12
-            color: "#545454"
-            text: qsTr("Network status") + translationManager.emptyString
-        }
-
-        Text {
-            anchors.left: parent.left
-            font.family: "Arial"
-            font.pixelSize: 18
-            color: getConnectionStatusColor(item.connected)
-            text: getConnectionStatusString(item.connected) + translationManager.emptyString
-        }
-    }
 }

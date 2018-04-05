@@ -1,4 +1,31 @@
-// Copyright (c) 2017-2020, The Superior Project// // All rights reserved.// // Redistribution and use in source and binary forms, with or without modification, are// permitted provided that the following conditions are met:// // 1. Redistributions of source code must retain the above copyright notice, this list of//    conditions and the following disclaimer.// // 2. Redistributions in binary form must reproduce the above copyright notice, this list//    of conditions and the following disclaimer in the documentation and/or other//    materials provided with the distribution.// // 3. Neither the name of the copyright holder nor the names of its contributors may be//    used to endorse or promote products derived from this software without specific//    prior written permission.// // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.//// Parts of this file are originally copyright (c) 2014-2015 The Monero Project
+// Copyright (c) 2014-2018, The X Project
+//
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without modification, are
+// permitted provided that the following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice, this list of
+//    conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list
+//    of conditions and the following disclaimer in the documentation and/or other
+//    materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its contributors may be
+//    used to endorse or promote products derived from this software without specific
+//    prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #include <QApplication>
 #include <QSplashScreen>
 #include <QTimer>
@@ -6,8 +33,11 @@
 #include <QQmlApplicationEngine>
 #include <QtQml>
 #include <QStandardPaths>
+#include <QIcon>
 #include <QDebug>
 #include <QObject>
+#include <QDesktopWidget>
+#include <QScreen>
 #include "clipboardAdapter.h"
 #include "filter.h"
 #include "oscursor.h"
@@ -24,7 +54,9 @@
 #include "model/TransactionHistorySortFilterModel.h"
 #include "AddressBook.h"
 #include "model/AddressBookModel.h"
-#include "wallet/wallet2_api.h"
+#include "Subaddress.h"
+#include "model/SubaddressModel.h"
+#include "wallet/api/wallet2_api.h"
 #include "MainApp.h"
 
 // IOS exclusions
@@ -36,17 +68,15 @@
 #include "QrCodeScanner.h"
 #endif
 
-
-
 void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     // Send all message types to logger
-    Superior::Wallet::debug(msg.toStdString());
+    Superior::Wallet::debug("qml", msg.toStdString());
 }
 
 int main(int argc, char *argv[])
 {
-
+    Superior::Utils::onStartup();
     // Enable high DPI scaling on windows & linux
 #if !defined(Q_OS_ANDROID) && QT_VERSION >= 0x050600
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -54,7 +84,7 @@ int main(int argc, char *argv[])
 #endif
 
     // Log settings
-    Superior::Wallet::init(argv[0], "Superior-wallet-gui");
+    Superior::Wallet::init(argv[0], "superior-wallet-gui");
     qInstallMessageHandler(messageHandler);
 
     MainApp app(argc, argv);
@@ -82,60 +112,73 @@ int main(int argc, char *argv[])
 
     qDebug() << "app startd";
 
-    app.setApplicationName("Superior-core");
-    app.setOrganizationDomain("getSuperior.org");
-    app.setOrganizationName("Superior-project");
+    app.setApplicationName("TheSuperiorCoin");
+    app.setOrganizationDomain("superior-coin.com");
+    app.setOrganizationName("TheSuperiorCoin");
+
+    #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+    app.setWindowIcon(QIcon(":/images/appicon.ico"));
+    #endif
 
     filter *eventFilter = new filter;
     app.installEventFilter(eventFilter);
 
     // registering types for QML
-    qmlRegisterType<clipboardAdapter>("SuperiorComponents.Clipboard", 1, 0, "Clipboard");
+    qmlRegisterType<clipboardAdapter>("superiorComponents.Clipboard", 1, 0, "Clipboard");
 
-    qmlRegisterUncreatableType<Wallet>("SuperiorComponents.Wallet", 1, 0, "Wallet", "Wallet can't be instantiated directly");
+    qmlRegisterUncreatableType<Wallet>("superiorComponents.Wallet", 1, 0, "Wallet", "Wallet can't be instantiated directly");
 
 
-    qmlRegisterUncreatableType<PendingTransaction>("SuperiorComponents.PendingTransaction", 1, 0, "PendingTransaction",
+    qmlRegisterUncreatableType<PendingTransaction>("superiorComponents.PendingTransaction", 1, 0, "PendingTransaction",
                                                    "PendingTransaction can't be instantiated directly");
 
-    qmlRegisterUncreatableType<UnsignedTransaction>("SuperiorComponents.UnsignedTransaction", 1, 0, "UnsignedTransaction",
+    qmlRegisterUncreatableType<UnsignedTransaction>("superiorComponents.UnsignedTransaction", 1, 0, "UnsignedTransaction",
                                                    "UnsignedTransaction can't be instantiated directly");
 
-    qmlRegisterUncreatableType<WalletManager>("SuperiorComponents.WalletManager", 1, 0, "WalletManager",
+    qmlRegisterUncreatableType<WalletManager>("superiorComponents.WalletManager", 1, 0, "WalletManager",
                                                    "WalletManager can't be instantiated directly");
 
-    qmlRegisterUncreatableType<TranslationManager>("SuperiorComponents.TranslationManager", 1, 0, "TranslationManager",
+    qmlRegisterUncreatableType<TranslationManager>("superiorComponents.TranslationManager", 1, 0, "TranslationManager",
                                                    "TranslationManager can't be instantiated directly");
 
 
 
-    qmlRegisterUncreatableType<TransactionHistoryModel>("SuperiorComponents.TransactionHistoryModel", 1, 0, "TransactionHistoryModel",
+    qmlRegisterUncreatableType<TransactionHistoryModel>("superiorComponents.TransactionHistoryModel", 1, 0, "TransactionHistoryModel",
                                                         "TransactionHistoryModel can't be instantiated directly");
 
-    qmlRegisterUncreatableType<TransactionHistorySortFilterModel>("SuperiorComponents.TransactionHistorySortFilterModel", 1, 0, "TransactionHistorySortFilterModel",
+    qmlRegisterUncreatableType<TransactionHistorySortFilterModel>("superiorComponents.TransactionHistorySortFilterModel", 1, 0, "TransactionHistorySortFilterModel",
                                                         "TransactionHistorySortFilterModel can't be instantiated directly");
 
-    qmlRegisterUncreatableType<TransactionHistory>("SuperiorComponents.TransactionHistory", 1, 0, "TransactionHistory",
+    qmlRegisterUncreatableType<TransactionHistory>("superiorComponents.TransactionHistory", 1, 0, "TransactionHistory",
                                                         "TransactionHistory can't be instantiated directly");
 
-    qmlRegisterUncreatableType<TransactionInfo>("SuperiorComponents.TransactionInfo", 1, 0, "TransactionInfo",
+    qmlRegisterUncreatableType<TransactionInfo>("superiorComponents.TransactionInfo", 1, 0, "TransactionInfo",
                                                         "TransactionHistory can't be instantiated directly");
 #ifndef Q_OS_IOS
-    qmlRegisterUncreatableType<DaemonManager>("SuperiorComponents.DaemonManager", 1, 0, "DaemonManager",
+    qmlRegisterUncreatableType<DaemonManager>("superiorComponents.DaemonManager", 1, 0, "DaemonManager",
                                                    "DaemonManager can't be instantiated directly");
 #endif
-    qmlRegisterUncreatableType<AddressBookModel>("SuperiorComponents.AddressBookModel", 1, 0, "AddressBookModel",
+    qmlRegisterUncreatableType<AddressBookModel>("superiorComponents.AddressBookModel", 1, 0, "AddressBookModel",
                                                         "AddressBookModel can't be instantiated directly");
 
-    qmlRegisterUncreatableType<AddressBook>("SuperiorComponents.AddressBook", 1, 0, "AddressBook",
+    qmlRegisterUncreatableType<AddressBook>("superiorComponents.AddressBook", 1, 0, "AddressBook",
                                                         "AddressBook can't be instantiated directly");
+
+    qmlRegisterUncreatableType<SubaddressModel>("superiorComponents.SubaddressModel", 1, 0, "SubaddressModel",
+                                                        "SubaddressModel can't be instantiated directly");
+
+    qmlRegisterUncreatableType<Subaddress>("superiorComponents.Subaddress", 1, 0, "Subaddress",
+                                                        "Subaddress can't be instantiated directly");
 
     qRegisterMetaType<PendingTransaction::Priority>();
     qRegisterMetaType<TransactionInfo::Direction>();
     qRegisterMetaType<TransactionHistoryModel::TransactionInfoRole>();
 
+    qRegisterMetaType<NetworkType::Type>();
+    qmlRegisterType<NetworkType>("superiorComponents.NetworkType", 1, 0, "NetworkType");
+
 #ifdef WITH_SCANNER
-    qmlRegisterType<QrCodeScanner>("SuperiorComponents.QRCodeScanner", 1, 0, "QRCodeScanner");
+    qmlRegisterType<QrCodeScanner>("superiorComponents.QRCodeScanner", 1, 0, "QRCodeScanner");
 #endif
 
     QQmlApplicationEngine engine;
@@ -160,7 +203,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("daemonManager", daemonManager);
 #endif
 
-//  export to QML Superior accounts root directory
+//  export to QML superior accounts root directory
 //  wizard is talking about where
 //  to save the wallet file (.keys, .bin), they have to be user-accessible for
 //  backups - I reckon we save that in My Documents\Superior Accounts\ on
@@ -168,25 +211,59 @@ int main(int argc, char *argv[])
     bool isWindows = false;
     bool isIOS = false;
     bool isMac = false;
+    bool isAndroid = false;
 #ifdef Q_OS_WIN
     isWindows = true;
-    QStringList SuperiorAccountsRootDir = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+    QStringList superiorAccountsRootDir = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
 #elif defined(Q_OS_IOS)
     isIOS = true;
-    QStringList SuperiorAccountsRootDir = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+    QStringList superiorAccountsRootDir = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
 #elif defined(Q_OS_UNIX)
-    QStringList SuperiorAccountsRootDir = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    QStringList superiorAccountsRootDir = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
 #endif
 #ifdef Q_OS_MAC
     isMac = true;
 #endif
+#ifdef Q_OS_ANDROID
+    isAndroid = true;
+#endif
 
     engine.rootContext()->setContextProperty("isWindows", isWindows);
     engine.rootContext()->setContextProperty("isIOS", isIOS);
+    engine.rootContext()->setContextProperty("isAndroid", isAndroid);
 
-    if (!SuperiorAccountsRootDir.empty()) {
-        QString SuperiorAccountsDir = SuperiorAccountsRootDir.at(0) + "/Superior/wallets";
-        engine.rootContext()->setContextProperty("SuperiorAccountsDir", SuperiorAccountsDir);
+    // screen settings
+    // Mobile is designed on 128dpi
+    qreal ref_dpi = 128;
+    QRect geo = QApplication::desktop()->availableGeometry();
+    QRect rect = QGuiApplication::primaryScreen()->geometry();
+    qreal height = qMax(rect.width(), rect.height());
+    qreal width = qMin(rect.width(), rect.height());
+    qreal dpi = QGuiApplication::primaryScreen()->logicalDotsPerInch();
+    qreal physicalDpi = QGuiApplication::primaryScreen()->physicalDotsPerInch();
+    qreal calculated_ratio = physicalDpi/ref_dpi;
+
+    engine.rootContext()->setContextProperty("screenWidth", geo.width());
+    engine.rootContext()->setContextProperty("screenHeight", geo.height());
+#ifdef Q_OS_ANDROID
+    engine.rootContext()->setContextProperty("scaleRatio", calculated_ratio);
+#else
+    engine.rootContext()->setContextProperty("scaleRatio", 1);
+#endif
+
+    qDebug() << "available width: " << geo.width();
+    qDebug() << "available height: " << geo.height();
+    qDebug() << "devicePixelRatio: " << app.devicePixelRatio();
+    qDebug() << "screen height: " << height;
+    qDebug() << "screen width: " << width;
+    qDebug() << "screen logical dpi: " << dpi;
+    qDebug() << "screen Physical dpi: " << physicalDpi;
+    qDebug() << "screen calculated ratio: " << calculated_ratio;
+
+
+    if (!superiorAccountsRootDir.empty()) {
+        QString superiorAccountsDir = superiorAccountsRootDir.at(0) + "/Superior/wallets";
+        engine.rootContext()->setContextProperty("superiorAccountsDir", superiorAccountsDir);
     }
 
 
@@ -196,7 +273,7 @@ int main(int argc, char *argv[])
         accountName = qgetenv("USERNAME"); // Windows
     }
     if (accountName.isEmpty()) {
-        accountName = "My Superior Account";
+        accountName = "My superior Account";
     }
 
     engine.rootContext()->setContextProperty("defaultAccountName", accountName);
@@ -210,7 +287,17 @@ int main(int argc, char *argv[])
 
     // Load main window (context properties needs to be defined obove this line)
     engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
+    if (engine.rootObjects().isEmpty())
+    {
+        qCritical() << "Error: no root objects";
+        return 1;
+    }
     QObject *rootObject = engine.rootObjects().first();
+    if (!rootObject)
+    {
+        qCritical() << "Error: no root objects";
+        return 1;
+    }
 
 #ifdef WITH_SCANNER
     QObject *qmlCamera = rootObject->findChild<QObject*>("qrCameraQML");

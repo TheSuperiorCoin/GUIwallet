@@ -1,17 +1,21 @@
-// Copyright (c) 2017-2020, The Superior Project//
-// All rights reserved.// // Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met://
+// Copyright (c) 2014-2018, The X Project
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without modification, are
+// permitted provided that the following conditions are met:
+// 
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-//
+// 
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-//
+// 
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -21,8 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Parts of this file are originally copyright (c) 2014-2015 The Monero Project
 
 import QtQuick 2.0
 import QtQuick.Controls 1.4
@@ -33,60 +35,64 @@ import "../version.js" as Version
 
 
 import "../components"
-import SuperiorComponents.Clipboard 1.0
+import superiorComponents.Clipboard 1.0
 
 Rectangle {
-    property var daemonAddress
     property bool viewOnly: false
+    id: page
 
-    color: "#F0EEEE"
+    color: "transparent"
+
+    // fires on every page load
+    function onPageCompleted() {
+        console.log("Settings page loaded");
+
+        if(typeof daemonManager != "undefined"){
+            appWindow.daemonRunning =  daemonManager.running(persistentSettings.testnet);
+        }
+
+        logLevelDropdown.update()
+    }
 
     Clipboard { id: clipboard }
 
-    function initSettings() {
-        //runs on every page load
-
-        // Daemon settings
-        daemonAddress = persistentSettings.daemon_address.split(":");
-        console.log("address: " + persistentSettings.daemon_address)
-        // try connecting to daemon
-    }
-
-
     ColumnLayout {
         id: mainLayout
-        anchors.margins: 40
+        anchors.margins: (isMobile)? 17 : 40
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.right: parent.right
-        spacing: 10
+        spacing: 26 * scaleRatio
 
         //! Manage wallet
         RowLayout {
+            Layout.fillWidth: true
             Label {
                 id: manageWalletLabel
+                fontSize: 22 * scaleRatio
                 Layout.fillWidth: true
-                color: "#4A4949"
                 text: qsTr("Manage wallet") + translationManager.emptyString
-                fontSize: 16
-                Layout.topMargin: 10
+                Layout.topMargin: 10 * scaleRatio
+            }
+
+            Rectangle {
+                anchors.top: manageWalletLabel.bottom
+                anchors.topMargin: 4
+                anchors.left: parent.left
+                anchors.right: parent.right
+                Layout.fillWidth: true
+                height: 2
+                color: Style.dividerColor
+                opacity: Style.dividerOpacity
             }
         }
 
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: "#DEDEDE"
-        }
-
-        RowLayout {
+        GridLayout {
+            columns: (isMobile)? 1 : 4
             StandardButton {
                 id: closeWalletButton
+                small: true
                 text: qsTr("Close wallet") + translationManager.emptyString
-                shadowReleasedColor: "#bf9b30"
-                shadowPressedColor: "#B32D00"
-                releasedColor: "#CEAC41"
-                pressedColor: "#bf9b30"
                 visible: true
                 onClicked: {
                     console.log("closing wallet button clicked")
@@ -95,264 +101,492 @@ Rectangle {
             }
 
             StandardButton {
-                enabled: !viewOnly
                 id: createViewOnlyWalletButton
+                enabled: !viewOnly
+                small: true
                 text: qsTr("Create view only wallet") + translationManager.emptyString
-                shadowReleasedColor: "#bf9b30"
-                shadowPressedColor: "#B32D00"
-                releasedColor: "#CEAC41"
-                pressedColor: "#bf9b30"
                 visible: true
                 onClicked: {
                     wizard.openCreateViewOnlyWalletPage();
                 }
             }
 
+/*          Rescan cache - Disabled until we know it's needed
+
             StandardButton {
-                id: showSeedButton
-                shadowReleasedColor: "#bf9b30"
+                id: rescanWalletbutton
+                shadowReleasedColor: "#BF9B30"
                 shadowPressedColor: "#B32D00"
                 releasedColor: "#CEAC41"
-                pressedColor: "#bf9b30"
-                text: qsTr("Show seed") + translationManager.emptyString
+                pressedColor: "#BF9B30"
+                text: qsTr("Rescan wallet cache") + translationManager.emptyString
                 onClicked: {
-                    settingsPasswordDialog.open();
+                    // Show confirmation dialog
+                    confirmationDialog.title = qsTr("Rescan wallet cache") + translationManager.emptyString;
+                    confirmationDialog.text  = qsTr("Are you sure you want to rebuild the wallet cache?\n"
+                                                    + "The following information will be deleted\n"
+                                                    + "- Recipient addresses\n"
+                                                    + "- Tx keys\n"
+                                                    + "- Tx descriptions\n\n"
+                                                    + "The old wallet cache file will be renamed and can be restored later.\n"
+                                                    );
+                    confirmationDialog.icon = StandardIcon.Question
+                    confirmationDialog.cancelText = qsTr("Cancel")
+                    confirmationDialog.onAcceptedCallback = function() {
+                        walletManager.closeWallet();
+                        walletManager.clearWalletCache(persistentSettings.wallet_path);
+                        walletManager.openWalletAsync(persistentSettings.wallet_path, appWindow.walletPassword,
+                                                          persistentSettings.nettype);
+                    }
+
+                    confirmationDialog.onRejectedCallback = null;
+
+                    confirmationDialog.open()
+
+                }
+            }
+*/
+            StandardButton {
+                id: rescanSpentButton
+                small: true
+                enabled: !persistentSettings.useRemoteNode
+                text: qsTr("Rescan wallet balance") + translationManager.emptyString
+                onClicked: {
+                    if (!currentWallet.rescanSpent()) {
+                        console.error("Error: ", currentWallet.errorString);
+                        informationPopup.title = qsTr("Error") + translationManager.emptyString;
+                        informationPopup.text  = qsTr("Error: ") + currentWallet.errorString
+                        informationPopup.icon  = StandardIcon.Critical
+                        informationPopup.onCloseCallback = null
+                        informationPopup.open();
+                    } else {
+                        informationPopup.title = qsTr("Information") + translationManager.emptyString
+                        informationPopup.text  = qsTr("Successfully rescanned spent outputs.") + translationManager.emptyString
+                        informationPopup.icon  = StandardIcon.Information
+                        informationPopup.onCloseCallback = null
+                        informationPopup.open();
+                    }
+                }
+            }
+        }
+
+        RowLayout{
+            Layout.fillWidth: true
+
+            StandardButton {
+                id: changePasswordButton
+                small: true
+                text: qsTr("Change password") + translationManager.emptyString
+                onClicked: {
+                    passwordDialog.onAcceptedCallback = function() {
+                        if(appWindow.walletPassword === passwordDialog.password){
+                            newPasswordDialog.open()
+                        } else {
+                            informationPopup.title  = qsTr("Error") + translationManager.emptyString;
+                            informationPopup.text = qsTr("Wrong password");
+                            informationPopup.open()
+                            informationPopup.onCloseCallback = function() {
+                                changePasswordDialog.open()
+                            }
+                            passwordDialog.open()
+                        }
+                    }
+                    passwordDialog.onRejectedCallback = null;
+                    passwordDialog.open()
+                }
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+
+            LabelSubheader {
+                text: qsTr("Wallet mode") + translationManager.emptyString
+            }
+        }
+
+        RowLayout {
+            StandardButton {
+                id: remoteDisconnect
+                small: true
+                enabled: persistentSettings.useRemoteNode
+                Layout.fillWidth: false
+                text: qsTr("Local Node") + translationManager.emptyString
+                onClicked: {
+                    appWindow.disconnectRemoteNode();
+                }
+            }
+
+            StandardButton {
+                id: remoteConnect
+                small: true
+                enabled: !persistentSettings.useRemoteNode
+                Layout.fillWidth: false
+                text: qsTr("Remote Node") + translationManager.emptyString
+                onClicked: {
+                    appWindow.connectRemoteNode();
+                }
+            }
+        }
+
+        RowLayout {
+            visible: !isMobile && !persistentSettings.useRemoteNode
+            Layout.fillWidth: true
+
+            LabelSubheader {
+                text:  qsTr("Bootstrap node") + translationManager.emptyString
+            }
+        }
+
+        RowLayout {
+            visible: !isMobile && !persistentSettings.useRemoteNode
+
+            ColumnLayout {
+                Layout.fillWidth: true
+
+                RemoteNodeEdit {
+                    id: bootstrapNodeEdit
+                    Layout.minimumWidth: 100 * scaleRatio
+                    Layout.bottomMargin: 20 * scaleRatio
+
+                    lineEditBackgroundColor: "transparent"
+                    lineEditFontColor: "white"
+                    lineEditBorderColor: Qt.rgba(255, 255, 255, 0.35)
+
+                    daemonAddrLabelText: qsTr("Address")
+                    daemonPortLabelText: qsTr("Port")
+                    daemonAddrText: persistentSettings.bootstrapNodeAddress.split(":")[0].trim()
+                    daemonPortText: {
+                        var node_split = persistentSettings.bootstrapNodeAddress.split(":");
+                        if(node_split.length == 2){
+                            (node_split[1].trim() == "") ? "16035" : node_split[1];
+                        } else {
+                            return ""
+                        }
+                    }
+                    onEditingFinished: {
+                        persistentSettings.bootstrapNodeAddress = daemonAddrText ? bootstrapNodeEdit.getAddress() : "";
+                        console.log("setting bootstrap node to " + persistentSettings.bootstrapNodeAddress)
+                    }
+                }
+            }
+        }
+
+        RowLayout {
+            visible: persistentSettings.useRemoteNode
+            ColumnLayout {
+                Layout.fillWidth: true
+
+                RemoteNodeEdit {
+                    id: remoteNodeEdit
+                    Layout.minimumWidth: 100 * scaleRatio
+
+                    lineEditBackgroundColor: "transparent"
+                    lineEditFontColor: "white"
+                    lineEditBorderColor: Qt.rgba(255, 255, 255, 0.35)
+
+                    daemonAddrLabelText: qsTr("Address")
+                    daemonPortLabelText: qsTr("Port")
+
+                    property var rna: persistentSettings.remoteNodeAddress
+                    daemonAddrText: rna.search(":") != -1 ? rna.split(":")[0].trim() : ""
+                    daemonPortText: rna.search(":") != -1 ? (rna.split(":")[1].trim() == "") ? "16035" : rna.split(":")[1] : ""
+                    onEditingFinished: {
+                        persistentSettings.remoteNodeAddress = remoteNodeEdit.getAddress();
+                        console.log("setting remote node to " + persistentSettings.remoteNodeAddress)
+                    }
+                }
+            }
+        }
+
+        RowLayout{
+            visible: persistentSettings.useRemoteNode
+            Layout.fillWidth: true
+
+            StandardButton {
+                id: remoteNodeSave
+                small: true
+                text: qsTr("Connect") + translationManager.emptyString
+                onClicked: {
+                    // Update daemon login
+                    persistentSettings.remoteNodeAddress = remoteNodeEdit.getAddress();
+                    persistentSettings.daemonUsername = daemonUsername.text;
+                    persistentSettings.daemonPassword = daemonPassword.text;
+                    persistentSettings.useRemoteNode = true
+
+                    currentWallet.setDaemonLogin(persistentSettings.daemonUsername, persistentSettings.daemonPassword);
+
+                    appWindow.connectRemoteNode()
                 }
             }
         }
 
         //! Manage daemon
         RowLayout {
+            visible: !isMobile
+
             Label {
                 id: manageDaemonLabel
+                fontSize: 22 * scaleRatio
+                text: qsTr("Manage Daemon") + translationManager.emptyString
+            }
+
+            Rectangle {
+                anchors.top: manageDaemonLabel.bottom
+                anchors.topMargin: 4
+                anchors.left: parent.left
+                anchors.right: parent.right
                 Layout.fillWidth: true
-                color: "#4A4949"
-                text: qsTr("Manage daemon") + translationManager.emptyString
-                fontSize: 16
-                anchors.topMargin: 30
-                Layout.topMargin: 30
+                height: 2
+                color: Style.dividerColor
+                opacity: Style.dividerOpacity
             }
         }
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: "#DEDEDE"
-        }
 
-        RowLayout {
+        GridLayout {
+            visible: !isMobile && !persistentSettings.useRemoteNode
             id: daemonStatusRow
-            Layout.fillWidth: true
-
+            columns: (isMobile) ?  2 : 4
             StandardButton {
-                visible: true
-                enabled: !appWindow.daemonRunning
                 id: startDaemonButton
-                text: qsTr("Start daemon") + translationManager.emptyString
-                shadowReleasedColor: "#bf9b30"
-                shadowPressedColor: "#B32D00"
-                releasedColor: "#CEAC41"
-                pressedColor: "#bf9b30"
+                small: true
+                visible: !appWindow.daemonRunning
+                text: qsTr("Start Local Node") + translationManager.emptyString
                 onClicked: {
-                    appWindow.startDaemon(daemonFlags.text)
+                    // Update bootstrap daemon address
+                    persistentSettings.bootstrapNodeAddress = bootstrapNodeEdit.daemonAddrText ? bootstrapNodeEdit.getAddress() : "";
+
+                    // Set current daemon address to local
+                    appWindow.currentDaemonAddress = appWindow.localDaemonAddress;
+                    appWindow.startDaemon(daemonFlags.text);
                 }
             }
 
             StandardButton {
-                visible: true
-                enabled: appWindow.daemonRunning
                 id: stopDaemonButton
-                text: qsTr("Stop daemon") + translationManager.emptyString
-                shadowReleasedColor: "#bf9b30"
-                shadowPressedColor: "#B32D00"
-                releasedColor: "#CEAC41"
-                pressedColor: "#bf9b30"
+                small: true
+                visible: appWindow.daemonRunning
+                text: qsTr("Stop Local Node") + translationManager.emptyString
                 onClicked: {
                     appWindow.stopDaemon()
                 }
             }
 
             StandardButton {
-                visible: true
                 id: daemonStatusButton
+                small: true
+                visible: true
                 text: qsTr("Show status") + translationManager.emptyString
-                shadowReleasedColor: "#bf9b30"
-                shadowPressedColor: "#B32D00"
-                releasedColor: "#CEAC41"
-                pressedColor: "#bf9b30"
                 onClicked: {
-                    daemonManager.sendCommand("status",currentWallet.testnet);
+                    daemonManager.sendCommand("status",currentWallet.nettype);
                     daemonConsolePopup.open();
                 }
             }
+        }
 
+        ColumnLayout {
+            id: blockchainFolderRow
+            visible: !isMobile && !persistentSettings.useRemoteNode
 
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.bottomMargin: 14 * scaleRatio
 
+                LabelSubheader {
+                    text: qsTr("Blockchain location") + translationManager.emptyString
+                }
+            }
+
+            RowLayout {
+                visible: persistentSettings.blockchainDataDir.length > 0
+
+                LineEdit {
+                    id: blockchainFolder
+                    Layout.preferredWidth: 200
+
+                    Layout.fillWidth: true
+                    text: persistentSettings.blockchainDataDir;
+                    placeholderText: qsTr("(optional)") + translationManager.emptyString
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: 8
+                StandardButton {
+                    id: blockchainFolderButton
+                    small: true
+                    visible: true
+                    text: qsTr("Change location") + translationManager.emptyString
+                    onClicked: {
+                        //mouse.accepted = false
+                        if(persistentSettings.blockchainDataDir != "")
+                            blockchainFileDialog.folder = "file://" + persistentSettings.blockchainDataDir
+                        blockchainFileDialog.open()
+                        blockchainFolder.focus = true
+                    }
+                }
+            }
+        }
+
+        RowLayout{
+            CheckBox {
+                id: daemonAdvanced
+                text: qsTr("Show advanced") + translationManager.emptyString
+            }
         }
 
         RowLayout {
+            visible: daemonAdvanced.checked && !isMobile && !persistentSettings.useRemoteNode
             id: daemonFlagsRow
-            Label {
-                id: daemonFlagsLabel
-                color: "#4A4949"
-                text: qsTr("Daemon startup flags") + translationManager.emptyString
-                fontSize: 16
-            }
+
             LineEdit {
                 id: daemonFlags
                 Layout.preferredWidth:  200
                 Layout.fillWidth: true
+                labelText: qsTr("Local daemon startup flags") + translationManager.emptyString
                 text: appWindow.persistentSettings.daemonFlags;
                 placeholderText: qsTr("(optional)") + translationManager.emptyString
             }
         }
 
-        RowLayout {
-            id: daemonAddrRow
-            Layout.fillWidth: true
-            spacing: 10
+        ColumnLayout {
+            visible: (daemonAdvanced.checked || isMobile) && persistentSettings.useRemoteNode
+            GridLayout {
+                columns: (isMobile) ? 1 : 2
+                columnSpacing: 32
 
-            Label {
-                id: daemonAddrLabel
+                LineEdit {
+                    id: daemonUsername
+                    Layout.fillWidth: true
+                    labelText: "Daemon username"
+                    text: persistentSettings.daemonUsername
+                    placeholderText: qsTr("Username") + translationManager.emptyString
+                }
 
-                Layout.fillWidth: true
-                color: "#4A4949"
-                text: qsTr("Daemon address") + translationManager.emptyString
-                fontSize: 16
-            }
-
-            LineEdit {
-                id: daemonAddr
-                Layout.preferredWidth:  200
-                Layout.fillWidth: true
-                text: (daemonAddress !== undefined) ? daemonAddress[0] : ""
-                placeholderText: qsTr("Hostname / IP") + translationManager.emptyString
-            }
-
-
-            LineEdit {
-                id: daemonPort
-                Layout.preferredWidth: 100
-                Layout.fillWidth: true
-                text: (daemonAddress !== undefined) ? daemonAddress[1] : "16035"
-                placeholderText: qsTr("Port") + translationManager.emptyString
-            }
-        }
-
-        RowLayout {
-
-            Label {
-                id: daemonLoginLabel
-                Layout.fillWidth: true
-                color: "#4A4949"
-                text: qsTr("Login (optional)") + translationManager.emptyString
-                fontSize: 16
-            }
-
-            LineEdit {
-                id: daemonUsername
-                Layout.preferredWidth:  100
-                Layout.fillWidth: true
-                text: persistentSettings.daemonUsername
-                placeholderText: qsTr("Username") + translationManager.emptyString
-            }
-
-
-            LineEdit {
-                id: daemonPassword
-                Layout.preferredWidth: 100
-                Layout.fillWidth: true
-                text: persistentSettings.daemonPassword
-                placeholderText: qsTr("Password") + translationManager.emptyString
-                echoMode: TextInput.Password
-            }
-
-            StandardButton {
-                id: daemonAddrSave
-                Layout.fillWidth: false
-                Layout.leftMargin: 30
-                text: qsTr("Connect") + translationManager.emptyString
-                shadowReleasedColor: "#bf9b30"
-                shadowPressedColor: "#B32D00"
-                releasedColor: "#CEAC41"
-                pressedColor: "#bf9b30"
-                visible: true
-                onClicked: {
-                    console.log("saving daemon adress settings")
-                    var newDaemon = daemonAddr.text.trim() + ":" + daemonPort.text.trim()
-                    if(persistentSettings.daemon_address != newDaemon) {
-                        persistentSettings.daemon_address = newDaemon
-                    }
-
-                    // Update daemon login
-                    persistentSettings.daemonUsername = daemonUsername.text;
-                    persistentSettings.daemonPassword = daemonPassword.text;
-                    currentWallet.setDaemonLogin(persistentSettings.daemonUsername, persistentSettings.daemonPassword);
-
-                    //Reinit wallet
-                    currentWallet.initAsync(newDaemon);
+                LineEdit {
+                    id: daemonPassword
+                    Layout.fillWidth: true
+                    labelText: "Daemon password"
+                    text: persistentSettings.daemonPassword
+                    placeholderText: qsTr("Password") + translationManager.emptyString
+                    echoMode: TextInput.Password
                 }
             }
         }
 
         RowLayout {
+            visible: !isMobile
             Label {
-                color: "#4A4949"
+                id: layoutSettingsLabel
+                fontSize: 22 * scaleRatio
                 text: qsTr("Layout settings") + translationManager.emptyString
-                fontSize: 16
-                anchors.topMargin: 30
-                Layout.topMargin: 30
             }
-        }
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: "#DEDEDE"
+
+            Rectangle {
+                anchors.top: layoutSettingsLabel.bottom
+                anchors.topMargin: 4
+                anchors.left: parent.left
+                anchors.right: parent.right
+                Layout.fillWidth: true
+                height: 2
+                color: Style.dividerColor
+                opacity: Style.dividerOpacity
+            }
         }
 
         RowLayout {
             CheckBox {
+                visible: !isMobile
                 id: customDecorationsCheckBox
                 checked: persistentSettings.customDecorations
                 onClicked: appWindow.setCustomWindowDecorations(checked)
                 text: qsTr("Custom decorations") + translationManager.emptyString
-                checkedIcon: "../images/checkedVioletIcon.png"
-                uncheckedIcon: "../images/uncheckedIcon.png"
             }
         }
 
         // Log level
+
         RowLayout {
             Label {
                 id: logLevelLabel
-                color: "#4A4949"
+                fontSize: 22 * scaleRatio
                 text: qsTr("Log level") + translationManager.emptyString
-                fontSize: 16
             }
 
-            ComboBox {
-                id: logLevel
-                model: [0,1,2,3,4,"custom"]
-                currentIndex : appWindow.persistentSettings.logLevel;
-                onCurrentIndexChanged: {
-                    if (currentIndex == 5) {
-                        console.log("log categories changed: ", logCategories.text);
-                        walletManager.setLogCategories(logCategories.text);
+            Rectangle {
+                anchors.top: logLevelLabel.bottom
+                anchors.topMargin: 4
+                anchors.left: parent.left
+                anchors.right: parent.right
+                Layout.fillWidth: true
+                height: 2
+                color: Style.dividerColor
+                opacity: Style.dividerOpacity
+            }
+        }
+
+        GridLayout {
+            columns: (isMobile)? 1 : 3
+            Layout.fillWidth: true
+            columnSpacing: 32
+
+            ColumnLayout {
+                spacing: 0
+                Layout.fillWidth: true
+
+                ListModel {
+                     id: logLevel
+                     ListElement { name: "wow"; column1: "0"; }
+                     ListElement { column1: "1"; }
+                     ListElement { column1: "2"; }
+                     ListElement { column1: "3"; }
+                     ListElement { column1: "4"; }
+                     ListElement { column1: "custom"; }
+                 }
+
+                StandardDropdown {
+                    id: logLevelDropdown
+                    dataModel: logLevel
+                    currentIndex: appWindow.persistentSettings.logLevel;
+                    onChanged: {
+                        if (currentIndex == 5) {
+                            console.log("log categories changed: ", logCategories.text);
+                            walletManager.setLogCategories(logCategories.text);
+                        }
+                        else {
+                            console.log("log level changed: ",currentIndex);
+                            walletManager.setLogLevel(currentIndex);
+                        }
+                        appWindow.persistentSettings.logLevel = currentIndex;
                     }
-                    else {
-                        console.log("log level changed: ",currentIndex);
-                        walletManager.setLogLevel(currentIndex);
-                    }
-                    appWindow.persistentSettings.logLevel = currentIndex;
+                    Layout.fillWidth: true
+                    shadowReleasedColor: "#BF9B30"
+                    shadowPressedColor: "#B32D00"
+                    releasedColor: "#363636"
+                    pressedColor: "#202020"
                 }
+                // Make sure dropdown is on top
+                z: parent.z + 30
             }
 
+            ColumnLayout {
+                Layout.fillWidth: true
+            }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+            }
+        }
+
+        ColumnLayout {
             LineEdit {
                 id: logCategories
-                Layout.preferredWidth:  200
                 Layout.fillWidth: true
                 text: appWindow.persistentSettings.logCategories
+                labelText: "Log Categories"
                 placeholderText: qsTr("(e.g. *:WARNING,net.p2p:DEBUG)") + translationManager.emptyString
-                enabled: logLevel.currentIndex == 5
+                enabled: logLevelDropdown.currentIndex === 5
                 onEditingFinished: {
                     if(enabled) {
                         console.log("log categories changed: ", text);
@@ -366,32 +600,120 @@ Rectangle {
         // Version
         RowLayout {
             Label {
-                color: "#4A4949"
-                text: qsTr("Version") + translationManager.emptyString
-                fontSize: 16
-                anchors.topMargin: 30
-                Layout.topMargin: 30
+                id: debugLabel
+                text: qsTr("Debug info") + translationManager.emptyString
+                fontSize: 22
+                anchors.topMargin: 30 * scaleRatio
+                Layout.topMargin: 30 * scaleRatio
+            }
+
+            Rectangle {
+                anchors.top: debugLabel.bottom
+                anchors.topMargin: 4
+                anchors.left: parent.left
+                anchors.right: parent.right
+                Layout.fillWidth: true
+                height: 2
+                color: Style.dividerColor
+                opacity: Style.dividerOpacity
             }
         }
-        Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: "#DEDEDE"
-        }
 
-        Label {
-            id: guiVersion
+        TextBlock {
             Layout.topMargin: 8
-            color: "#4A4949"
+            font.pixelSize: 14
+            Layout.fillWidth: true
             text: qsTr("GUI version: ") + Version.GUI_VERSION + translationManager.emptyString
-            fontSize: 16
+        }
+        TextBlock {
+            id: guiSuperiorVersion
+            Layout.fillWidth: true
+            font.pixelSize: 14
+            text: qsTr("Embedded TheSuperiorCoin version: ") + Version.GUI_SUPERIOR_VERSION + translationManager.emptyString
+        }
+        TextBlock {
+            id: restoreHeightText
+            Layout.fillWidth: true
+            font.pixelSize: 14
+            textFormat: Text.RichText
+            property var txt: "<style type='text/css'>a {text-decoration: none; color: #CEAC41}</style>" + qsTr("Wallet creation height: ") + (currentWallet ? currentWallet.walletCreationHeight : "") + translationManager.emptyString
+            property var linkTxt: qsTr(" <a href='#'>(Click to change)</a>") + translationManager.emptyString
+            text: (typeof currentWallet == "undefined") ? "" : txt + linkTxt
+
+            onLinkActivated: {
+                restoreHeightRow.visible = true;
+            }
+
         }
 
-        Label {
-            id: guiSuperiorVersion
-            color: "#4A4949"
-            text: qsTr("Embedded Superior version: ") + Version.GUI_Superior_VERSION + translationManager.emptyString
-            fontSize: 16
+        RowLayout {
+            id: restoreHeightRow
+            visible: false
+            LineEdit {
+                id: restoreHeight
+                Layout.preferredWidth: 80
+                Layout.fillWidth: true
+                text: currentWallet ? currentWallet.walletCreationHeight : "0"
+                validator: IntValidator {
+                    bottom:0
+                }
+            }
+
+            StandardButton {
+                id: restoreHeightSave
+                small: true
+                Layout.fillWidth: false
+                Layout.leftMargin: 30
+                text: qsTr("Save") + translationManager.emptyString
+
+                onClicked: {
+                    currentWallet.walletCreationHeight = restoreHeight.text
+                    // Restore height is saved in .keys file. Set password to trigger rewrite.
+                    currentWallet.setPassword(appWindow.walletPassword)
+                    restoreHeightRow.visible = false
+
+                    // Show confirmation dialog
+                    confirmationDialog.title = qsTr("Rescan wallet cache") + translationManager.emptyString;
+                    confirmationDialog.text  = qsTr("Are you sure you want to rebuild the wallet cache?\n"
+                                                    + "The following information will be deleted\n"
+                                                    + "- Recipient addresses\n"
+                                                    + "- Tx keys\n"
+                                                    + "- Tx descriptions\n\n"
+                                                    + "The old wallet cache file will be renamed and can be restored later.\n"
+                                                    );
+                    confirmationDialog.icon = StandardIcon.Question
+                    confirmationDialog.cancelText = qsTr("Cancel")
+                    confirmationDialog.onAcceptedCallback = function() {
+                        walletManager.closeWallet();
+                        walletManager.clearWalletCache(persistentSettings.wallet_path);
+                        walletManager.openWalletAsync(persistentSettings.wallet_path, appWindow.walletPassword,
+                                                          persistentSettings.nettype);
+                    }
+
+                    confirmationDialog.onRejectedCallback = null;
+
+                    confirmationDialog.open()
+
+                }
+            }
+        }
+
+
+
+        TextBlock {
+            Layout.fillWidth: true
+            font.pixelSize: 14
+            text:  (!currentWallet) ? "" : qsTr("Wallet log path: ") + currentWallet.walletLogPath + translationManager.emptyString
+        }
+        TextBlock {
+            Layout.fillWidth: true
+            font.pixelSize: 14
+            text: qsTr("Wallet Name: ") + walletName + translationManager.emptyString
+        }
+        TextBlock {
+            Layout.fillWidth: true
+            font.pixelSize: 14
+            text:  (!currentWallet) ? "" : qsTr("Daemon log path: ") + currentWallet.daemonLogPath + translationManager.emptyString
         }
     }
 
@@ -406,46 +728,66 @@ Rectangle {
         }
     }
 
-    PasswordDialog {
-        id: settingsPasswordDialog
+    // Choose blockchain folder
+    FileDialog {
+        id: blockchainFileDialog
+        title: qsTr("Please choose a folder") + translationManager.emptyString;
+        selectFolder: true
+        folder: "file://" + persistentSettings.blockchainDataDir
 
         onAccepted: {
-            if(appWindow.password === settingsPasswordDialog.password){
-                informationPopup.title  = qsTr("Wallet mnemonic seed") + translationManager.emptyString;
-                informationPopup.text = currentWallet.seed
-                informationPopup.open()
-                informationPopup.onCloseCallback = function() {
-                    informationPopup.text = ""
+            var dataDir = walletManager.urlToLocalPath(blockchainFileDialog.fileUrl);
+            console.log(dataDir);
+            var validator = daemonManager.validateDataDir(dataDir);
+            if(!validator.valid) {
+
+                confirmationDialog.title = qsTr("Warning") + translationManager.emptyString;
+                confirmationDialog.text = "";
+                if(validator.readOnly) {
+                    confirmationDialog.text  += qsTr("Error: Filesystem is read only") + "\n\n"                  
+                }
+                
+                if(validator.storageAvailable < 20) {
+                    confirmationDialog.text  += qsTr("Warning: There's only %1 GB available on the device. Blockchain requires ~%2 GB of data.").arg(validator.storageAvailable).arg(15) + "\n\n"     
+                } else {
+                    confirmationDialog.text  += qsTr("Note: There's %1 GB available on the device. Blockchain requires ~%2 GB of data.").arg(validator.storageAvailable).arg(15) + "\n\n"
+                }
+                
+                if(!validator.lmdbExists) {
+                    confirmationDialog.text  += qsTr("Note: lmdb folder not found. A new folder will be created.") + "\n\n" 
                 }
 
-            } else {
-                informationPopup.title  = qsTr("Error") + translationManager.emptyString;
-                informationPopup.text = qsTr("Wrong password");
-                informationPopup.open()
-                informationPopup.onCloseCallback = function() {
-                    settingsPasswordDialog.open()
+                confirmationDialog.icon = StandardIcon.Question
+                confirmationDialog.cancelText = qsTr("Cancel")
+
+                // Continue
+                confirmationDialog.onAcceptedCallback = function() {
+                    persistentSettings.blockchainDataDir = dataDir
                 }
+
+                // Cancel
+                confirmationDialog.onRejectedCallback = function() {
+                };
+
+                confirmationDialog.open()
+            } else {
+                persistentSettings.blockchainDataDir = dataDir
             }
 
-            settingsPasswordDialog.password = ""
+            delete validator;
+
+
         }
         onRejected: {
-
+            console.log("data dir selection canceled")
         }
 
-    }
-
-    // fires on every page load
-    function onPageCompleted() {
-        console.log("Settings page loaded");
-        initSettings();
-        viewOnly = currentWallet.viewOnly;
-        appWindow.daemonRunning =  daemonManager.running(persistentSettings.testnet)
     }
 
     // fires only once
     Component.onCompleted: {
-        daemonManager.daemonConsoleUpdated.connect(onDaemonConsoleUpdated)
+        if(typeof daemonManager != "undefined")
+            daemonManager.daemonConsoleUpdated.connect(onDaemonConsoleUpdated)
     }
 
     function onDaemonConsoleUpdated(message){

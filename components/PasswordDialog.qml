@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015, The Superior Project
+// Copyright (c) 2014-2018, The X Project
 //
 // All rights reserved.
 //
@@ -26,8 +26,8 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import QtQuick 2.0
-import QtQuick.Controls 1.4
+import QtQuick 2.7
+import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Controls.Styles 1.4
@@ -35,70 +35,93 @@ import QtQuick.Window 2.0
 
 import "../components" as SuperiorComponents
 
-Window {
+Item {
     id: root
-    modality: Qt.ApplicationModal
-    flags: Qt.Window | Qt.FramelessWindowHint
+    visible: false
+
     property alias password: passwordInput.text
     property string walletName
 
     // same signals as Dialog has
     signal accepted()
     signal rejected()
-
+    signal closeCallback()
 
     function open(walletName) {
         root.walletName = walletName ? walletName : ""
+        leftPanel.enabled = false
+        middlePanel.enabled = false
+        titleBar.enabled = false
         show()
+        root.visible = true;
+        passwordInput.forceActiveFocus();
+        passwordInput.text = ""
     }
 
-    // TODO: implement without hardcoding sizes
-    width: 480
-    height: walletName ? 240 : 200
+    function close() {
+        leftPanel.enabled = true
+        middlePanel.enabled = true
+        titleBar.enabled = true
+        root.visible = false;
+        closeCallback();
+    }
 
     ColumnLayout {
+        z: bg.z + 1
         id: mainLayout
         spacing: 10
-        anchors { fill: parent; margins: 35 }
+        anchors { fill: parent; margins: 35 * scaleRatio }
 
         ColumnLayout {
             id: column
-            //anchors {fill: parent; margins: 16 }
+
+            Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter
+            Layout.maximumWidth: 400 * scaleRatio
 
             Label {
-                text: root.walletName.length > 0 ? qsTr("Please enter wallet password for:<br>") + root.walletName : qsTr("Please enter wallet password")
-                Layout.alignment: Qt.AlignHCenter
-                Layout.columnSpan: 2
+                text: root.walletName.length > 0 ? qsTr("Please enter wallet password for: ") + root.walletName : qsTr("Please enter wallet password")
+                anchors.left: parent.left
                 Layout.fillWidth: true
-                horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: 24
-                font.family: "Arial"
-                color: "#555555"
+
+                font.pixelSize: 16 * scaleRatio
+                font.family: SuperiorComponents.Style.fontLight.name
+
+                color: SuperiorComponents.Style.defaultFontColor
             }
 
             TextField {
                 id : passwordInput
-                focus: true
+                Layout.topMargin: 6
                 Layout.fillWidth: true
-                Layout.alignment: Qt.AlignHCenter
-                horizontalAlignment: TextInput.AlignHCenter
+                anchors.left: parent.left
+                horizontalAlignment: TextInput.AlignLeft
                 verticalAlignment: TextInput.AlignVCenter
-                font.family: "Arial"
-                font.pixelSize: 32
+                font.family: SuperiorComponents.Style.fontLight.name
+                font.pixelSize: 24 * scaleRatio
                 echoMode: TextInput.Password
                 KeyNavigation.tab: okButton
+                bottomPadding: 10
+                leftPadding: 10
+                topPadding: 10
+                color: SuperiorComponents.Style.defaultFontColor
 
-                style: TextFieldStyle {
-                    renderType: Text.NativeRendering
-                    textColor: "#35B05A"
-                    passwordCharacter: "•"
-                    // no background
-                    background: Rectangle {
-                        radius: 0
-                        border.width: 0
+                background: Rectangle {
+                    radius: 2
+                    border.color: Qt.rgba(255, 255, 255, 0.35)
+                    border.width: 1
+                    color: "black"
+
+                    Image {
+                        width: 12
+                        height: 16
+                        source: "../images/lockIcon.png"
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.right: parent.right
+                        anchors.rightMargin: 20
                     }
                 }
+
                 Keys.onReturnPressed: {
                     root.close()
                     root.accepted()
@@ -109,66 +132,45 @@ Window {
                     root.rejected()
 
                 }
-
-
             }
-            // underline
-            Rectangle {
-                height: 1
-                color: "#DBDBDB"
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignHCenter
-                anchors.bottomMargin: 3
 
-            }
-            // padding
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignHCenter
-                height: 10
-                opacity: 0
-                color: "black"
-            }
-        }
-        // Ok/Cancel buttons
-        RowLayout {
-            id: buttons
-            spacing: 60
-            Layout.alignment: Qt.AlignHCenter
-            
-            SuperiorComponents.StandardButton {
-                id: cancelButton
-                width: 120
-                fontSize: 14
-                shadowReleasedColor: "#bf9b30"
-                shadowPressedColor: "#B32D00"
-                releasedColor: "#CEAC41"
-                pressedColor: "#bf9b30"
-                text: qsTr("Cancel") + translationManager.emptyString
-                KeyNavigation.tab: passwordInput
-                onClicked: {
-                    root.close()
-                    root.rejected()
+            // Ok/Cancel buttons
+            RowLayout {
+                id: buttons
+                spacing: 16 * scaleRatio
+                Layout.topMargin: 16
+                Layout.alignment: Qt.AlignRight
+
+                SuperiorComponents.StandardButton {
+                    id: cancelButton
+                    small: true
+                    text: qsTr("Cancel") + translationManager.emptyString
+                    KeyNavigation.tab: passwordInput
+                    onClicked: {
+                        root.close()
+                        root.rejected()
+                    }
+                }
+
+                SuperiorComponents.StandardButton {
+                    id: okButton
+                    small: true
+                    text: qsTr("Continue")
+                    KeyNavigation.tab: cancelButton
+                    onClicked: {
+                        root.close()
+                        root.accepted()
+                    }
                 }
             }
-            SuperiorComponents.StandardButton {
-                id: okButton
-                width: 120
-                fontSize: 14
-                shadowReleasedColor: "#bf9b30"
-                shadowPressedColor: "#B32D00"
-                releasedColor: "#CEAC41"
-                pressedColor: "#bf9b30"
-                text: qsTr("Ok")
-                KeyNavigation.tab: cancelButton
-                onClicked: {
-                    root.close()
-                    root.accepted()
-                }
-            }
+
         }
     }
+    Rectangle {
+        id: bg
+
+        anchors.fill: parent
+        color: "black"
+        opacity: 0.8
+    }
 }
-
-
-

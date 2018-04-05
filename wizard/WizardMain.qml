@@ -1,4 +1,31 @@
-// Copyright (c) 2017-2020, The Superior Project// // All rights reserved.// // Redistribution and use in source and binary forms, with or without modification, are// permitted provided that the following conditions are met:// // 1. Redistributions of source code must retain the above copyright notice, this list of//    conditions and the following disclaimer.// // 2. Redistributions in binary form must reproduce the above copyright notice, this list//    of conditions and the following disclaimer in the documentation and/or other//    materials provided with the distribution.// // 3. Neither the name of the copyright holder nor the names of its contributors may be//    used to endorse or promote products derived from this software without specific//    prior written permission.// // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.//// Parts of this file are originally copyright (c) 2014-2015 The Monero Project
+// Copyright (c) 2014-2018, The X Project
+// 
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without modification, are
+// permitted provided that the following conditions are met:
+// 
+// 1. Redistributions of source code must retain the above copyright notice, this list of
+//    conditions and the following disclaimer.
+// 
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list
+//    of conditions and the following disclaimer in the documentation and/or other
+//    materials provided with the distribution.
+// 
+// 3. Neither the name of the copyright holder nor the names of its contributors may be
+//    used to endorse or promote products derived from this software without specific
+//    prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import QtQuick 2.2
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.2
@@ -13,17 +40,19 @@ ColumnLayout {
     property alias nextButton : nextButton
     property var settings : ({})
     property int currentPage: 0
-    property int wizardLeftMargin: (!isMobile) ?  150 : 25
-    property int wizardRightMargin: (!isMobile) ? 150 : 25
-    property int wizardBottomMargin: (isMobile) ? 150 : 25
-    property int wizardTopMargin: (isMobile) ? 15 : 50
+    property int wizardLeftMargin: (!isMobile) ?  150 : 25 * scaleRatio
+    property int wizardRightMargin: (!isMobile) ? 150 : 25 * scaleRatio
+    property int wizardBottomMargin: (isMobile) ? 150 : 25 * scaleRatio
+    property int wizardTopMargin: (isMobile) ? 15 * scaleRatio : 50
+    // Storing wallet in Settings object doesn't work in qt 5.8 on android
+    property var m_wallet;
 
     property var paths: {
      //   "create_wallet" : [welcomePage, optionsPage, createWalletPage, passwordPage, donationPage, finishPage ],
      //   "recovery_wallet" : [welcomePage, optionsPage, recoveryWalletPage, passwordPage, donationPage, finishPage ],
         // disable donation page
-        "create_wallet" : [welcomePage, optionsPage, createWalletPage, passwordPage,  finishPage ],
-        "recovery_wallet" : [welcomePage, optionsPage, recoveryWalletPage, passwordPage,  finishPage ],
+        "create_wallet" : [welcomePage, optionsPage, createWalletPage, passwordPage, daemonSettingsPage, finishPage ],
+        "recovery_wallet" : [welcomePage, optionsPage, recoveryWalletPage, passwordPage, daemonSettingsPage, finishPage ],
         "create_view_only_wallet" : [ createViewOnlyWalletPage, passwordPage ],
 
     }
@@ -54,6 +83,10 @@ ColumnLayout {
     }
 
     function switchPage(next) {
+
+        // Android focus workaround
+        releaseFocus();
+
         // save settings for current page;
         if (next && typeof pages[currentPage].onPageClosed !== 'undefined') {
             if (pages[currentPage].onPageClosed(settings) !== true) {
@@ -88,6 +121,7 @@ ColumnLayout {
 
 
     function openCreateWalletPage() {
+        wizardRestarted();
         print ("show create wallet page");
         currentPath = "create_wallet"
         pages = paths[currentPath]
@@ -98,9 +132,12 @@ ColumnLayout {
     }
 
     function openRecoveryWalletPage() {
+        wizardRestarted();
         print ("show recovery wallet page");
         currentPath = "recovery_wallet"
         pages = paths[currentPath]
+        // Create temporary wallet
+        createWalletPage.createWallet(settings)
         wizard.nextButton.visible = true
         // goto next page
         switchPage(true);
@@ -108,9 +145,8 @@ ColumnLayout {
 
     function openOpenWalletPage() {
         console.log("open wallet from file page");
-        if (typeof wizard.settings['wallet'] !== 'undefined') {
-            settings.wallet.destroy();
-            delete wizard.settings['wallet'];
+        if (typeof m_wallet !== 'undefined' && m_wallet != null) {
+            walletManager.closeWallet()
         }
         optionsPage.onPageClosed(settings)
         wizard.openWalletFromFileClicked();
@@ -133,24 +169,22 @@ ColumnLayout {
             folder_path = folder_path.substring(0,folder_path.length -1)
         }
 
+        // Store releative path on ios.
+        if(isIOS)
+            folder_path = "";
+
         return folder_path + "/" + account_name + "/" + account_name
     }
 
     function walletPathValid(path){
+        if(isIOS)
+            path = superiorAccountsDir + path;
         if (walletManager.walletExists(path)) {
             walletErrorDialog.text = qsTr("A wallet with same name already exists. Please change wallet name") + translationManager.emptyString;
             walletErrorDialog.open();
             return false;
         }
 
-        // Don't allow non ascii characters in path on windows platforms until supported by Wallet2
-        if (isWindows) {
-            if (!isAscii(path)) {
-                walletErrorDialog.text = qsTr("Non-ASCII characters are not allowed in wallet path or account name")  + translationManager.emptyString;
-                walletErrorDialog.open();
-                return false;
-            }
-        }
         return true;
     }
 
@@ -166,18 +200,25 @@ ColumnLayout {
     function applySettings() {
         // Save wallet files in user specified location
         var new_wallet_filename = createWalletPath(settings.wallet_path,settings.account_name)
-        console.log("saving in wizard: "+ new_wallet_filename)
-        settings.wallet.store(new_wallet_filename);
+        if(isIOS) {
+            console.log("saving in ios: "+ superiorAccountsDir + new_wallet_filename)
+            m_wallet.store(superiorAccountsDir + new_wallet_filename);
+        } else {
+            console.log("saving in wizard: "+ new_wallet_filename)
+            m_wallet.store(new_wallet_filename);
+        }
+
+
 
         // make sure temporary wallet files are deleted
         console.log("Removing temporary wallet: "+ settings.tmp_wallet_filename)
         oshelper.removeTemporaryWallet(settings.tmp_wallet_filename)
 
         // protecting wallet with password
-        settings.wallet.setPassword(settings.wallet_password);
+        m_wallet.setPassword(settings.wallet_password);
 
         // Store password in session to be able to use password protected functions (e.g show seed)
-        appWindow.password = settings.wallet_password
+        appWindow.walletPassword = settings.wallet_password
 
         // saving wallet_filename;
         settings['wallet_filename'] = new_wallet_filename;
@@ -190,11 +231,8 @@ ColumnLayout {
         appWindow.persistentSettings.allow_background_mining = false //settings.allow_background_mining
         appWindow.persistentSettings.auto_donations_enabled = false //settings.auto_donations_enabled
         appWindow.persistentSettings.auto_donations_amount = false //settings.auto_donations_amount
-        appWindow.persistentSettings.daemon_address = settings.daemon_address
-        appWindow.persistentSettings.testnet = settings.testnet
         appWindow.persistentSettings.restore_height = (isNaN(settings.restore_height))? 0 : settings.restore_height
         appWindow.persistentSettings.is_recovering = (settings.is_recovering === undefined)? false : settings.is_recovering
-
     }
 
     // reading settings from persistent storage
@@ -251,6 +289,12 @@ ColumnLayout {
         Layout.topMargin: wizardTopMargin
     }
 
+    WizardDaemonSettings {
+        id: daemonSettingsPage
+        Layout.bottomMargin: wizardBottomMargin
+        Layout.topMargin: wizardTopMargin
+    }
+
     WizardDonation {
         id: donationPage
         Layout.bottomMargin: wizardBottomMargin
@@ -268,12 +312,12 @@ ColumnLayout {
         anchors.verticalCenter: wizard.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: isMobile ?  20 :  50
-        anchors.bottomMargin: isMobile ?  20 :  50
+        anchors.bottomMargin: isMobile ?  20 * scaleRatio :  50
         visible: parent.currentPage > 0
 
-        width: 50; height: 50
+        width: 50 * scaleRatio; height: 50 * scaleRatio
         radius: 25
-        color: prevArea.containsMouse ? "#bf9b30" : "#CEAC41"
+        color: prevArea.containsMouse ? "#BF9B30" : "#CEAC41"
 
         Image {
             anchors.centerIn: parent
@@ -293,12 +337,12 @@ ColumnLayout {
         id: nextButton
         anchors.verticalCenter: wizard.verticalCenter
         anchors.right: parent.right
-        anchors.rightMargin: isMobile ?  20 :  50
-        anchors.bottomMargin: isMobile ?  20 :  50
+        anchors.rightMargin: isMobile ?  20 * scaleRatio :  50
+        anchors.bottomMargin: isMobile ?  20 * scaleRatio :  50
         visible: currentPage > 1 && currentPage < pages.length - 1
-        width: 50; height: 50
+        width: 50 * scaleRatio; height: 50 * scaleRatio
         radius: 25
-        color: enabled ? nextArea.containsMouse ? "#bf9b30" : "#CEAC41" : "#DBDBDB"
+        color: enabled ? nextArea.containsMouse ? "#BF9B30" : "#CEAC41" : "#DBDBDB"
 
 
         Image {
@@ -319,12 +363,8 @@ ColumnLayout {
         id: sendButton
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.margins:  (isMobile) ? 20 : 50
-        text: qsTr("USE Superior") + translationManager.emptyString
-        shadowReleasedColor: "#bf9b30"
-        shadowPressedColor: "#B32D00"
-        releasedColor: "#CEAC41"
-        pressedColor: "#bf9b30"
+        anchors.margins:  (isMobile) ? 20 * scaleRatio : 50 * scaleRatio
+        text: qsTr("USE SUPERIOR") + translationManager.emptyString
         visible: parent.paths[currentPath][currentPage] === finishPage
         onClicked: {
             wizard.applySettings();
@@ -336,12 +376,8 @@ ColumnLayout {
        id: createViewOnlyWalletButton
        anchors.right: parent.right
        anchors.bottom: parent.bottom
-       anchors.margins: (isMobile) ? 20 : 50
+       anchors.margins: (isMobile) ? 20 * scaleRatio : 50
        text: qsTr("Create wallet") + translationManager.emptyString
-       shadowReleasedColor: "#bf9b30"
-       shadowPressedColor: "#B32D00"
-       releasedColor: "#CEAC41"
-       pressedColor: "#bf9b30"
        visible: currentPath === "create_view_only_wallet" &&  parent.paths[currentPath][currentPage] === passwordPage
        enabled: passwordPage.passwordsMatch
        onClicked: {
@@ -368,12 +404,8 @@ ColumnLayout {
        id: abortViewOnlyButton
        anchors.right: createViewOnlyWalletButton.left
        anchors.bottom: parent.bottom
-       anchors.margins:  (isMobile) ? 20 : 50
+       anchors.margins:  (isMobile) ? 20 * scaleRatio : 50
        text: qsTr("Abort") + translationManager.emptyString
-       shadowReleasedColor: "#bf9b30"
-       shadowPressedColor: "#B32D00"
-       releasedColor: "#CEAC41"
-       pressedColor: "#bf9b30"
        visible: currentPath === "create_view_only_wallet" &&  parent.paths[currentPath][currentPage] === passwordPage
        onClicked: {
            wizard.restart();
