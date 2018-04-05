@@ -165,7 +165,7 @@ Rectangle {
         Rectangle { height: 4; width: parent.width / 5; color: "#6B0072" }
         Rectangle { height: 4; width: parent.width / 5; color: "#CEAC41" }
         Rectangle { height: 4; width: parent.width / 5; color: "#FFD781" }
-        Rectangle { height: 4; width: parent.width / 5; color: "#FF4F41" }
+        Rectangle { height: 4; width: parent.width / 5; color: "#CDAE3E" }
     }
 
     ColumnLayout {

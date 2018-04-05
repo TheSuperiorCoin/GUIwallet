@@ -69,7 +69,7 @@ ListView {
                 width: 14
                 height: width
                 radius: width / 2
-                color: out ? "#FF4F41" : "#36B05B"
+                color: out ? "#CDAE3E" : "#36B05B"
             }
             
             Item { //separator
@@ -197,7 +197,7 @@ ListView {
                         anchors.bottomMargin: 3
                         font.family: "Arial"
                         font.pixelSize: 16
-                        color: out ? "#FF4F41" : "#36B05B"
+                        color: out ? "#CDAE3E" : "#36B05B"
                         text: out ? "↓" : "↑"
                     }
                     
@@ -205,7 +205,7 @@ ListView {
                         anchors.bottom: parent.bottom
                         font.family: "Arial"
                         font.pixelSize: 18
-                        color: out ? "#FF4F41" : "#36B05B"
+                        color: out ? "#CDAE3E" : "#36B05B"
                         text: amount
                     }
                 }

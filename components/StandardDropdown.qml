@@ -187,7 +187,7 @@ Item {
                         font.family: SuperiorComponents.Style.fontRegular.name
                         font.bold: true
                         font.pixelSize: fontItemSize
-                        color: itemArea.containsMouse || index === column.currentIndex || itemArea.containsMouse ? "#CDAE3E" : "#FFFFFF"
+                        color: itemArea.containsMouse || index === column.currentIndex || itemArea.containsMouse ? "#CEAD34" : "#FFFFFF"
                         text: qsTr(column1) + translationManager.emptyString
                     }
 
