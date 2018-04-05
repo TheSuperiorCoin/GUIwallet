@@ -1,0 +1,2 @@
+var GUI_VERSION = ""
+var GUI_SUPERIOR_VERSION = "v0.12.0.0"
