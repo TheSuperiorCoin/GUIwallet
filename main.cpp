@@ -77,23 +77,25 @@ void messageHandler(QtMsgType type, const QMessageLogContext &context, const QSt
 int main(int argc, char *argv[])
 {
     Superior::Utils::onStartup();
-    // Enable high DPI scaling on windows & linux
-#if !defined(Q_OS_ANDROID) && QT_VERSION >= 0x050600
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    qDebug() << "High DPI auto scaling - enabled";
-#endif
+//    // Enable high DPI scaling on windows & linux
+//#if !defined(Q_OS_ANDROID) && QT_VERSION >= 0x050600
+//    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+//    qDebug() << "High DPI auto scaling - enabled";
+//#endif
 
     // Log settings
     Superior::Wallet::init(argv[0], "superior-wallet-gui");
-    qInstallMessageHandler(messageHandler);
+//    qInstallMessageHandler(messageHandler);
 
     MainApp app(argc, argv);
 
    // QPixmap pixmap("/images/Superior.png");
-    if(QPixmap(":/images/SuperiorLogo.png").isNull())
+   // if(QPixmap(":/images/SuperiorLogo.png").isNull())
+   // {
+   //    QMessageBox::warning(0, "Error", "Failed to load Splash Screen image!");
+   // } else
+
     {
-        QMessageBox::warning(0, "Error", "Failed to load Splash Screen image!");
-    } else {
         QSplashScreen *splash = new QSplashScreen;
         splash->setPixmap(QPixmap(":/images/Superior.png"));
         splash->show();

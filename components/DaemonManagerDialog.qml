@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015, The Superior Project
+// Copyright (c) 2014-2018, The X Project
 //
 // All rights reserved.
 //
@@ -108,10 +108,6 @@ Window {
                 id: okButton
                 visible:false
                 fontSize: 14
-                shadowReleasedColor: "#bf9b30"
-                shadowPressedColor: "#B32D00"
-                releasedColor: "#CEAC41"
-                pressedColor: "#bf9b30"
                 text: qsTr("Start daemon (%1)").arg(countDown)
                 KeyNavigation.tab: cancelButton
                 onClicked: {
@@ -125,10 +121,6 @@ Window {
             SuperiorComponents.StandardButton {
                 id: cancelButton
                 fontSize: 14
-                shadowReleasedColor: "#bf9b30"
-                shadowPressedColor: "#B32D00"
-                releasedColor: "#CEAC41"
-                pressedColor: "#bf9b30"
                 text: qsTr("Use custom settings")
 
                 onClicked: {
