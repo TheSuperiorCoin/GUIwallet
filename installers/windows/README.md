@@ -6,7 +6,7 @@ Copyright (c) 2014-2018, The X Project
 
 This is a *Inno Setup* script `Superior.iss` plus some related files
 that allows you to build a standalone Windows installer (.exe) for
-the GUI wallet that comes with the Lithium Luna release of Superior.
+the GUI wallet that comes with the Kryptonia Fast release of Superior.
 
 This turns the GUI wallet into a more or less standard Windows program,
 by default installed into a subdirectory of `C:\Program Files`, a
@@ -18,7 +18,7 @@ Superior.
 As the setup script in file [Superior.iss](Superior.iss) has to list every
 single file of the GUI wallet package to install by name,
 this version of the script only works with exactly the GUI wallet
-for Superior release *Lithium Luna* that you find on
+for Superior release *Kryptonia Fast* that you find on
 [the official download page](https://getsuperior.org/downloads/).
 
 But of course it will be easy to modify the script for future
@@ -32,7 +32,7 @@ See [LICENSE](LICENSE).
 
 You can only build on Windows, and the result is always a
 Windows .exe file that can act as a standalone installer for the
-Lithium Luna GUI wallet.
+Kryptonia Fast GUI wallet.
 
 The build steps in detail:
 

@@ -1,4 +1,4 @@
-; Superior Lithium Luna GUI Wallet Installer for Windows
+; Superior Kryptonia Fast GUI Wallet Installer for Windows
 ; Copyright (c) 2014-2018, The X Project
 ; See LICENSE
 
