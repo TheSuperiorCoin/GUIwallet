@@ -215,7 +215,8 @@ More info: http://stackoverflow.com/a/35098040/1683164
 8. Build the GUI:
     ```
     cd GUIwallet
-    export PATH=$(ls -rd /c/Qt/5.[6,7,8]/mingw53_32/bin | head -1):$PATH
+    export PATH=$(ls -rd /c/Qt/5.[6,7,8]/mingw53_32/bin | head -1):$PATH or next if error
+    export PATH=$(ls -rd /c/Qt/Qt5.7.0/5.7/mingw53_32/bin | head -1):$PATH
     ./build.sh
     cd build
     make deploy
