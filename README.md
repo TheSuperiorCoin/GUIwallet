@@ -162,16 +162,36 @@ with
 More info: http://stackoverflow.com/a/35098040/1683164
 
 
-### On Windows:
+### On Windows: 64bit
 
-1. Install [msys2](http://msys2.github.io/), follow the instructions on that page on how to update packages to the latest versions
+1. **Preparing the Build Environment**
 
-2. Install Superior dependencies as described in [Superior documentation](https://github.com/Superior-project/Superior) into msys2 environment.
-   **As we only build application for x86, install only dependencies for x86 architecture (i686 in package name)**
-   ```
-   pacman -S mingw-w64-i686-toolchain make mingw-w64-i686-cmake mingw-w64-i686-boost
+* Download and install the [MSYS2 installer](http://msys2.github.io), either the 64-bit or the 32-bit package, depending on your system.
+* Open the MSYS shell via the `MSYS2 Shell` shortcut
+* Update packages using pacman:  
 
-   ```
+        pacman -Syuu  
+
+* Exit the MSYS shell using Alt+F4  
+* Edit the properties for the `MSYS2 Shell` shortcut changing "msys2_shell.bat" to "msys2_shell.cmd -mingw64" for 64-bit builds or "msys2_shell.cmd -mingw32" for 32-bit builds
+* Restart MSYS shell via modified shortcut and update packages again using pacman:  
+
+        pacman -Syuu  
+
+
+* Install dependencies:
+
+    To build for 64-bit Windows:
+
+        pacman -S mingw-w64-x86_64-toolchain make mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-openssl mingw-w64-x86_64-zeromq mingw-w64-x86_64-libsodium
+
+    To build for 32-bit Windows:
+ 
+        pacman -S mingw-w64-i686-toolchain make mingw-w64-i686-cmake mingw-w64-i686-boost mingw-w64-i686-openssl mingw-w64-i686-zeromq mingw-w64-i686-libsodium
+
+* Open the MingW shell via `MinGW-w64-Win64 Shell` shortcut on 64-bit Windows
+  or `MinGW-w64-Win64 Shell` shortcut on 32-bit Windows. Note that if you are
+  running 64-bit Windows, you will have both 64-bit and 32-bit MinGW shells.
 
 3. Install git into msys2 environment:
 
@@ -179,10 +199,12 @@ More info: http://stackoverflow.com/a/35098040/1683164
     pacman -S git
     ```
 
-4. Install Qt5 from [official site](https://www.qt.io/download-open-source/).
-   - download unified installer, run and select following options:
-       - Qt > Qt 5.7 > MinGW 5.3.0 32 bit
-       - Tools > MinGW 5.3.0
+4. Install Qt5 
+
+    ```
+    mingw-w64-x86_64-qt5
+    ```
+
    - continue with installation
 
 5. Open ```MinGW-w64 Win32 Shell``` shell:
@@ -192,27 +214,13 @@ More info: http://stackoverflow.com/a/35098040/1683164
    Where ```%MSYS_ROOT%``` will be ```c:\msys32``` if your host OS is x86-based or ```c:\msys64``` if your host OS
    is x64-based
 
-6. Install the latest version of boost, specificly the required static libraries:
-    ```
-    cd
-    wget http://sourceforge.net/projects/boost/files/boost/1.64.0/boost_1_64_0.tar.bz2
-    tar xjf boost_1_64_0.tar.bz2
-    cd boost_1_64_0
-    ./bootstrap.sh mingw
-    ../b2 --prefix=/mingw32/boost --layout=tagged --without-mpi --without-python toolset=gcc address-model=32 variant=debug,release link=static threading=multi runtime-link=static -j$(nproc) install 
-    ```
-
-7. Clone repository:
+6. Clone repository:
     ```
     cd
     git clone https://github.com/TheSuperiorCoin/GUIwallet.git
     ```
-8.  cd GUIwallet
-    git clone https://github.com/TheSuperiorCoin/TheSuperiorCoin.git
-    Rename to Superior
-    cd
 
-8. Build the GUI:
+7. Build the GUI:
     ```
     cd GUIwallet
     export PATH=$(ls -rd /c/Qt/5.[6,7,8]/mingw53_32/bin | head -1):$PATH or next if error
