@@ -26,6 +26,7 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This may contain code Copyright (c) 2014-2017, The Monero Project
+// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.2
 import QtQuick.Controls 1.2
