@@ -1,6 +1,6 @@
 # Superior GUI Wallet Windows Installer #
 
-Copyright (c) 2014-2018, The X Project
+Copyright (c) 2014-2018, TheSuperiorCoin Project
 
 ## Introduction ##
 
@@ -19,7 +19,7 @@ As the setup script in file [Superior.iss](Superior.iss) has to list every
 single file of the GUI wallet package to install by name,
 this version of the script only works with exactly the GUI wallet
 for Superior release *Kryptonia Fast* that you find on
-[the official download page](https://getsuperior.org/downloads/).
+[the official download page](https://the-superior-coin/downloads/).
 
 But of course it will be easy to modify the script for future
 versions of the GUI wallet.
@@ -37,8 +37,8 @@ Kryptonia Fast GUI wallet.
 The build steps in detail:
 
 1. Install *Inno Setup*. You can get it from [here](http://www.jrsoftware.org/isdl.php)
-2. Get the Inno Setup script plus related files by cloning the whole [superior-core GitHub repository](https://github.com/superior-project/superior-core); you will only need the files in the installer directory `installers\windows` however
-3. The setup script is written to take the GUI wallet files from a subdirectory named `bin`; so create `installers\windows\bin`, get the zip file of the GUI wallet from [here](https://getsuperior.org/downloads/), unpack it somewhere, and copy all the files and subdirectories in the `superior-gui-0.12.0.0` directory to this `bin` subdirectory
+2. Get the Inno Setup script plus related files by cloning the whole [superior-core GitHub repository](https://github.com/TheSuperiorCoin/GUIwallet); you will only need the files in the installer directory `installers\windows` however
+3. The setup script is written to take the GUI wallet files from a subdirectory named `bin`; so create `installers\windows\bin`, get the zip file of the GUI wallet from [here](https://the-superior-coin/downloads/GUIwallet.zip), unpack it somewhere, and copy all the files and subdirectories in the `superior-gui-0.12.0.0` directory to this `bin` subdirectory
 4. Start Inno Setup, load `Superior.iss` and compile it
 5. The result i.e. the finished installer will be the file `mysetup.exe` in the `installers\windows\Output` subdirectory 
 

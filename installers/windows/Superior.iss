@@ -1,5 +1,5 @@
 ; Superior Kryptonia Fast GUI Wallet Installer for Windows
-; Copyright (c) 2014-2018, The X Project
+; Copyright (c) 2014-2018, TheSuperiorCoin Project
 ; See LICENSE
 
 [Setup]
