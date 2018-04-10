@@ -1,9 +1,9 @@
-; Superior Kryptonia Fast GUI Wallet Installer for Windows
+; SuperiorCoin Kryptonia-Fast GUI Wallet Installer for Windows
 ; Copyright (c) 2014-2018, TheSuperiorCoin Project
 ; See LICENSE
 
 [Setup]
-AppName=Superior GUI Wallet
+AppName=SuperiorCoin GUI Wallet
 ; For InnoSetup this is the property that uniquely identifies the application as such
 ; Thus it's important to keep this stable over releases
 ; With a different "AppName" InnoSetup would treat a mere update as a completely new application and thus mess up
@@ -39,7 +39,7 @@ Name: "en"; MessagesFile: "compiler:Default.isl"
 ; .exe/.dll file possibly with version info).
 ;
 ; This is far more robust than relying on version info or on file dates (flag "comparetimestamp").
-; As of version 0.12.0.0, the Superior .exe files do not carry version info anyway in their .exe headers.
+; As of version 0.12.0.0, the SuperiorCoin .exe files do not carry version info anyway in their .exe headers.
 ; The only small drawback seems to be somewhat longer update times because each and every file is
 ; copied again, even if already present with correct file date and identical content.
 ;
@@ -49,28 +49,28 @@ Name: "en"; MessagesFile: "compiler:Default.isl"
 Source: "ReadMe.htm"; DestDir: "{app}"; Flags: ignoreversion
 Source: "FinishImage.bmp"; Flags: dontcopy
 
-; Superior GUI wallet
+; SuperiorCoin GUI wallet
 Source: "bin\superior-wallet-gui.exe"; DestDir: "{app}"; Flags: ignoreversion
 
-; Superior GUI wallet log file
+; SuperiorCoin GUI wallet log file
 ; The GUI wallet does not have the "--log-file" command-line option of the CLI wallet and insists to put the .log beside the .exe
 ; so pre-create the file and give the necessary permissions to the wallet to write into it
 ; Flag is "onlyifdoesntexist": We do not want to overwrite an already existing log
 Source: "superior-wallet-gui.log"; DestDir: "{app}"; Flags: onlyifdoesntexist; Permissions: users-modify
 
-; Superior CLI wallet
+; SuperiorCoin CLI wallet
 Source: "bin\superior-wallet-cli.exe"; DestDir: "{app}"; Flags: ignoreversion
 
-; Superior wallet RPC interface implementation
+; SuperiorCoin wallet RPC interface implementation
 Source: "bin\superior-wallet-rpc.exe"; DestDir: "{app}"; Flags: ignoreversion
 
-; Superior daemon
+; SuperiorCoin daemon
 Source: "bin\superiord.exe"; DestDir: "{app}"; Flags: ignoreversion
 
-; Superior daemon wrapped in a batch file that stops before the text window closes, to see any error messages
+; SuperiorCoin daemon wrapped in a batch file that stops before the text window closes, to see any error messages
 Source: "superior-daemon.bat"; DestDir: "{app}"; Flags: ignoreversion;
 
-; Superior blockchain utilities
+; SuperiorCoin blockchain utilities
 Source: "bin\superior-blockchain-export.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bin\superior-blockchain-import.exe"; DestDir: "{app}"; Flags: ignoreversion
 
@@ -245,14 +245,14 @@ begin
   WizardForm.WizardBitmapImage.Height := 300;
   WizardForm.WizardBitmapImage.Width := 500;
 
-  // Image for the "Finnish" screen, in standard WizardBitmapImage size of 164 x 314
+  // Image for the "Finish" screen, in standard WizardBitmapImage size of 164 x 314
   ExtractTemporaryFile('FinishImage.bmp');
   WizardForm.WizardBitmapImage2.Bitmap.LoadFromFile(ExpandConstant('{tmp}\FinishImage.bmp'));
 
   // Additional wizard page for entering a special blockchain location
-  blockChainDefaultDir := ExpandConstant('{commonappdata}\superior-coin');
-  s := 'The default folder to store the Superior blockchain is ' + blockChainDefaultDir;
-  s := s + '. As this will need more than 50 GB of free space, you may want to use a folder on a different drive.';
+  blockChainDefaultDir := ExpandConstant('{commonappdata}\superiorcoin');
+  s := 'The default folder to store the SuperiorCoin blockchain is ' + blockChainDefaultDir;
+  s := s + '. As this will need more than 15 GB of free space, you may want to use a folder on a different drive.';
   s := s + ' If yes, specify that folder here.';
 
   BlockChainDirPage := CreateInputDirPage(wpSelectDir,
@@ -382,7 +382,7 @@ Name: "{userdesktop}\GUI Wallet"; Filename: "{app}\superior-wallet-gui.exe"; Tas
 ; Store any special flags for the daemon in the registry location where the GUI wallet will take it from
 ; So if the wallet is used to start the daemon instead of the separate icon the wallet will pass the correct flags
 ; Side effect, mostly positive: The uninstaller will clean the registry
-Root: HKCU; Subkey: "Software\superior-project"; Flags: uninsdeletekeyifempty
-Root: HKCU; Subkey: "Software\superior-project\superior-core"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\superior-project\superior-core"; ValueType: string; ValueName: "daemonFlags"; ValueData: {code:DaemonFlags};
+Root: HKCU; Subkey: "Software\TheSuperiorCoin"; Flags: uninsdeletekeyifempty
+Root: HKCU; Subkey: "Software\TheSuperiorCoin\superior-core"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\TheSuperiorCoin\superior-core"; ValueType: string; ValueName: "daemonFlags"; ValueData: {code:DaemonFlags};
 
