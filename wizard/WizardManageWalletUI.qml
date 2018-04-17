@@ -101,9 +101,6 @@ ColumnLayout {
         if(typeof extra_parameters.secret_spend_key != "undefined") {
             spendKeyLine.text = extra_parameters.secret_spend_key
         }
-        if(typeof extra_parameters.restore_height != "undefined") {
-            restoreHeightItem.text = extra_parameters.restore_height
-        }
         addressLine.text = address
 
         cameraUi.qrcode_decoded.disconnect(updateFromQrCode)
