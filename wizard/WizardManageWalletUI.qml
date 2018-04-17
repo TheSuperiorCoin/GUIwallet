@@ -92,7 +92,7 @@ ColumnLayout {
         recoverFromSeedMode = false
         spendKeyLine.text = ""
         viewKeyLine.text = ""
-        restoreHeightItem.text = ""
+        restoreHeightItem.text = "192499"
 
 
         if(typeof extra_parameters.secret_view_key != "undefined") {

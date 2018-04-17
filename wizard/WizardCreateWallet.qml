@@ -102,7 +102,7 @@ ColumnLayout {
         wordsTextItem.clipboardButtonVisible: true
         wordsTextItem.tipTextVisible: true
         wordsTextItem.memoTextReadOnly: true
-        restoreHeightVisible:false
+        restoreHeightVisible: true
         recoverMode: false
     }
 
