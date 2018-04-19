@@ -8,7 +8,7 @@ AppName=SuperiorCoin GUI Wallet
 ; Thus it's important to keep this stable over releases
 ; With a different "AppName" InnoSetup would treat a mere update as a completely new application and thus mess up
 
-AppVersion=0.12.0.0
+AppVersion=0.12.1
 DefaultDirName={pf}\Superior GUI Wallet
 DefaultGroupName=Superior GUI Wallet
 UninstallDisplayIcon={app}\superior-wallet-gui.exe
