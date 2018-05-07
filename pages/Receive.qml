@@ -377,6 +377,20 @@ Rectangle {
                 smooth: false
                 fillMode: Image.PreserveAspectFit
                 source: "image://qrcode/" + makeQRCodeString()
+                
+                Rectangle{
+                    anchors.horizontalCenter: qrCode.horizontalCenter
+                    anchors.verticalCenter: qrCode.verticalCenter
+                    clip: true
+
+                    width: mainLayout.qrCodeSize+20
+                    
+                    height: mainLayout.qrCodeSize+20
+                    color: "transparent"
+                    border.width: 10
+                    border.color: "white"
+                    }
+                
                 MouseArea {
                     anchors.fill: parent
                     acceptedButtons: Qt.RightButton
