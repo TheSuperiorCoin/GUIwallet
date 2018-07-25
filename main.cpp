@@ -25,12 +25,8 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 #include <QApplication>
-#include <QSplashScreen>
-#include <QTimer>
-#include <QMessageBox>
 #include <QQmlApplicationEngine>
 #include <QtQml>
 #include <QStandardPaths>
@@ -58,6 +54,7 @@
 #include "Subaddress.h"
 #include "model/SubaddressModel.h"
 #include "wallet/api/wallet2_api.h"
+#include "Logger.h"
 #include "MainApp.h"
 
 // IOS exclusions
@@ -69,62 +66,84 @@
 #include "QrCodeScanner.h"
 #endif
 
-void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-{
-    // Send all message types to logger
-    Superior::Wallet::debug("qml", msg.toStdString());
-}
+bool isIOS = false;
+bool isAndroid = false;
+bool isWindows = false;
+bool isDesktop = false;
 
 int main(int argc, char *argv[])
 {
-    Superior::Utils::onStartup();
+    // platform dependant settings
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    bool isDesktop = true;
+#elif defined(Q_OS_ANDROID)
+    bool isAndroid = true;
+#elif defined(Q_OS_IOS)
+    bool isIOS = true;
+#endif
+#ifdef Q_OS_WIN
+    bool isWindows = true;
+#endif
+
+    // disable "QApplication: invalid style override passed" warning
+    if (isDesktop) putenv((char*)"QT_STYLE_OVERRIDE=fusion");
+#ifdef Q_OS_LINUX
+    // force platform xcb
+    if (isDesktop) putenv((char*)"QT_QPA_PLATFORM=xcb");
+#endif
+
 //    // Enable high DPI scaling on windows & linux
 //#if !defined(Q_OS_ANDROID) && QT_VERSION >= 0x050600
 //    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 //    qDebug() << "High DPI auto scaling - enabled";
 //#endif
 
-    // Log settings
-    Superior::Wallet::init(argv[0], "superior-wallet-gui");
-//    qInstallMessageHandler(messageHandler);
-
     MainApp app(argc, argv);
 
-   // QPixmap pixmap("/images/Superior.png");
-   // if(QPixmap(":/images/SuperiorLogo.png").isNull())
-   // {
-   //    QMessageBox::warning(0, "Error", "Failed to load Splash Screen image!");
-   // } else
-
-    {
-        QSplashScreen *splash = new QSplashScreen;
-        splash->setPixmap(QPixmap(":/images/Superior.png"));
-        splash->show();
-
-        // QTimer::singleShot(2500,splash,SLOT(show()));
-         QTimer::singleShot(2500,splash,SLOT(close()));
-    }
-
-    /*
-    QSplashScreen *splash = new QSplashScreen;
-    splash->setPixmap(QPixmap("images/Superior.png"));
-    splash->show();
-
-    QTimer::singleShot(2500,splash,SLOT(show()));
-*/
-
-    qDebug() << "app startd";
-
-    app.setApplicationName("TheSuperiorCoin");
+    app.setApplicationName("superior-core");
     app.setOrganizationDomain("superior-coin.com");
-    app.setOrganizationName("TheSuperiorCoin");
+    app.setOrganizationName("superiorcoin-project");
 
-    #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
-    app.setWindowIcon(QIcon(":/images/appicon.ico"));
+#if defined(Q_OS_LINUX)
+    if (isDesktop) app.setWindowIcon(QIcon(":/images/appicon.ico"));
     #endif
 
     filter *eventFilter = new filter;
     app.installEventFilter(eventFilter);
+
+    QCommandLineParser parser;
+    QCommandLineOption logPathOption(QStringList() << "l" << "log-file",
+        QCoreApplication::translate("main", "Log to specified file"),
+        QCoreApplication::translate("main", "file"));
+    parser.addOption(logPathOption);
+    parser.addHelpOption();
+    parser.process(app);
+
+    Superior::Utils::onStartup();
+
+    // Log settings
+    const QString logPath = getLogPath(parser.value(logPathOption));
+    Superior::Wallet::init(argv[0], "monero-wallet-gui", logPath.toStdString().c_str(), true);
+    qInstallMessageHandler(messageHandler);
+
+
+    // loglevel is configured in main.qml. Anything lower than
+    // qWarning is not shown here.
+    qWarning().noquote() << "app startd" << "(log: " + logPath + ")";
+
+    // screen settings
+    // Mobile is designed on 128dpi
+    qreal ref_dpi = 128;
+    QRect geo = QApplication::desktop()->availableGeometry();
+    QRect rect = QGuiApplication::primaryScreen()->geometry();
+    qreal dpi = QGuiApplication::primaryScreen()->logicalDotsPerInch();
+    qreal physicalDpi = QGuiApplication::primaryScreen()->physicalDotsPerInch();
+    qreal calculated_ratio = physicalDpi/ref_dpi;
+
+    qWarning().nospace() << "Qt:" << QT_VERSION_STR << " | screen: " << rect.width()
+                         << "x" << rect.height() << " - dpi: " << dpi << " - ratio:"
+                         << calculated_ratio;
+
 
     // registering types for QML
     qmlRegisterType<clipboardAdapter>("superiorComponents.Clipboard", 1, 0, "Clipboard");
@@ -196,14 +215,16 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("translationManager", TranslationManager::instance());
 
     engine.addImageProvider(QLatin1String("qrcode"), new QRCodeImageProvider());
-    const QStringList arguments = QCoreApplication::arguments();
 
     engine.rootContext()->setContextProperty("mainApp", &app);
 
     engine.rootContext()->setContextProperty("qtRuntimeVersion", qVersion());
 
+    engine.rootContext()->setContextProperty("walletLogPath", logPath);
+
 // Exclude daemon manager from IOS
 #ifndef Q_OS_IOS
+    const QStringList arguments = (QStringList) QCoreApplication::arguments().at(0);
     DaemonManager * daemonManager = DaemonManager::instance(&arguments);
     engine.rootContext()->setContextProperty("daemonManager", daemonManager);
 #endif
@@ -213,40 +234,15 @@ int main(int argc, char *argv[])
 //  to save the wallet file (.keys, .bin), they have to be user-accessible for
 //  backups - I reckon we save that in My Documents\Superior Accounts\ on
 //  Windows, ~/Superior Accounts/ on nix / osx
-    bool isWindows = false;
-    bool isIOS = false;
-    bool isMac = false;
-    bool isAndroid = false;
-#ifdef Q_OS_WIN
-    isWindows = true;
+#if defined(Q_OS_WIN) || defined(Q_OS_IOS)
     QStringList superiorAccountsRootDir = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-#elif defined(Q_OS_IOS)
-    isIOS = true;
-    QStringList superiorAccountsRootDir = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-#elif defined(Q_OS_UNIX)
+#else
     QStringList superiorAccountsRootDir = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
-#endif
-#ifdef Q_OS_MAC
-    isMac = true;
-#endif
-#ifdef Q_OS_ANDROID
-    isAndroid = true;
 #endif
 
     engine.rootContext()->setContextProperty("isWindows", isWindows);
     engine.rootContext()->setContextProperty("isIOS", isIOS);
     engine.rootContext()->setContextProperty("isAndroid", isAndroid);
-
-    // screen settings
-    // Mobile is designed on 128dpi
-    qreal ref_dpi = 128;
-    QRect geo = QApplication::desktop()->availableGeometry();
-    QRect rect = QGuiApplication::primaryScreen()->geometry();
-    qreal height = qMax(rect.width(), rect.height());
-    qreal width = qMin(rect.width(), rect.height());
-    qreal dpi = QGuiApplication::primaryScreen()->logicalDotsPerInch();
-    qreal physicalDpi = QGuiApplication::primaryScreen()->physicalDotsPerInch();
-    qreal calculated_ratio = physicalDpi/ref_dpi;
 
     engine.rootContext()->setContextProperty("screenWidth", geo.width());
     engine.rootContext()->setContextProperty("screenHeight", geo.height());
@@ -256,14 +252,6 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("scaleRatio", 1);
 #endif
 
-    qDebug() << "available width: " << geo.width();
-    qDebug() << "available height: " << geo.height();
-    qDebug() << "devicePixelRatio: " << app.devicePixelRatio();
-    qDebug() << "screen height: " << height;
-    qDebug() << "screen width: " << width;
-    qDebug() << "screen logical dpi: " << dpi;
-    qDebug() << "screen Physical dpi: " << physicalDpi;
-    qDebug() << "screen calculated ratio: " << calculated_ratio;
 
 
     if (!superiorAccountsRootDir.empty()) {
@@ -274,12 +262,10 @@ int main(int argc, char *argv[])
 
     // Get default account name
     QString accountName = qgetenv("USER"); // mac/linux
-    if (accountName.isEmpty()){
+    if (accountName.isEmpty())
         accountName = qgetenv("USERNAME"); // Windows
-    }
-    if (accountName.isEmpty()) {
-        accountName = "My superior Account";
-    }
+    if (accountName.isEmpty())
+        accountName = "My SuperiorCoin Account";
 
     engine.rootContext()->setContextProperty("defaultAccountName", accountName);
     engine.rootContext()->setContextProperty("applicationDirectory", QApplication::applicationDirPath());
@@ -306,14 +292,15 @@ int main(int argc, char *argv[])
 
 #ifdef WITH_SCANNER
     QObject *qmlCamera = rootObject->findChild<QObject*>("qrCameraQML");
-    if( qmlCamera ){
-        qDebug() << "QrCodeScanner : object found";
+    if (qmlCamera)
+    {
+        qWarning() << "QrCodeScanner : object found";
         QCamera *camera_ = qvariant_cast<QCamera*>(qmlCamera->property("mediaObject"));
         QObject *qmlFinder = rootObject->findChild<QObject*>("QrFinder");
         qobject_cast<QrCodeScanner*>(qmlFinder)->setSource(camera_);
-    } else {
-        qDebug() << "QrCodeScanner : something went wrong !";
     }
+    else
+        qCritical() << "QrCodeScanner : something went wrong !";
 #endif
 
     QObject::connect(eventFilter, SIGNAL(sequencePressed(QVariant,QVariant)), rootObject, SLOT(sequencePressed(QVariant,QVariant)));

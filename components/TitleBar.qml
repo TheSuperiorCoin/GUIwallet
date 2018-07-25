@@ -27,35 +27,51 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This may contain code Copyright (c) 2014-2017, The Monero Project
 
-import QtQuick 2.2
+import QtQuick 2.5
 import QtQuick.Window 2.0
 import QtQuick.Layouts 1.1
 
 Rectangle {
     id: titleBar
 
+    height: {
+        if(!customDecorations || isMobile){
+            return 0;
+        }
+
+        if(small) return 38 * scaleRatio;
+        else return 50 * scaleRatio;
+    }
+    y: -height
+    z: 1
+
+    property string title
     property int mouseX: 0
     property bool containsMouse: false
     property alias basicButtonVisible: goToBasicVersionButton.visible
-    property bool customDecorations: true
+    property bool customDecorations: persistentSettings.customDecorations
+    property bool showWhatIsButton: true
+    property bool showMinimizeButton: false
+    property bool showMaximizeButton: false
+    property bool showCloseButton: true
+    property bool showSuperiorLogo: false
+    property bool small: false
+
+    signal closeClicked
+    signal maximizeClicked
+    signal minimizeClicked
     signal goToBasicVersion(bool yes)
-    height: customDecorations && !isMobile ? 50 : 0
-    y: -height
-    property string title
-    property alias maximizeButtonVisible: maximizeButton.visible
-    z: 1
 
     Item {
-        id: test
+        // Background gradient
         width: parent.width
-        height: 50
-        z: 1
-
-        // use jpg for gradiency
-        Image {
-           anchors.fill: parent
            height: parent.height
-           width: parent.width
+        z: parent.z + 1
+
+        Image {
+           anchors.fill: titleBar
+           height: titleBar.height
+           width: titleBar.width
            source: "../images/titlebarGradient.jpg"
         }
     }
@@ -63,10 +79,10 @@ Rectangle {
     Item{
         id: titlebarlogo
         width: 125
-        height: 50
+        height: parent.height
         anchors.centerIn: parent
-        visible: customDecorations
-        z: 1
+        visible: customDecorations && showSuperiorLogo
+        z: parent.z + 1
 
         Image {
             anchors.left: parent.left
@@ -78,6 +94,15 @@ Rectangle {
         }
     }
 
+    Label {
+        id: titleLabel
+        visible: !showSuperiorLogo && customDecorations && titleBar.title !== ''
+        anchors.centerIn: parent
+        fontSize: 18
+        text: titleBar.title
+        z: parent.z + 1
+    }
+
     // collapse left panel
     Rectangle {
         id: goToBasicVersionButton
@@ -86,10 +111,10 @@ Rectangle {
         anchors.top: parent.top
         anchors.left: parent.left
         color:  "transparent"
-        height: 50 * scaleRatio
+        height: titleBar.height
         width: height
         visible: isMobile
-        z: 2
+        z: parent.z + 2
 
         Image {
             width: 14
@@ -119,36 +144,11 @@ Rectangle {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         visible: parent.customDecorations
-        z: 2
-
-        Rectangle {
-            id: whatIsAreaButton
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            width: 42
-            color: containsMouse ? "#6B0072" : "#00000000"
-
-            Image {
-                anchors.centerIn: parent
-                width: 9
-                height: 16
-                source: "../images/question.png"
-            }
-
-            MouseArea {
-                id: whatIsArea
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                onEntered: whatIsAreaButton.color = "#262626";
-                onExited: whatIsAreaButton.color = "transparent";
-                onClicked: {
-
-                }
-            }
-        }
+        z: parent.z + 2
 
         Rectangle {
             id: minimizeButton
+            visible: showMinimizeButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: 42
@@ -166,14 +166,13 @@ Rectangle {
                 cursorShape: Qt.PointingHandCursor
                 onEntered: minimizeButton.color = "#262626";
                 onExited: minimizeButton.color = "transparent";
-                onClicked: {
-                    appWindow.visibility = Window.Minimized
-                }
+                onClicked: minimizeClicked();
             }
         }
 
         Rectangle {
             id: maximizeButton
+            visible: showMaximizeButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: 42
@@ -194,15 +193,13 @@ Rectangle {
                 cursorShape: Qt.PointingHandCursor
                 onEntered: maximizeButton.color = "#262626";
                 onExited: maximizeButton.color = "transparent";
-                onClicked: {
-                    appWindow.visibility = appWindow.visibility !== Window.FullScreen ? Window.FullScreen :
-                                                                                        Window.Windowed
-                }
+                onClicked: maximizeClicked();
             }
         }
 
         Rectangle {
             id: closeButton
+            visible: showCloseButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: 42
@@ -217,7 +214,7 @@ Rectangle {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: appWindow.close();
+                onClicked: closeClicked();
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onEntered: closeButton.color = "#262626";
@@ -226,4 +223,23 @@ Rectangle {
         }
     }
 
+    // window borders
+    Rectangle {
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        anchors.left: parent.left
+        height: 1
+        color: "#2F2F2F"
+        z: parent.z + 1
+    }
+
+    Rectangle {
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.left: parent.left
+        visible: titleBar.small
+        height: 1
+        color: "#2F2F2F"
+        z: parent.z + 1
+    }
 }

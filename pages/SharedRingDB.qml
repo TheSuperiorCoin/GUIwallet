@@ -37,7 +37,7 @@ import "../components"
 import superiorComponents.Clipboard 1.0
 
 Rectangle {
-
+    property alias panelHeight: mainLayout.height
     color: "transparent"
 
     Clipboard { id: clipboard }
@@ -71,37 +71,44 @@ Rectangle {
     /* main layout */
     ColumnLayout {
         id: mainLayout
-        anchors.margins: 40
+        anchors.margins: (isMobile)? 17 : 20
+        anchors.topMargin: 40 * scaleRatio
+
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.right: parent.right
 
-        spacing: 20
+        spacing: 20 * scaleRatio
         property int labelWidth: 120
         property int editWidth: 400
-        property int lineEditFontSize: 12
+        property int lineEditFontSize: 14 * scaleRatio
 
         MessageDialog {
             id: sharedRingDBDialog
             standardButtons: StandardButton.Ok
         }
 
-        Text {
-            text: qsTr("This page allows you to interact with the shared ring database.<br>" +
-                       "This database is meant for use by Superior wallets as well as wallets from Superior clones which reuse the Superior keys.") + translationManager.emptyString
-            wrapMode: Text.Wrap
-            Layout.fillWidth: true;
-            color: Style.defaultFontColor
+        Label {
+            id: signTitleLabel
+            fontSize: 24 * scaleRatio
+            text: qsTr("Shared RingDB") + translationManager.emptyString
         }
 
         Text {
-            textFormat: Text.RichText
-            text: "<style type='text/css'>a {text-decoration: none; color: #CEAC41; font-size: 14px;}</style>" +
-                  "<font size='+2'>" + qsTr("Blackballed outputs") + "</font>" + "<font size='2'> (</font><a href='#'>" + qsTr("help") + "</a><font size='2'>)</font><br>" +
-                  qsTr("This sets which outputs are known to be spent, and thus not to be used as privacy placeholders in ring signatures.<br>") +
-                  qsTr("You should only have to load a file when you want to refresh the list. Manual adding/removing is possible if needed.") + translationManager.emptyString
+            text: qsTr("This page allows you to interact with the shared ring database. " +
+                       "This database is meant for use by Superior wallets as well as wallets from Superior clones which reuse the Superior keys.") + translationManager.emptyString
             wrapMode: Text.Wrap
-            Layout.fillWidth: true;
+            Layout.fillWidth: true
+            font.family: Style.fontRegular.name
+            font.pixelSize: 14 * scaleRatio
+            color: Style.defaultFontColor
+        }
+
+        LabelSubheader {
+            Layout.fillWidth: true
+            textFormat: Text.RichText
+            text: "<style type='text/css'>a {text-decoration: none; color: #FF6C3C; font-size: 14px;}</style>" +
+                  qsTr("Blackballed outputs") + " <a href='#'>" + qsTr("Help") + "</a>" + translationManager.emptyString
             onLinkActivated: {
                 sharedRingDBDialog.title  = qsTr("Blackballed outputs") + translationManager.emptyString;
                 sharedRingDBDialog.text = qsTr(
@@ -119,14 +126,22 @@ Rectangle {
                 sharedRingDBDialog.icon = StandardIcon.Information
                 sharedRingDBDialog.open()
             }
+        }
+
+        Text {
+            textFormat: Text.RichText
+            font.family: Style.fontRegular.name
+            font.pixelSize: 14 * scaleRatio
+            text: qsTr("This sets which outputs are known to be spent, and thus not to be used as privacy placeholders in ring signatures. ") +
+                  qsTr("You should only have to load a file when you want to refresh the list. Manual adding/removing is possible if needed.") + translationManager.emptyString
+            wrapMode: Text.Wrap
+            Layout.fillWidth: true;
             color: Style.defaultFontColor
         }
 
-        RowLayout {
-            id: loadBlackballFileRow
-            anchors.topMargin: 17
-            anchors.left: parent.left
-            anchors.right: parent.right
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.topMargin: 12
 
             FileDialog {
                 id: loadBlackballFileDialog
@@ -139,32 +154,33 @@ Rectangle {
                 }
             }
 
+            RowLayout {
+                Layout.fillWidth: true
+
+                LineEdit {
+                    id: loadBlackballFileLine
+                    Layout.fillWidth: true
+                    fontSize: mainLayout.lineEditFontSize
+                    placeholderText: qsTr("Path to file") + "..." + translationManager.emptyString
+                    labelFontSize: 14 * scaleRatio
+                    labelText: qsTr("Filename with outputs to blackball") + ":" + translationManager.emptyString
+                    copyButton: true
+                    readOnly: false
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: 18
+
             StandardButton {
                 id: selectBlackballFileButton
                 anchors.rightMargin: 17 * scaleRatio
-                text: qsTr("Select") + translationManager.emptyString
+                    text: qsTr("Browse") + translationManager.emptyString
                 enabled: true
                 small: true
                 onClicked: {
                   loadBlackballFileDialog.open()
-                }
-            }
-
-            LineEdit {
-                id: loadBlackballFileLine
-                anchors.left: selectBlackballFileButton.right
-                anchors.right: loadBlackballFileButton.left
-                placeholderText: qsTr("Filename with outputs to blackball") + translationManager.emptyString;
-                readOnly: false
-                Layout.fillWidth: true
-
-                IconButton {
-                    imageSource: "../images/copyToClipboard.png"
-                    onClicked: {
-                        if (loadBlackballFileLine.text.length > 0) {
-                            clipboard.setText(loadBlackballFileLine.text)
-                        }
-                    }
                 }
             }
 
@@ -173,35 +189,32 @@ Rectangle {
                 anchors.right: parent.right
                 text: qsTr("Load") + translationManager.emptyString
                 small: true
-                enabled: !!appWindow.currentWallet
+                    enabled: !!appWindow.currentWallet && loadBlackballFileLine.text !== ""
                 onClicked: appWindow.currentWallet.blackballOutputs(walletManager.urlToLocalPath(loadBlackballFileDialog.fileUrl), true)
             }
         }
-
-        Label {
-            fontSize: 14
-            text: qsTr("Or manually blackball or unblackball a single output:") + translationManager.emptyString
-            width: mainLayout.labelWidth
         }
+
+        ColumnLayout {
+            Layout.topMargin: 12
 
         RowLayout {
             LineEdit {
                 id: blackballOutputLine
                 fontSize: mainLayout.lineEditFontSize
-                placeholderText: qsTr("Paste output public key") + translationManager.emptyString
+                    labelFontSize: 14 * scaleRatio
+                    labelText: qsTr("Or manually blackball/unblackball a single output:") + translationManager.emptyString
+                    placeholderText: qsTr("Paste output public key") + "..." + translationManager.emptyString
                 readOnly: false
+                    copyButton: true
                 width: mainLayout.editWidth
                 Layout.fillWidth: true
-
-                IconButton {
-                    imageSource: "../images/copyToClipboard.png"
-                    onClicked: {
-                        if (blackballOutputLine.text.length > 0) {
-                            clipboard.setText(blackballOutputLine.text)
-                        }
-                    }
                 }
             }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: 18
 
             StandardButton {
                 id: blackballButton
@@ -220,20 +233,20 @@ Rectangle {
                 onClicked: appWindow.currentWallet.unblackballOutput(blackballOutputLine.text)
             }
         }
+        }
 
-        Text {
+        LabelSubheader {
+            Layout.fillWidth: true
+            Layout.topMargin: 24 * scaleRatio
             textFormat: Text.RichText
-            text: "<style type='text/css'>a {text-decoration: none; color: #CEAC41; font-size: 14px;}</style>" +
-                  "<font size='+2'>" + qsTr("Rings") + "</font>" + "<font size='2'> (</font><a href='#'>" + qsTr("help") + "</a><font size='2'>)</font><br>" +
-                  qsTr("This records rings used by outputs spent on Superior on a key reusing chain, so that the same ring may be reused to avoid privacy issues.") + translationManager.emptyString
-            wrapMode: Text.Wrap
-            Layout.fillWidth: true;
+            text: "<style type='text/css'>a {text-decoration: none; color: #FF6C3C; font-size: 14px;}</style>" +
+                  qsTr("Rings") + " <a href='#'>" + qsTr("Help") + "</a>" + translationManager.emptyString
             onLinkActivated: {
                 sharedRingDBDialog.title  = qsTr("Rings") + translationManager.emptyString;
                 sharedRingDBDialog.text = qsTr(
                     "In order to avoid nullifying the protection afforded by Superior's ring signatures, an output should not " +
                     "be spent with different rings on different blockchains. While this is normally not a concern, it can become one " +
-                    "when a key-reusing Superior clone allows you do spend existing outputs. In this case, you need to ensure this " +
+                    "when a key-reusing Superior clone allows you to spend existing outputs. In this case, you need to ensure this " +
                     "existing outputs uses the same ring on both chains.<br>" +
                     "This will be done automatically by Superior and any key-reusing software which is not trying to actively strip " +
                     "you of your privacy.<br>" +
@@ -246,6 +259,15 @@ Rectangle {
                 sharedRingDBDialog.icon = StandardIcon.Information
                 sharedRingDBDialog.open()
             }
+        }
+
+        Text {
+            textFormat: Text.RichText
+            font.family: Style.fontRegular.name
+            font.pixelSize: 14 * scaleRatio
+            text: qsTr("This records rings used by outputs spent on Superior on a key reusing chain, so that the same ring may be reused to avoid privacy issues.") + translationManager.emptyString
+            wrapMode: Text.Wrap
+            Layout.fillWidth: true;
             color: Style.defaultFontColor
         }
 
@@ -253,23 +275,38 @@ Rectangle {
             LineEdit {
                 id: keyImageLine
                 fontSize: mainLayout.lineEditFontSize
-                placeholderText: qsTr("Paste key image") + translationManager.emptyString
+                labelFontSize: 14 * scaleRatio
+                labelText: qsTr("Key image") + ":" + translationManager.emptyString
+                placeholderText: qsTr("Paste key image") + "..." + translationManager.emptyString
                 readOnly: false
+                copyButton: true
                 width: mainLayout.editWidth
                 Layout.fillWidth: true
+            }
+        }
 
-                IconButton {
-                    imageSource: "../images/copyToClipboard.png"
-                    onClicked: {
-                        if (keyImageLine.text.length > 0) {
-                            clipboard.setText(keyImageLine.text)
-                        }
-                    }
-                }
+        GridLayout{
+            Layout.topMargin: 12 * scaleRatio
+            columns: (isMobile) ?  1 : 2
+            columnSpacing: 32 * scaleRatio
+
+            ColumnLayout {
+                RowLayout {
+                    LineEdit {
+                        id: getRingLine
+                        Layout.fillWidth: true
+                        fontSize: mainLayout.lineEditFontSize
+                        labelFontSize: 14 * scaleRatio
+                        labelText: qsTr("Get ring") + ":" + translationManager.emptyString
+                        readOnly: true
+                        copyButton: true
             }
         }
 
         RowLayout {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 18
+
             StandardButton {
                 id: getRingButton
                 text: qsTr("Get Ring") + translationManager.emptyString
@@ -287,52 +324,30 @@ Rectangle {
                     }
                 }
             }
-            LineEdit {
-                id: getRingLine
-                fontSize: mainLayout.lineEditFontSize
-                placeholderText: qsTr("") + translationManager.emptyString
-                readOnly: true
-                width: mainLayout.editWidth
-                Layout.fillWidth: true
-
-                IconButton {
-                    imageSource: "../images/copyToClipboard.png"
-                    onClicked: {
-                        if (getRingLine.text.length > 0) {
-                            clipboard.setText(getRingLine.text)
-                        }
-                    }
-                }
             }
         }
 
+            ColumnLayout {
         RowLayout {
-            CheckBox {
-                id: setRingRelative
-                checked: true
-                text: qsTr("Relative") + translationManager.emptyString
-                checkedIcon: "../images/checkedBlackIcon.png"
-                uncheckedIcon: "../images/uncheckedIcon.png"
-            }
             LineEdit {
                 id: setRingLine
+                        Layout.fillWidth: true
                 fontSize: mainLayout.lineEditFontSize
-                placeholderText: qsTr("") + translationManager.emptyString
+                        labelFontSize: 14 * scaleRatio
+                        labelText: qsTr("Set ring") + ":" + translationManager.emptyString
                 readOnly: false
-                width: mainLayout.editWidth
-
-                IconButton {
-                    imageSource: "../images/copyToClipboard.png"
-                    onClicked: {
-                        if (getRingLine.text.length > 0) {
-                            clipboard.setText(getRingLine.text)
+                        copyButton: true
                         }
                     }
-                }
-            }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 18
+
             StandardButton {
                 id: setRingButton
                 text: qsTr("Set Ring") + translationManager.emptyString
+                        small: true
                 enabled: !!appWindow.currentWallet && validHex32(keyImageLine.text) && validRing(setRingLine.text.trim(), setRingRelative.checked)
                 onClicked: {
                     var outs = setRingLine.text.trim()
@@ -340,12 +355,17 @@ Rectangle {
                 }
             }
         }
+            }
+        }
+
+        GridLayout {
+            columns: (isMobile) ?  1 : 2
 
         CheckBox {
             id: segregatePreForkOutputs
             checked: persistentSettings.segregatePreForkOutputs
             text: qsTr("I intend to spend on key-reusing fork(s)") + translationManager.emptyString
-            checkedIcon: "../images/checkedBlackIcon.png"
+                checkedIcon: "../images/checkedIcon-black.png"
             uncheckedIcon: "../images/uncheckedIcon.png"
             onClicked: {
                 persistentSettings.segregatePreForkOutputs = segregatePreForkOutputs.checked
@@ -358,7 +378,7 @@ Rectangle {
             id: keyReuseMitigation2
             checked: persistentSettings.keyReuseMitigation2
             text: qsTr("I might want to spend on key-reusing fork(s)") + translationManager.emptyString
-            checkedIcon: "../images/checkedBlackIcon.png"
+                checkedIcon: "../images/checkedIcon-black.png"
             uncheckedIcon: "../images/uncheckedIcon.png"
             onClicked: {
                 persistentSettings.keyReuseMitigation2 = keyReuseMitigation2.checked
@@ -367,20 +387,27 @@ Rectangle {
                 }
             }
         }
+
+            CheckBox {
+                id: setRingRelative
+                checked: true
+                text: qsTr("Relative") + translationManager.emptyString
+                checkedIcon: "../images/checkedIcon-black.png"
+                uncheckedIcon: "../images/uncheckedIcon.png"
+            }
+        }
+
         RowLayout {
             id: segregationHeightRow
             anchors.topMargin: 17
             anchors.left: parent.left
             anchors.right: parent.right
 
-            Label {
-                id: segregationHeightLabel
-                fontSize: 14
-                text: qsTr("Segregation height:") + translationManager.emptyString
-            }
             LineEdit {
                 id: segregationHeightLine
                 readOnly: false
+                labelFontSize: 14 * scaleRatio
+                labelText: qsTr("Segregation height:") + translationManager.emptyString
                 Layout.fillWidth: true
                 validator: IntValidator { bottom: 0 }
                 onEditingFinished: {

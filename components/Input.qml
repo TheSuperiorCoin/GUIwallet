@@ -39,6 +39,8 @@ TextField {
     horizontalAlignment: TextInput.AlignLeft
     selectByMouse: true
     color: SuperiorComponents.Style.defaultFontColor
+    selectionColor: SuperiorComponents.Style.dimmedFontColor
+    selectedTextColor: SuperiorComponents.Style.defaultFontColor
 
     background: Rectangle {
         color: "transparent"

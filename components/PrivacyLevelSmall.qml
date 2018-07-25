@@ -72,11 +72,7 @@ Item {
             //radius: 2
             width: row.x
 
-            color: {
-                if(item.fillLevel < 5) return "#CEAC41"
-                if(item.fillLevel < 13) return "#AAFFBB"
-                return "#36B25C"
-            }
+            color: "#FF6C3C"
 
             Timer {
                 interval: 500

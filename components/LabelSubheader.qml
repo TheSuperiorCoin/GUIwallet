@@ -33,7 +33,7 @@ import "../components" as SuperiorComponents
 
 Label {
     id: item
-    fontSize: 17 * scaleRatio
+    fontSize: 18 * scaleRatio
 
     Rectangle {
         anchors.top: item.bottom
@@ -43,5 +43,11 @@ Label {
         height: 2
         color: SuperiorComponents.Style.dividerColor
         opacity: SuperiorComponents.Style.dividerOpacity
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        acceptedButtons: Qt.NoButton
+        cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
     }
 }

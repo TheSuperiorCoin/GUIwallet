@@ -27,7 +27,7 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This may contain code Copyright (c) 2014-2017, The Monero Project
 
-import QtQuick 2.0
+import QtQuick 2.5
 import QtQuick.Layouts 1.1
 
 import "../components" as SuperiorComponents
@@ -44,6 +44,7 @@ Item {
     property string fontFamily: ""
     property alias wrapMode: label.wrapMode
     property alias horizontalAlignment: label.horizontalAlignment
+    property alias hoveredLink: label.hoveredLink
     signal linkActivated()
     height: label.height * scaleRatio
     width: label.width * scaleRatio

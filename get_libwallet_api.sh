@@ -17,7 +17,7 @@ if [ ! -d $SUPERIOR_DIR/src ]; then
 fi
 git submodule update --remote
 git -C $SUPERIOR_DIR fetch
-git -C $SUPERIOR_DIR checkout v0.12.1
+git -C $SUPERIOR_DIR checkout v0.12.3
 
 # get TheSuperiorCoin core tag
 get_tag

@@ -44,6 +44,7 @@ Item {
     property int dropdownHeight: 42
     property int fontHeaderSize: 16 * scaleRatio
     property int fontItemSize: 14 * scaleRatio
+    property string colorBorder: SuperiorComponents.Style.inputBorderColorInActive
     property string colorHeaderBackground: "transparent"
     property bool headerBorder: true
     property bool headerFontBold: false
@@ -81,7 +82,7 @@ Item {
         Rectangle {
             color: dropdown.colorHeaderBackground
             border.width: dropdown.headerBorder ? 1 : 0
-            border.color: Qt.rgba(1, 1, 1, 0.25)
+            border.color: dropdown.colorBorder
             radius: 4
             anchors.fill: parent
         }
@@ -188,7 +189,7 @@ Item {
                         font.family: SuperiorComponents.Style.fontRegular.name
                         font.bold: true
                         font.pixelSize: fontItemSize
-                        color: itemArea.containsMouse || index === column.currentIndex || itemArea.containsMouse ? "#CEAD34" : "#FFFFFF"
+                        color: itemArea.containsMouse || index === column.currentIndex || itemArea.containsMouse ? "#FA6800" : "#FFFFFF"
                         text: qsTr(column1) + translationManager.emptyString
                     }
 

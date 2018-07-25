@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, The Superior Project
 // 
 // All rights reserved.
 // 
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
@@ -33,51 +32,43 @@ import QtQuick.Layouts 1.1
 import "../components" as SuperiorComponents
 
 RowLayout {
-    id: checkBox
+    id: radioButton
     property alias text: label.text
-    property string checkedIcon: "../images/checkedIcon-black.png"
-    property string uncheckedIcon
     property bool checked: false
-    property alias background: backgroundRect.color
     property int fontSize: 14 * scaleRatio
     property alias fontColor: label.color
     signal clicked()
-    height: 25 * scaleRatio
+    height: 26 * scaleRatio
+    // legacy properties
+    property var checkedColor: "white"
+    property var borderColor: checked ? Qt.rgba(1, 1, 1, 0.35) : Qt.rgba(1, 1, 1, 0.25)
 
     function toggle(){
-        checkBox.checked = !checkBox.checked
-        checkBox.clicked()
+        radioButton.checked = !radioButton.checked
+        radioButton.clicked()
     }
 
     RowLayout {
         Layout.fillWidth: true
         Rectangle {
+            id: button
             anchors.left: parent.left
-            width: 25 * scaleRatio
-            height: checkBox.height - 1
-            radius: 3
             y: 0
             color: "transparent"
-            border.color:
-                if(checkBox.checked){
-                    return SuperiorComponents.Style.inputBorderColorActive;
-                } else {
-                    return SuperiorComponents.Style.inputBorderColorInActive;
-                }
-        }
+            border.color: borderColor
+            width: radioButton.height
+            height: radioButton.height
+            radius: radioButton.height
 
-        Rectangle {
-            id: backgroundRect
-            anchors.left: parent.left
-            width: 25 * scaleRatio
-            height: checkBox.height - 1
-            y: 1
-            color: "transparent"
-
-            Image {
-                anchors.centerIn: parent
-                source: checkBox.checkedIcon
-                visible: checkBox.checked
+            Rectangle {
+                visible: radioButton.checked
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                color: checkedColor
+                width: 10 * scaleRatio
+                height: 10 * scaleRatio
+                radius: 10
+                opacity: 0.8
             }
 
             MouseArea {
@@ -91,13 +82,13 @@ RowLayout {
 
         Text {
             id: label
-            font.family: SuperiorComponents.Style.fontRegular.name
-            font.pixelSize: checkBox.fontSize
-            color: SuperiorComponents.Style.defaultFontColor
-            wrapMode: Text.Wrap
-            Layout.fillWidth: true
-            anchors.left: backgroundRect.right
+            anchors.left: button.right
             anchors.leftMargin: !isMobile ? 10 : 8
+            color: SuperiorComponents.Style.defaultFontColor
+            font.family: SuperiorComponents.Style.fontRegular.name
+            font.pixelSize: radioButton.fontSize
+            wrapMode: Text.Wrap
+
             MouseArea {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor

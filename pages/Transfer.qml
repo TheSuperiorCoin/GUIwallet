@@ -80,7 +80,7 @@ Rectangle {
         var mixin = scaleValueToMixinCount(fillLevel)
         console.log("PrivacyLevel changed:"  + fillLevel)
         console.log("mixin count: "  + mixin)
-        privacyLabel.text = qsTr("Privacy level (ringsize %1)").arg(mixin+1) + translationManager.emptyString
+        privacyLabel.text = qsTr("Ring size: %1").arg(mixin+1) + translationManager.emptyString
     }
 
     function updateFromQrCode(address, payment_id, amount, tx_description, recipient_name) {
@@ -132,7 +132,7 @@ Rectangle {
               Layout.fillWidth: true
 
               radius: 2
-              border.color: Qt.rgba(255, 255, 255, 0.25)
+              border.color: Style.inputBorderColorInActive
               border.width: 1
               color: "transparent"
 
@@ -194,12 +194,8 @@ Rectangle {
                       inlineButtonText: qsTr("All") + translationManager.emptyString
                       inlineButton.onClicked: amountLine.text = "(all)"
 
-                      validator: DoubleValidator {
-                          bottom: 0.0
-                          top: 18446744.073709551615
-                          decimals: 12
-                          notation: DoubleValidator.StandardNotation
-                          locale: "C"
+                      validator: RegExpValidator {
+                          regExp: /(\d{1,8})([.]\d{1,12})?$/
                       }
                   }
               }
@@ -225,7 +221,7 @@ Rectangle {
               ListModel {
                    id: priorityModelV5
 
-                   ListElement { column1: qsTr("Default") ; column2: ""; priority: 0}
+                   ListElement { column1: qsTr("Automatic") ; column2: ""; priority: 0}
                    ListElement { column1: qsTr("Slow (x0.25 fee)") ; column2: ""; priority: 1}
                    ListElement { column1: qsTr("Normal (x1 fee)") ; column2: ""; priority: 2 }
                    ListElement { column1: qsTr("Fast (x5 fee)") ; column2: ""; priority: 3 }
@@ -259,9 +255,31 @@ Rectangle {
                 Address <font size='2'>  ( </font> <a href='#'>Address book</a><font size='2'> )</font>")
                 + translationManager.emptyString
               labelButtonText: qsTr("Resolve") + translationManager.emptyString
-              placeholderText: "5.."
+              placeholderText: "4.. / 8.."
               onInputLabelLinkActivated: { appWindow.showPageRequest("AddressBook") }
-              onLabelButtonClicked: {
+          }
+
+          StandardButton {
+              id: qrfinderButton
+              text: qsTr("QR Code") + translationManager.emptyString
+              visible : appWindow.qrScannerEnabled
+              enabled : visible
+              width: visible ? 60 * scaleRatio : 0
+              onClicked: {
+                  cameraUi.state = "Capture"
+                  cameraUi.qrcode_decoded.connect(updateFromQrCode)
+              }
+          }
+      }
+
+      StandardButton {
+          id: resolveButton
+          anchors.left: parent.left
+          width: 80
+          text: qsTr("Resolve") + translationManager.emptyString
+          visible: isValidOpenAliasAddress(addressLine.text)
+          enabled : isValidOpenAliasAddress(addressLine.text)
+          onClicked: {
                   var result = walletManager.resolveOpenAlias(addressLine.text)
                   if (result) {
                     var parts = result.split("|")
@@ -294,19 +312,6 @@ Rectangle {
               }
           }
 
-          StandardButton {
-              id: qrfinderButton
-              text: qsTr("QR Code") + translationManager.emptyString
-              visible : appWindow.qrScannerEnabled
-              enabled : visible
-              width: visible ? 60 * scaleRatio : 0
-              onClicked: {
-                  cameraUi.state = "Capture"
-                  cameraUi.qrcode_decoded.connect(updateFromQrCode)
-              }
-          }
-      }
-
       RowLayout {
           // payment id input
           LineEdit {
@@ -330,7 +335,8 @@ Rectangle {
       RowLayout {
           StandardButton {
               id: sendButton
-              rightIcon: "../images/rightIcon.png"
+              rightIcon: "../images/rightArrow.png"
+              rightIconInactive: "../images/rightArrowInactive.png"
               Layout.topMargin: 4 * scaleRatio
               text: qsTr("Send") + translationManager.emptyString
               // Send button is enabled when:
@@ -524,6 +530,30 @@ Rectangle {
                     submitTxDialog.open();
                 }
             }
+
+            StandardButton {
+                id: exportKeyImagesButton
+                text: qsTr("Export key images") + translationManager.emptyString
+                small: true
+                visible: !appWindow.viewOnly
+                enabled: pageRoot.enabled
+                onClicked: {
+                    console.log("Transfer: export key images clicked")
+                    exportKeyImagesDialog.open();
+                }
+            }
+
+            StandardButton {
+                id: importKeyImagesButton
+                text: qsTr("Import key images") + translationManager.emptyString
+                small: true
+                visible: appWindow.viewOnly && walletManager.isDaemonLocal(appWindow.currentDaemonAddress)
+                enabled: pageRoot.enabled
+                onClicked: {
+                    console.log("Transfer: import key images clicked")
+                    importKeyImagesDialog.open();
+                }
+            }
         }
     }
 
@@ -556,7 +586,7 @@ Rectangle {
                     + (transaction.paymentId[i] == "" ? "" : qsTr("\n\payment ID: ") + transaction.paymentId[i])
                     + qsTr("\nAmount: ") + walletManager.displayAmount(transaction.amount(i))
                     + qsTr("\nFee: ") + walletManager.displayAmount(transaction.fee(i))
-                    + qsTr("\nRingsize: ") + transaction.mixin(i+1)
+                    + qsTr("\nRingsize: ") + (transaction.mixin(i)+1)
 
                     // TODO: add descriptions to unsigned_tx_set?
     //              + (transactionDescription === "" ? "" : (qsTr("\n\nDescription: ") + transactionDescription))
@@ -614,6 +644,35 @@ Rectangle {
             console.log("Canceled")
         }
 
+    }
+
+    //ExportKeyImagesDialog
+    FileDialog {
+        id: exportKeyImagesDialog
+        selectMultiple: false
+        selectExisting: false
+        onAccepted: {
+            console.log(walletManager.urlToLocalPath(exportKeyImagesDialog.fileUrl))
+            currentWallet.exportKeyImages(walletManager.urlToLocalPath(exportKeyImagesDialog.fileUrl));
+        }
+        onRejected: {
+            console.log("Canceled");
+        }
+    }
+
+    //ImportKeyImagesDialog
+    FileDialog {
+        id: importKeyImagesDialog
+        selectMultiple: false
+        selectExisting: true
+        title: qsTr("Please choose a file") + translationManager.emptyString
+        onAccepted: {
+            console.log(walletManager.urlToLocalPath(importKeyImagesDialog.fileUrl))
+            currentWallet.importKeyImages(walletManager.urlToLocalPath(importKeyImagesDialog.fileUrl));
+        }
+        onRejected: {
+            console.log("Canceled");
+        }
     }
 
 

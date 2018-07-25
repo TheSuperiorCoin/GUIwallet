@@ -43,7 +43,7 @@ Rectangle {
     function updateProgress(currentBlock,targetBlock, blocksToSync, statusTxt){
         if(targetBlock > 0) {
             var remaining = (currentBlock < targetBlock) ? targetBlock - currentBlock : 0
-            var progressLevel = (blocksToSync > 0 && blocksToSync != remaining) ? (100*(blocksToSync - remaining)/blocksToSync).toFixed(0) : (100*currentBlock / targetBlock).toFixed(0)
+            var progressLevel = (blocksToSync > 0 && blocksToSync != remaining) ? (100*(blocksToSync - remaining)/blocksToSync).toFixed(0) : (100*(currentBlock / targetBlock)).toFixed(0)
             fillLevel = progressLevel
             if(typeof statusTxt != "undefined" && statusTxt != "") {
                 progressText.text = statusTxt;
@@ -68,7 +68,7 @@ Rectangle {
             font.pixelSize: 13 * scaleRatio
             font.bold: true
             color: "white"
-            text: qsTr("Synchronizing %1").arg(syncType)
+            text: qsTr("Synchronizing %1").arg(syncType) + translationManager.emptyString
             height: 18 * scaleRatio
         }
 

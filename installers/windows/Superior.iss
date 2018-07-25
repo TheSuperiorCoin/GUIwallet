@@ -8,7 +8,7 @@ AppName=SuperiorCoin GUI Wallet
 ; Thus it's important to keep this stable over releases
 ; With a different "AppName" InnoSetup would treat a mere update as a completely new application and thus mess up
 
-AppVersion=0.12.1
+AppVersion=0.12.3
 DefaultDirName={pf}\Superior GUI Wallet
 DefaultGroupName=Superior GUI Wallet
 UninstallDisplayIcon={app}\superior-wallet-gui.exe
@@ -366,13 +366,13 @@ Name: "{group}\Utilities\Textual (CLI) Wallet"; Filename: "{app}\superior-wallet
 ; Icons for troubleshooting problems / testing / debugging
 ; To show that they are in some way different (not for everyday use), make them visually different
 ; from the others by text, and make them sort at the end by the help of "x" in front 
-Name: "{group}\Utilities\ (Check Blockchain Folder)"; Filename: "{win}\Explorer.exe"; Parameters: {code:BlockChainDir}
-Name: "{group}\Utilities\ (Check Daemon Log)"; Filename: "Notepad"; Parameters: {code:DaemonLog}
-Name: "{group}\Utilities\ (Check Default Wallet Folder)"; Filename: "{win}\Explorer.exe"; Parameters: "{userdocs}\Superior\wallets"
-Name: "{group}\Utilities\ (Check GUI Wallet Log)"; Filename: "Notepad"; Parameters: "{app}\superior-wallet-gui.log"
-Name: "{group}\Utilities\ (Try Daemon, Exit Confirm)"; Filename: "{app}\superior-daemon.bat"
-Name: "{group}\Utilities\ (Try GUI Wallet Low Graphics Mode)"; Filename: "{app}\start-low-graphics-mode.bat"
-Name: "{group}\Utilities\ (Try Kill Daemon)"; Filename: "Taskkill.exe"; Parameters: "/IM superiord.exe /T /F"
+Name: "{group}\Utilities\x (Check Blockchain Folder)"; Filename: "{win}\Explorer.exe"; Parameters: {code:BlockChainDir}
+Name: "{group}\Utilities\x (Check Daemon Log)"; Filename: "Notepad"; Parameters: {code:DaemonLog}
+Name: "{group}\Utilities\x (Check Default Wallet Folder)"; Filename: "{win}\Explorer.exe"; Parameters: "{userdocs}\Superior\wallets"
+Name: "{group}\Utilities\x (Check GUI Wallet Log)"; Filename: "Notepad"; Parameters: "{app}\superior-wallet-gui.log"
+Name: "{group}\Utilities\x (Try Daemon, Exit Confirm)"; Filename: "{app}\superior-daemon.bat"
+Name: "{group}\Utilities\x (Try GUI Wallet Low Graphics Mode)"; Filename: "{app}\start-low-graphics-mode.bat"
+Name: "{group}\Utilities\x (Try Kill Daemon)"; Filename: "Taskkill.exe"; Parameters: "/IM superiord.exe /T /F"
 
 ; Desktop icons, optional with the help of the "Task" section
 Name: "{userdesktop}\GUI Wallet"; Filename: "{app}\superior-wallet-gui.exe"; Tasks: desktopicon

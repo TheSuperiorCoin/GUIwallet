@@ -336,6 +336,16 @@ quint64 Wallet::daemonBlockChainTargetHeight() const
     return m_daemonBlockChainTargetHeight;
 }
 
+bool Wallet::exportKeyImages(const QString& path)
+{
+    return m_walletImpl->exportKeyImages(path.toStdString());
+}
+
+bool Wallet::importKeyImages(const QString& path)
+{
+    return m_walletImpl->importKeyImages(path.toStdString());
+}
+
 bool Wallet::refresh()
 {
     bool result = m_walletImpl->refresh();
@@ -722,17 +732,6 @@ QString Wallet::getDaemonLogPath() const
     return QString::fromStdString(m_walletImpl->getDefaultDataDir()) + "/bitsuperior.log";
 }
 
-QString Wallet::getWalletLogPath() const
-{
-    const QString filename("superior-wallet-gui.log");
-
-#ifdef Q_OS_MACOS
-    return QStandardPaths::standardLocations(QStandardPaths::HomeLocation).at(0) + "/Library/Logs/" + filename;
-#else
-    return QCoreApplication::applicationDirPath() + "/" + filename;
-#endif
-}
-
 bool Wallet::blackballOutput(const QString &pubkey)
 {
     QList<QString> list;
@@ -864,7 +863,7 @@ Wallet::Wallet(Superior::Wallet *w, QObject *parent)
     m_addressBook = new AddressBook(m_walletImpl->addressBook(), this);
     m_subaddress = new Subaddress(m_walletImpl->subaddress(), this);
     m_walletListener = new WalletListenerImpl(this);
-    m_walletImpl->setListener(new WalletListenerImpl(this));
+    m_walletImpl->setListener(m_walletListener);
     m_connectionStatus = Wallet::ConnectionStatus_Disconnected;
     // start cache timers
     m_connectionStatusTime.restart();

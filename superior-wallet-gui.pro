@@ -1,3 +1,8 @@
+# qml components require at least QT 5.7.0
+lessThan (QT_MAJOR_VERSION, 5) | lessThan (QT_MINOR_VERSION, 7) {
+  error("Can't build with Qt $${QT_VERSION}. Use at least Qt 5.7.0")
+}
+
 TEMPLATE = app
 
 QT += qml quick widgets
@@ -45,6 +50,7 @@ HEADERS += \
     src/libwalletqt/Subaddress.h \
     src/zxcvbn-c/zxcvbn.h \
     src/libwalletqt/UnsignedTransaction.h \
+    Logger.h \
     MainApp.h
 
 SOURCES += main.cpp \
@@ -70,6 +76,7 @@ SOURCES += main.cpp \
     src/libwalletqt/Subaddress.cpp \
     src/zxcvbn-c/zxcvbn.c \
     src/libwalletqt/UnsignedTransaction.cpp \
+    Logger.cpp \
     MainApp.cpp
 
 CONFIG(DISABLE_PASS_STRENGTH_METER) {
@@ -238,6 +245,7 @@ win32 {
         -lssl \
         -lcrypto \
         -Wl,-Bdynamic \
+        -lwinscard \
         -lws2_32 \
         -lwsock32 \
         -lIphlpapi \
@@ -327,38 +335,7 @@ macx {
 
 
 # translation stuff
-TRANSLATIONS =  \ # English is default language, no explicit translation file
-                $$PWD/translations/superior-core.ts \ # translation source (copy this file when creating a new translation)
-                $$PWD/translations/superior-core_ar.ts \ # Arabic
-                $$PWD/translations/superior-core_pt-br.ts \ # Portuguese (Brazil)
-                $$PWD/translations/superior-core_de.ts \ # German
-                $$PWD/translations/superior-core_eo.ts \ # Esperanto
-                $$PWD/translations/superior-core_es.ts \ # Spanish
-                $$PWD/translations/superior-core_fi.ts \ # Finnish
-                $$PWD/translations/superior-core_fr.ts \ # French
-                $$PWD/translations/superior-core_hr.ts \ # Croatian
-                $$PWD/translations/superior-core_id.ts \ # Indonesian
-                $$PWD/translations/superior-core_hi.ts \ # Hindi
-                $$PWD/translations/superior-core_it.ts \ # Italian
-                $$PWD/translations/superior-core_ja.ts \ # Japanese
-                $$PWD/translations/superior-core_nl.ts \ # Dutch
-                $$PWD/translations/superior-core_pl.ts \ # Polish
-                $$PWD/translations/superior-core_ru.ts \ # Russian
-                $$PWD/translations/superior-core_sv.ts \ # Swedish
-                $$PWD/translations/superior-core_zh-cn.ts \ # Chinese (Simplified-China)
-                $$PWD/translations/superior-core_zh-tw.ts \ # Chinese (Traditional-Taiwan)
-                $$PWD/translations/superior-core_he.ts \ # Hebrew
-                $$PWD/translations/superior-core_ko.ts \ # Korean
-                $$PWD/translations/superior-core_ro.ts \ # Romanian
-                $$PWD/translations/superior-core_da.ts \ # Danish
-                $$PWD/translations/superior-core_cs.ts \ # Czech
-                $$PWD/translations/superior-core_sk.ts \ # Slovak
-                $$PWD/translations/superior-core_sl.ts \ # Slovenian
-                $$PWD/translations/superior-core_rs.ts \ # Serbian
-                $$PWD/translations/superior-core_cat.ts \ # Catalan
-                $$PWD/translations/superior-core_tr.ts \ # Turkish
-                $$PWD/translations/superior-core_ua.ts \ # Ukrainian
-                $$PWD/translations/superior-core_pt-pt.ts \ # Portuguese (Portugal)
+TRANSLATIONS = $$files($$PWD/translations/superior-core_*.ts)
 
 CONFIG(release, debug|release) {
     DESTDIR = release/bin
@@ -371,14 +348,7 @@ CONFIG(release, debug|release) {
 #    LANGREL_OPTIONS = -markuntranslated "MISS_TR "
 }
 
-TARGET_FULL_PATH = $$OUT_PWD/$$DESTDIR
-TRANSLATION_TARGET_DIR = $$TARGET_FULL_PATH/translations
-
-macx {
-    TARGET_FULL_PATH = $$sprintf("%1/%2/%3.app", $$OUT_PWD, $$DESTDIR, $$TARGET)
-    TRANSLATION_TARGET_DIR = $$TARGET_FULL_PATH/Contents/Resources/translations
-}
-
+TRANSLATION_TARGET_DIR = $$OUT_PWD/translations
 
 !ios {
     isEmpty(QMAKE_LUPDATE) {
@@ -405,11 +375,27 @@ macx {
 
     QMAKE_EXTRA_TARGETS += langupd deploy deploy_win
     QMAKE_EXTRA_COMPILERS += langrel
+
+    # Compile an initial version of translation files when running qmake
+    # the first time and generate the resource file for translations.
+    !exists($$TRANSLATION_TARGET_DIR) {
+        mkpath($$TRANSLATION_TARGET_DIR)
+    }
+    qrc_entry = "<RCC>"
+    qrc_entry += '  <qresource prefix="/">'
+    write_file($$TRANSLATION_TARGET_DIR/translations.qrc, qrc_entry)
+    for(tsfile, TRANSLATIONS) {
+        qmfile = $$TRANSLATION_TARGET_DIR/$$basename(tsfile)
+        qmfile ~= s/.ts$/.qm/
+        system($$LANGREL $$LANGREL_OPTIONS $$tsfile -qm $$qmfile)
+        qrc_entry = "    <file>$$basename(qmfile)</file>"
+        write_file($$TRANSLATION_TARGET_DIR/translations.qrc, qrc_entry, append)
+    }
+    qrc_entry = "  </qresource>"
+    qrc_entry += "</RCC>"
+    write_file($$TRANSLATION_TARGET_DIR/translations.qrc, qrc_entry, append)
+    RESOURCES += $$TRANSLATION_TARGET_DIR/translations.qrc
 }
-
-
-
-
 
 
 # Update: no issues with the "slow link process" anymore,
@@ -432,7 +418,7 @@ macx {
 }
 
 win32 {
-    deploy.commands += windeployqt $$sprintf("%1/%2/%3.exe", $$OUT_PWD, $$DESTDIR, $$TARGET) -release -qmldir=$$PWD
+    deploy.commands += windeployqt $$sprintf("%1/%2/%3.exe", $$OUT_PWD, $$DESTDIR, $$TARGET) -release -no-translations -qmldir=$$PWD
     # Win64 msys2 deploy settings
     contains(QMAKE_HOST.arch, x86_64) {
         deploy.commands += $$escape_expand(\n\t) $$PWD/windeploy_helper.sh $$DESTDIR
@@ -459,7 +445,8 @@ DISTFILES += \
 
 
 # windows application icon
-RC_FILE = superior-core.rc
+RC_ICONS = images/appicon.ico
 
-# mac application icon
+# mac Info.plist & application icon
+QMAKE_INFO_PLIST = $$PWD/share/Info.plist
 ICON = $$PWD/images/appicon.icns

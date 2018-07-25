@@ -91,7 +91,7 @@ Rectangle {
                         Layout.topMargin: 12 * scaleRatio
                         Layout.preferredWidth: statusRect.width - 80
                         Layout.leftMargin: 6
-                        text: qsTr("WARNING: Do not reuse your Superior keys on another fork, UNLESS this fork has key reuse mitigations built in. Doing so will harm your privacy." + translationManager.emptyString)
+                        text: qsTr("WARNING: Do not reuse your Superior keys on another fork, UNLESS this fork has key reuse mitigations built in. Doing so will harm your privacy.") + translationManager.emptyString
                         wrapMode: Text.Wrap
                         font.family: Style.fontRegular.name
                         font.pixelSize: 15 * scaleRatio
@@ -190,23 +190,25 @@ Rectangle {
                 Layout.bottomMargin: 10 * scaleRatio
             }
 
-            RowLayout {
-                StandardButton {
-                    enabled: !fullWalletQRCode.visible
+            ColumnLayout {
+                RadioButton {
                     id: showFullQr
-                    small: true
+                    enabled: !this.checked
+                    checked: fullWalletQRCode.visible
                     text: qsTr("Spendable Wallet") + translationManager.emptyString
                     onClicked: {
                         viewOnlyQRCode.visible = false
+                        showViewOnlyQr.checked = false
                     }
                 }
-                StandardButton {
-                    enabled: fullWalletQRCode.visible
+                RadioButton {
+                    enabled: !this.checked
                     id: showViewOnlyQr
-                    small: true
+                    checked: viewOnlyQRCode.visible
                     text: qsTr("View Only Wallet") + translationManager.emptyString
                     onClicked: {
                         viewOnlyQRCode.visible = true
+                        showFullQr.checked = false
                     }
                 }
                 Layout.bottomMargin: 30 * scaleRatio
