@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 
@@ -33,6 +32,7 @@ import "../components" as SuperiorComponents
 
 Item {
     id: item
+    property alias input: input
     property alias text: input.text
 
     property alias placeholderText: placeholderLabel.text
@@ -41,8 +41,9 @@ Item {
     property bool placeholderFontBold: false
     property int placeholderFontSize: 18 * scaleRatio
     property string placeholderColor: SuperiorComponents.Style.defaultFontColor
-    property real placeholderOpacity: 0.25
+    property real placeholderOpacity: 0.35
 
+    property alias acceptableInput: input.acceptableInput
     property alias validator: input.validator
     property alias readOnly : input.readOnly
     property alias cursorPosition: input.cursorPosition
@@ -51,16 +52,19 @@ Item {
     property alias inlineButtonText: inlineButtonId.text
     property alias inlineIcon: inlineIcon.visible
     property bool copyButton: false
+
+    property bool borderDisabled: false
     property string borderColor: {
-        if(input.activeFocus){
-            return Qt.rgba(255, 255, 255, 0.35);
+        if(error && input.text !== ""){
+            return SuperiorComponents.Style.inputBorderColorInvalid;
+        } else if(input.activeFocus){
+            return SuperiorComponents.Style.inputBorderColorActive;
         } else {
-            return Qt.rgba(255, 255, 255, 0.25);
+            return SuperiorComponents.Style.inputBorderColorInActive;
         }
     }
-    property bool borderDisabled: false
+
     property int fontSize: 18 * scaleRatio
-    property bool showBorder: true
     property bool fontBold: false
     property alias fontColor: input.color
     property bool error: false
@@ -106,8 +110,7 @@ Item {
         id: inputLabel
         anchors.top: parent.top
         anchors.left: parent.left
-        anchors.topMargin: 2 * scaleRatio
-        font.family: SuperiorComponents.Style.fontLight.name
+        font.family: SuperiorComponents.Style.fontRegular.name
         font.pixelSize: labelFontSize
         font.bold: labelFontBold
         textFormat: Text.RichText
@@ -123,7 +126,7 @@ Item {
 
     SuperiorComponents.LabelButton {
         id: copyButtonId
-        text: qsTr("Copy")
+        text: qsTr("Copy") + translationManager.emptyString
         anchors.right: parent.right
         onClicked: {
             if (input.text.length > 0) {
@@ -141,6 +144,7 @@ Item {
         anchors.top: showingHeader ? inputLabel.bottom : parent.top
         anchors.topMargin: showingHeader ? 12 * scaleRatio : 2 * scaleRatio
         width: parent.width
+        clip: true
 
         Text {
             id: placeholderLabel
@@ -195,12 +199,14 @@ Item {
         SuperiorComponents.Input {
             id: input
             anchors.fill: parent
-            anchors.leftMargin: inlineIcon.visible ? 38 : 0
+            anchors.leftMargin: inlineIcon.visible ? 44 * scaleRatio : 0
             font.pixelSize: item.fontSize
             font.bold: item.fontBold
             onEditingFinished: item.editingFinished()
             onAccepted: item.accepted();
             onTextChanged: item.textUpdated()
+            topPadding: 10 * scaleRatio
+            bottomPadding: 10 * scaleRatio
         }
 
         SuperiorComponents.InlineButton {
@@ -208,8 +214,6 @@ Item {
             visible: item.inlineButtonText ? true : false
             anchors.right: parent.right
             anchors.rightMargin: 8 * scaleRatio
-            anchors.top: parent.top
-            anchors.topMargin: 6 * scaleRatio
         }
     }
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 SUPERIOR_URL=https://github.com/TheSuperiorCoin/TheSuperiorCoin.git
-SUPERIOR_BRANCH=master
+SUPERIOR_BRANCH=SuperiorV14
 
 pushd $(pwd)
 ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -11,36 +11,35 @@ INSTALL_DIR=$ROOT_DIR/wallet
 SUPERIOR_DIR=$ROOT_DIR/TheSuperiorCoin
 BUILD_LIBWALLET=false
 
-# init and update TheSuperiorCoin submodule
+# init and update superior submodule
 if [ ! -d $SUPERIOR_DIR/src ]; then
     git submodule init TheSuperiorCoin
 fi
 git submodule update --remote
 git -C $SUPERIOR_DIR fetch
-git -C $SUPERIOR_DIR checkout v0.12.1
+git -C $SUPERIOR_DIR checkout SuperiorV14
 
-# get TheSuperiorCoin core tag
+# get superior core tag
+pushd $SUPERIOR_DIR
 get_tag
-# create local TheSuperiorCoin branch
+popd
+# create local superior branch
 git -C $SUPERIOR_DIR checkout -B $VERSIONTAG
 
-git -C $SUPERIOR_DIR submodule init
-git -C $SUPERIOR_DIR submodule update
-
-# Merge TheSuperiorCoin PR dependencies
+# Merge superior PR dependencies
 
 # Workaround for git username requirements
 # Save current user settings and revert back when we are done with merging PR's
 OLD_GIT_USER=$(git -C $SUPERIOR_DIR config --local user.name)
 OLD_GIT_EMAIL=$(git -C $SUPERIOR_DIR config --local user.email)
 git -C $SUPERIOR_DIR config user.name "Superior GUI"
-git -C $SUPERIOR_DIR config user.email "gui@superior-coin.local"
+git -C $SUPERIOR_DIR config user.email "gui@superior.local"
 # check for PR requirements in most recent commit message (i.e requires #xxxx)
 for PR in $(git log --format=%B -n 1 | grep -io "requires #[0-9]*" | sed 's/[^0-9]*//g'); do
-    echo "Merging TheSuperiorCoin push request #$PR"
+    echo "Merging superior push request #$PR"
     # fetch pull request and merge
     git -C $SUPERIOR_DIR fetch origin pull/$PR/head:PR-$PR
-    git -C $SUPERIOR_DIR merge --quiet PR-$PR  -m "Merge TheSuperiorCoin PR #$PR"
+    git -C $SUPERIOR_DIR merge --quiet PR-$PR  -m "Merge superior PR #$PR"
     BUILD_LIBWALLET=true
 done
 
@@ -48,13 +47,16 @@ done
 $(git -C $SUPERIOR_DIR config user.name "$OLD_GIT_USER")
 $(git -C $SUPERIOR_DIR config user.email "$OLD_GIT_EMAIL")
 
+git -C $SUPERIOR_DIR submodule init
+git -C $SUPERIOR_DIR submodule update
+
 # Build libwallet if it doesnt exist
 if [ ! -f $SUPERIOR_DIR/lib/libwallet_merged.a ]; then
     echo "libwallet_merged.a not found - Building libwallet"
     BUILD_LIBWALLET=true
 # Build libwallet if no previous version file exists
 elif [ ! -f $SUPERIOR_DIR/version.sh ]; then
-    echo "TheSuperiorCoin/version.h not found - Building libwallet"
+    echo "superior/version.h not found - Building libwallet"
     BUILD_LIBWALLET=true
 ## Compare previously built version with submodule + merged PR's version. 
 else
@@ -70,13 +72,12 @@ else
         echo "Building new libwallet version $GUI_SUPERIOR_VERSION"
         BUILD_LIBWALLET=true
     else
-        echo "latest libwallet ($GUI_SUPERIOR_VERSION) is already built. Remove TheSuperiorCoin/lib/libwallet_merged.a to force rebuild"
+        echo "latest libwallet ($GUI_SUPERIOR_VERSION) is already built. Remove superior/lib/libwallet_merged.a to force rebuild"
     fi
 fi
 
 if [ "$BUILD_LIBWALLET" != true ]; then
-    # exit this script
-    return
+    exit 0
 fi
 
 echo "GUI_SUPERIOR_VERSION=\"$VERSIONTAG\"" > $SUPERIOR_DIR/version.sh
@@ -88,6 +89,12 @@ BUILD_TYPE=$1
 if [ -z $BUILD_TYPE ]; then
     BUILD_TYPE=release
 fi
+
+BUILD_TREZOR_FLAGS=" -DUSE_DEVICE_TREZOR=ON"
+if [ "$BUILD_TREZOR" == false ]; then
+    BUILD_TREZOR_FLAGS=" -DUSE_DEVICE_TREZOR=OFF"
+fi
+BUILD_TREZOR_FLAGS=" -DUSE_DEVICE_TREZOR_UDP_RELEASE=ON ${BUILD_TREZOR_FLAGS}"
 
 STATIC=false
 ANDROID=false
@@ -118,7 +125,7 @@ else
 fi
 
 
-echo "cleaning up existing TheSuperiorCoin build dir, libs and includes"
+echo "cleaning up existing superior build dir, libs and includes"
 rm -fr $SUPERIOR_DIR/build
 rm -fr $SUPERIOR_DIR/lib
 rm -fr $SUPERIOR_DIR/include
@@ -137,9 +144,9 @@ make_exec="make"
 if [ "$platform" == "darwin" ]; then
     echo "Configuring build for MacOS.."
     if [ "$STATIC" == true ]; then
-        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D ARCH="x86-64" -D BUILD_64=ON -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
+        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D ARCH="x86-64" -D BUILD_64=ON -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR" ../..
     else
-        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE  -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
+        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE  -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
     fi
 
 ## LINUX 64
@@ -147,38 +154,38 @@ elif [ "$platform" == "linux64" ]; then
     echo "Configuring build for Linux x64"
     if [ "$ANDROID" == true ]; then
         echo "Configuring build for Android on Linux host"
-        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D ARCH="armv7-a" -D ANDROID=true -D BUILD_GUI_DEPS=ON -D USE_LTO=OFF -D INSTALL_VENDORED_LIBUNBOUND=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
+        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D ARCH="armv7-a" -D ANDROID=true -D BUILD_GUI_DEPS=ON -D USE_LTO=OFF -D INSTALL_VENDORED_LIBUNBOUND=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
     elif [ "$STATIC" == true ]; then
-        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D ARCH="x86-64" -D BUILD_64=ON -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
+        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D ARCH="x86-64" -D BUILD_64=ON -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
     else
-        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D BUILD_GUI_DEPS=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
+        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D BUILD_GUI_DEPS=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
     fi
 
 ## LINUX 32
 elif [ "$platform" == "linux32" ]; then
     echo "Configuring build for Linux i686"
     if [ "$STATIC" == true ]; then
-        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D ARCH="i686" -D BUILD_64=OFF -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
+        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D ARCH="i686" -D BUILD_64=OFF -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
     else
-        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D BUILD_GUI_DEPS=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
+        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D BUILD_GUI_DEPS=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
     fi
 
 ## LINUX ARMv7
 elif [ "$platform" == "linuxarmv7" ]; then
     echo "Configuring build for Linux armv7"
     if [ "$STATIC" == true ]; then
-        cmake -D BUILD_TESTS=OFF -D ARCH="armv7-a" -D STATIC=ON -D BUILD_64=OFF  -D BUILD_GUI_DEPS=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
+        cmake -D BUILD_TESTS=OFF -D ARCH="armv7-a" -D STATIC=ON -D BUILD_64=OFF  -D BUILD_GUI_DEPS=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
     else
-        cmake -D BUILD_TESTS=OFF -D ARCH="armv7-a" -D -D BUILD_64=OFF  -D BUILD_GUI_DEPS=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
+        cmake -D BUILD_TESTS=OFF -D ARCH="armv7-a" -D -D BUILD_64=OFF  -D BUILD_GUI_DEPS=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
     fi
 
 ## LINUX other 
 elif [ "$platform" == "linux" ]; then
     echo "Configuring build for Linux general"
     if [ "$STATIC" == true ]; then
-        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
+        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
     else
-        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D BUILD_GUI_DEPS=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
+        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D BUILD_GUI_DEPS=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
     fi
 
 ## Windows 64
@@ -187,21 +194,21 @@ elif [ "$platform" == "mingw64" ]; then
     # Do something under Windows NT platform
     echo "Configuring build for MINGW64.."
     BOOST_ROOT=/mingw64/boost
-    cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D BOOST_ROOT="$BOOST_ROOT" -D ARCH="x86-64" -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR" -G "MSYS Makefiles" ../..
+    cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D BOOST_ROOT="$BOOST_ROOT" -D ARCH="x86-64" -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR" -G "MSYS Makefiles" -D CMAKE_TOOLCHAIN_FILE=../../cmake/64-bit-toolchain.cmake -D MSYS2_FOLDER=c:/msys64 ../..
 
 ## Windows 32
 elif [ "$platform" == "mingw32" ]; then
     # Do something under Windows NT platform
     echo "Configuring build for MINGW32.."
     BOOST_ROOT=/mingw32/boost
-    cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D Boost_DEBUG=ON -D BOOST_ROOT="$BOOST_ROOT" -D ARCH="i686" -D BUILD_64=OFF -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR" -G "MSYS Makefiles" ../..
+    cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D Boost_DEBUG=ON -D BOOST_ROOT="$BOOST_ROOT" -D ARCH="i686" -D BUILD_64=OFF -D BUILD_GUI_DEPS=ON -D INSTALL_VENDORED_LIBUNBOUND=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR" -G "MSYS Makefiles" -D CMAKE_TOOLCHAIN_FILE=../../cmake/32-bit-toolchain.cmake -D MSYS2_FOLDER=c:/msys32 ../..
     make_exec="mingw32-make"
 else
     echo "Unknown platform, configuring general build"
     if [ "$STATIC" == true ]; then
-        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D BUILD_GUI_DEPS=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
+        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D STATIC=ON -D BUILD_GUI_DEPS=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
     else
-        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D BUILD_GUI_DEPS=ON -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
+        cmake -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE -D BUILD_GUI_DEPS=ON $BUILD_TREZOR_FLAGS -D CMAKE_INSTALL_PREFIX="$SUPERIOR_DIR"  ../..
     fi
 fi
 
@@ -237,12 +244,13 @@ eval make -C $SUPERIOR_DIR/build/$BUILD_TYPE/external/easylogging++ all install
 eval make -C $SUPERIOR_DIR/build/$BUILD_TYPE/external/db_drivers/liblmdb all install
 
 # Install libunbound
-echo "Installing libunbound..."
-pushd $SUPERIOR_DIR/build/$BUILD_TYPE/external/unbound
-# no need to make, it was already built as dependency for libwallet
-# make -j$CPU_CORE_COUNT
-$make_exec install -j$CPU_CORE_COUNT
-popd
-
+if [ -d $SUPERIOR_DIR/build/$BUILD_TYPE/external/unbound ]; then
+    echo "Installing libunbound..."
+    pushd $SUPERIOR_DIR/build/$BUILD_TYPE/external/unbound
+    # no need to make, it was already built as dependency for libwallet
+    # make -j$CPU_CORE_COUNT
+    $make_exec install -j$CPU_CORE_COUNT
+    popd
+fi
 
 popd

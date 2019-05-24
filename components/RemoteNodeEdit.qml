@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,13 +25,13 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 import QtQuick 2.2
 import QtQuick.Layouts 1.1
 
+import "../js/Utils.js" as Utils
 import "../components" as SuperiorComponents
 
 GridLayout {
@@ -49,17 +49,31 @@ GridLayout {
     property bool placeholderFontBold: false
     property int placeholderFontSize: 18 * scaleRatio
     property string placeholderColor: SuperiorComponents.Style.defaultFontColor
-    property real placeholderOpacity: 0.25
+    property real placeholderOpacity: 0.35
 
     property string lineEditBorderColor: Qt.rgba(0, 0, 0, 0.15)
     property string lineEditBackgroundColor: "white"
     property string lineEditFontColor: "black"
+    property int lineEditFontSize: 18 * scaleRatio
+    property int labelFontSize: 16 * scaleRatio
     property bool lineEditFontBold: true
 
     signal editingFinished()
+    signal textChanged()
+
+    function isValid() {
+        return daemonAddr.text.trim().length > 0 && daemonPort.acceptableInput
+    }
 
     function getAddress() {
-        return daemonAddr.text.trim() + ":" + daemonPort.text.trim()
+        var addr = daemonAddr.text.trim();
+        var port = daemonPort.text.trim();
+
+        // validation
+        if(addr === "" || addr.length < 2) return "";
+        if(!Utils.isNumeric(port)) return "";
+
+        return addr + ":" + port;
     }
 
     LineEdit {
@@ -71,11 +85,14 @@ GridLayout {
         placeholderFontSize: root.placeholderFontSize
         placeholderColor: root.placeholderColor
         placeholderOpacity: root.placeholderOpacity
-        onEditingFinished: root.editingFinished()
+        labelFontSize: root.labelFontSize
         borderColor: lineEditBorderColor
         backgroundColor: lineEditBackgroundColor
         fontColor: lineEditFontColor
         fontBold: lineEditFontBold
+        fontSize: lineEditFontSize
+        onEditingFinished: root.editingFinished()
+        onTextChanged: root.textChanged()
     }
 
     LineEdit {
@@ -87,10 +104,15 @@ GridLayout {
         placeholderFontSize: root.placeholderFontSize
         placeholderColor: root.placeholderColor
         placeholderOpacity: root.placeholderOpacity
-        onEditingFinished: root.editingFinished()
+        labelFontSize: root.labelFontSize
         borderColor: lineEditBorderColor
         backgroundColor: lineEditBackgroundColor
         fontColor: lineEditFontColor
         fontBold: lineEditFontBold
+        fontSize: lineEditFontSize
+        validator: IntValidator{bottom: 1; top: 65535;}
+
+        onEditingFinished: root.editingFinished()
+        onTextChanged: root.textChanged()
     }
 }

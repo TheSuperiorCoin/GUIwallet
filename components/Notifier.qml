@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2017-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 import QtQuick.Controls 1.4
@@ -42,7 +41,7 @@ Item {
     y: parent.height - height * scale.yScale - margin * scale.yScale
 
     Rectangle {
-        color: "#CEAC41"
+        color: "#FF6C3C"
         border.color: "black"
         anchors.fill: parent
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 #include "filter.h"
 #include <QKeyEvent>
@@ -35,13 +34,24 @@ filter::filter(QObject *parent) :
     QObject(parent)
 {
     m_tabPressed = false;
+    m_backtabPressed = false;
 }
 
 bool filter::eventFilter(QObject *obj, QEvent *ev) {
+    if(ev->type() == QEvent::KeyPress || ev->type() == QEvent::MouseButtonRelease){
+        emit userActivity();
+    }
+
     switch(ev->type()) {
     case QEvent::KeyPress: {
         QKeyEvent *ke = static_cast<QKeyEvent*>(ev);
-        if(ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab) {
+        if(ke->key() == Qt::Key_Backtab) {
+            if(m_backtabPressed)
+                break;
+            else m_backtabPressed = true;
+        }
+
+        if(ke->key() == Qt::Key_Tab) {
             if(m_tabPressed)
                 break;
             else m_tabPressed = true;
@@ -59,7 +69,7 @@ bool filter::eventFilter(QObject *obj, QEvent *ev) {
             sks = ks.toString();
         }
 #ifndef Q_OS_MAC
-        if(sks.contains("Alt+Tab") || sks.contains("Alt+Shift+Backtab"))
+        if(sks.contains("Alt+Tab") || sks.contains("Alt+Backtab"))
             break;
 #else
         sks.replace("Meta", "Ctrl");
@@ -68,7 +78,11 @@ bool filter::eventFilter(QObject *obj, QEvent *ev) {
     } break;
     case QEvent::KeyRelease: {
         QKeyEvent *ke = static_cast<QKeyEvent*>(ev);
-        if(ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab)
+
+        if(ke->key() == Qt::Key_Backtab)
+            m_backtabPressed = false;
+
+        if(ke->key() == Qt::Key_Tab)
             m_tabPressed = false;
 
         QString sks;
@@ -89,7 +103,7 @@ bool filter::eventFilter(QObject *obj, QEvent *ev) {
             sks = ks.toString();
         }
 #ifndef Q_OS_MAC
-        if(sks.contains("Alt+Tab") || sks.contains("Alt+Shift+Backtab"))
+        if(sks.contains("Alt+Tab") || sks.contains("Alt+Backtab"))
             break;
 #else
         sks.replace("Meta", "Ctrl");

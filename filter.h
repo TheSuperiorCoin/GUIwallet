@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 #ifndef FILTER_H
 #define FILTER_H
@@ -37,7 +36,7 @@ class filter : public QObject
     Q_OBJECT
 private:
     bool m_tabPressed;
-
+    bool m_backtabPressed;
 public:
     explicit filter(QObject *parent = 0);
 
@@ -49,6 +48,7 @@ signals:
     void sequenceReleased(const QVariant &o, const QVariant &seq);
     void mousePressed(const QVariant &o, const QVariant &x, const QVariant &y);
     void mouseReleased(const QVariant &o, const QVariant &x, const QVariant &y);
+    void userActivity();
 };
 
 #endif // FILTER_H

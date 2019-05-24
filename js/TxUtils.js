@@ -11,8 +11,17 @@ function destinationsToAddress(destinations){
     return address;
 }
 
-function addressTruncate(address){
-    return address.substring(0, 6) + "..." + address.substring(address.length-6);
+function addressTruncate(address, range){
+    if(typeof(address) === "undefined") return;
+    if(typeof(range) === "undefined") range = 8;
+    return address.substring(0, range) + "..." + address.substring(address.length-range);
+}
+
+function addressTruncatePretty(address, blocks){
+    if(typeof(address) === "undefined") return;
+    if(typeof(blocks) === "undefined") blocks = 2;
+    var ret = "";
+    return address.substring(0, 4 * blocks).match(/.{1,4}/g).join(' ') + " .. " + address.substring(address.length - 4 * blocks).match(/.{1,4}/g).join(' ');
 }
 
 function check256(str, length) {
@@ -55,3 +64,22 @@ function checkSignature(signature) {
     return false;
 }
 
+function isValidOpenAliasAddress(address) {
+    address = address.trim()
+    var dot = address.indexOf('.')
+    if (dot < 0)
+        return false
+    // we can get an awful lot of valid domains, including non ASCII chars... accept anything
+    return true
+}
+
+function makeQRCodeString(addr, amount) {
+    var XMR_URI_SCHEME = "superior:"
+    var XMR_AMOUNT = "tx_amount"
+    var qrCodeString =""
+    qrCodeString += (XMR_URI_SCHEME + addr)
+    if (amount !== undefined && amount !== ""){
+      qrCodeString += ("?" + XMR_AMOUNT + "=" + amount)
+    }
+    return qrCodeString
+}

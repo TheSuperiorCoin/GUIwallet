@@ -5,6 +5,7 @@ import "../components" as SuperiorComponents
 TextEdit {
     color: SuperiorComponents.Style.defaultFontColor
     font.family: SuperiorComponents.Style.fontRegular.name
+    selectionColor: SuperiorComponents.Style.dimmedFontColor
     wrapMode: Text.Wrap
     readOnly: true
     selectByMouse: true

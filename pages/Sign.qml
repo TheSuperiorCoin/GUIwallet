@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 import QtQuick.Controls 1.4
@@ -33,12 +32,13 @@ import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
 
-import "../components"
 import superiorComponents.Clipboard 1.0
 import superiorComponents.WalletManager 1.0
+import "../components" as SuperiorComponents
 
 Rectangle {
-    id: mainLayout
+    property bool messageMode: true
+    property bool fileMode: false
 
     color: "transparent"
 
@@ -85,235 +85,316 @@ Rectangle {
 
     // sign / verify
     ColumnLayout {
-        anchors.top: parent.top
-        anchors.margins: 40 * scaleRatio
+        id: mainLayout
+        Layout.fillWidth: true
+        anchors.margins: (isMobile)? 17 * scaleRatio : 20 * scaleRatio
+        anchors.topMargin: 40 * scaleRatio
+
         anchors.left: parent.left
+        anchors.top: parent.top
         anchors.right: parent.right
+
         spacing: 20 * scaleRatio
 
-        // sign
-        ColumnLayout {
-            id: signBox
-            anchors.left: parent.left
-            anchors.right: parent.right
-            spacing: 20 * scaleRatio
+        SuperiorComponents.Label {
+            fontSize: 24 * scaleRatio
+            text: qsTr("Sign/verify") + translationManager.emptyString
+        }
 
-            Label {
-                id: signTitleLabel
-                fontSize: 24 * scaleRatio
-                text: qsTr("Sign") + translationManager.emptyString
-            }
+        Text {
+            text: qsTr("This page lets you sign/verify a message (or file contents) with your address.") + translationManager.emptyString
+            wrapMode: Text.Wrap
+            Layout.fillWidth: true
+            font.family: SuperiorComponents.Style.fontRegular.name
+            font.pixelSize: 14 * scaleRatio
+            color: SuperiorComponents.Style.defaultFontColor
+        }
+
+        ColumnLayout {
+            id: modeRow
+            Layout.fillWidth: true
 
             Text {
-                text: qsTr("This page lets you sign/verify a message (or file contents) with your address.") + translationManager.emptyString
-                wrapMode: Text.Wrap
+                id: modeText
                 Layout.fillWidth: true
-                font.family: Style.fontRegular.name
-                font.pixelSize: 14 * scaleRatio
-                color: Style.defaultFontColor
+                Layout.topMargin: 12 * scaleRatio
+                text: qsTr("Mode") + translationManager.emptyString
+                wrapMode: Text.Wrap
+                font.family: SuperiorComponents.Style.fontRegular.name
+                font.pixelSize: 20 * scaleRatio
+                textFormat: Text.RichText
+                color: SuperiorComponents.Style.defaultFontColor
+            }
+
+            RowLayout {
+                id: modeButtonsRow
+                Layout.topMargin: 10 * scaleRatio
+
+                SuperiorComponents.StandardButton {
+                    id: handleMessageButton
+                    text: qsTr("Message") + translationManager.emptyString
+                    enabled: fileMode
+                    onClicked: {
+                        messageMode = true;
+                        fileMode = false;
+                    }
+                }
+
+                SuperiorComponents.StandardButton {
+                    id: handleFileButton
+                    text: qsTr("File") + translationManager.emptyString
+                    enabled: messageMode
+                    onClicked: {
+                        fileMode = true;
+                        messageMode = false;
+                    }
+                }
+            }
+        }
+
+        ColumnLayout {
+            id: signSection
+            spacing: 10 * scaleRatio
+
+            SuperiorComponents.LabelSubheader {
+                Layout.fillWidth: true
+                Layout.topMargin: 12 * scaleRatio
+                Layout.bottomMargin: 24 * scaleRatio
+                textFormat: Text.RichText
+                text: fileMode ? qsTr("Sign file") + translationManager.emptyString : qsTr("Sign message") + translationManager.emptyString
             }
 
             ColumnLayout{
                 id: signMessageRow
+                Layout.fillWidth: true
+                spacing: 10 * scaleRatio
+                visible: messageMode
 
-                RowLayout {
+                SuperiorComponents.LineEditMulti{
+                    id: signMessageLine
                     Layout.fillWidth: true
-
-                    LineEdit {
-                        id: signMessageLine
-                        Layout.fillWidth: true
-                        placeholderText: qsTr("Message to sign") + translationManager.emptyString;
-                        labelText: qsTr("Message") + translationManager.emptyString;
-                        readOnly: false
-                        onTextChanged: signSignatureLine.text = ""
-                    }
-                }
-
-                RowLayout{
-                    Layout.fillWidth: true
-                    Layout.topMargin: 18
-
-                    StandardButton {
-                        id: signMessageButton
-                        text: qsTr("Sign") + translationManager.emptyString
-                        enabled: signMessageLine.text !== ''
-                        small: true
-                        onClicked: {
-                          var signature = appWindow.currentWallet.signMessage(signMessageLine.text, false)
-                          signSignatureLine.text = signature
-                        }
-                    }
+                    labelFontSize: 14 * scaleRatio
+                    labelText: qsTr("Message") + translationManager.emptyString;
+                    placeholderFontSize: 16 * scaleRatio
+                    placeholderText: qsTr("Enter a message to sign") + translationManager.emptyString;
+                    readOnly: false
+                    onTextChanged: signSignatureLine.text = ''
+                    wrapMode: Text.WrapAnywhere
+                    pasteButton: true
                 }
             }
 
-            ColumnLayout {
+            RowLayout {
                 id: signFileRow
+                Layout.fillWidth: true
+                visible: fileMode
 
-                RowLayout {
-                    LineEdit {
-                        id: signFileLine
-                        labelText: "Message from file"
-                        placeholderText: qsTr("Path to file") + translationManager.emptyString;
-                        readOnly: false
-                        Layout.fillWidth: true
-                        onTextChanged: signSignatureLine.text = ""
-                    }
-                }
-
-                RowLayout {
+                SuperiorComponents.LineEditMulti {
+                    id: signFileLine
+                    labelFontSize: 14 * scaleRatio
+                    labelText: qsTr("File") + translationManager.emptyString
+                    placeholderFontSize: 16 * scaleRatio
+                    placeholderText: qsTr("Enter path to file") + translationManager.emptyString;
+                    readOnly: false
                     Layout.fillWidth: true
-                    Layout.topMargin: 18
-
-                    StandardButton {
-                        id: loadFileToSignButton
-                        small: true
-                        text: qsTr("Browse") + translationManager.emptyString
-                        enabled: true
-                        onClicked: {
-                          signFileDialog.open();
-                        }
-                    }
-
-                    StandardButton {
-                        id: signFileButton
-                        small: true
-                        anchors.left: loadFileToSignButton.right
-                        anchors.leftMargin: 20
-                        text: qsTr("Sign") + translationManager.emptyString
-                        enabled: signFileLine.text !== ''
-                        onClicked: {
-                            var signature = appWindow.currentWallet.signMessage(signFileLine.text, true);
-                            signSignatureLine.text = signature;
-                        }
-                    }
+                    onTextChanged: signSignatureLine.text = ""
+                    wrapMode: Text.WrapAnywhere
+                    text: ''
                 }
 
+                SuperiorComponents.StandardButton {
+                    id: loadFileToSignButton
+                    Layout.alignment: Qt.AlignBottom
+                    small: false
+                    text: qsTr("Browse") + translationManager.emptyString
+                    enabled: true
+                    onClicked: {
+                      signFileDialog.open();
+                    }
+                }
             }
 
             ColumnLayout {
                 id: signSignatureRow
 
-                RowLayout {
-                    LineEdit {
-                        id: signSignatureLine
-                        labelText: qsTr("Signature")
-                        placeholderText: qsTr("Signature") + translationManager.emptyString;
-                        readOnly: true
-                        Layout.fillWidth: true
-                        copyButton: true
-                    }
-                }
-            }
-
-            Label {
-                id: verifyTitleLabel
-                fontSize: 24 * scaleRatio
-                Layout.topMargin: 40
-                text: qsTr("Verify") + translationManager.emptyString
-            }
-
-            ColumnLayout {
-                RowLayout {
-                    id: verifyMessageRow
-
-                    LineEdit {
-                        id: verifyMessageLine
-                        Layout.fillWidth: true
-                        labelText: qsTr("Verify message")
-                        placeholderText: qsTr("Message to verify") + translationManager.emptyString;
-                        readOnly: false
-                    }
-                }
-
-                RowLayout{
-                    Layout.fillWidth: true
-                    Layout.topMargin: 18
-
-                    StandardButton {
-                        id: verifyMessageButton
-                        small: true
-                        text: qsTr("Verify") + translationManager.emptyString
-                        enabled: true
-                        onClicked: {
-                          var verified = appWindow.currentWallet.verifySignedMessage(verifyMessageLine.text, verifyAddressLine.text, verifySignatureLine.text, false)
-                          displayVerificationResult(verified)
-                        }
-                    }
-                }
-            }
-
-            ColumnLayout {
-                RowLayout {
-                    LineEdit {
-                        id: verifyFileLine
-                        labelText: qsTr("Verify file")
-                        placeholderText: qsTr("Filename with message to verify") + translationManager.emptyString;
-                        readOnly: false
-                        Layout.fillWidth: true
-                    }
-                }
-
-                RowLayout{
-                    Layout.fillWidth: true
-                    Layout.topMargin: 18
-
-                    StandardButton {
-                        id: loadFileToVerifyButton
-                        small: true
-                        text: qsTr("Browse") + translationManager.emptyString
-                        enabled: true
-                        onClicked: {
-                          verifyFileDialog.open()
-                        }
-                    }
-
-                    StandardButton {
-                        id: verifyFileButton
-                        small: true
-                        anchors.left: loadFileToVerifyButton.right
-                        anchors.leftMargin: 20
-                        text: qsTr("Verify") + translationManager.emptyString
-                        enabled: true
-                        onClicked: {
-                          var verified = appWindow.currentWallet.verifySignedMessage(verifyFileLine.text, verifyAddressLine.text, verifySignatureLine.text, true)
-                          displayVerificationResult(verified)
-                        }
-                    }
-                }
-            }
-
-            ColumnLayout {
-                RowLayout{
-
-                    LineEditMulti {
-                        id: verifyAddressLine
-                        Layout.fillWidth: true
-                        labelText: qsTr("Address")
-                        addressValidation: true
-                        anchors.topMargin: 5 * scaleRatio
-                        placeholderText: "5..."
-                    }
-                }
-            }
-
-            ColumnLayout {
-                id: verifySignatureRow
-                anchors.topMargin: 17 * scaleRatio
-
-                Label {
-                    id: verifySignatureLabel
-                    text: qsTr("Signature") + translationManager.emptyString
-                }
-
-                LineEdit {
-                    id: verifySignatureLine
-                    placeholderText: qsTr("Signature") + translationManager.emptyString;
+                SuperiorComponents.LineEditMulti {
+                    id: signSignatureLine
+                    labelFontSize: 14 * scaleRatio
+                    labelText: qsTr("Signature") + translationManager.emptyString
+                    placeholderFontSize: 16 * scaleRatio
+                    placeholderText: messageMode ? qsTr("Click [Sign Message] to generate signature") + translationManager.emptyString : qsTr("Click [Sign File] to generate signature") + translationManager.emptyString;
+                    readOnly: true
                     Layout.fillWidth: true
                     copyButton: true
+                    wrapMode: Text.WrapAnywhere
+                }
+            }
+
+            RowLayout{
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignRight
+
+                SuperiorComponents.StandardButton {
+                    id: clearSignButton
+                    text: qsTr("Clear") + translationManager.emptyString
+                    enabled: signMessageLine.text !== '' || signFileLine.text !== ''
+                    small: true
+                    onClicked: {
+                        signMessageLine.text = '';
+                        signSignatureLine.text = '';
+                        signFileLine.text = '';
+                    }
+                }
+
+                SuperiorComponents.StandardButton {
+                    id: signMessageButton
+                    visible: messageMode
+                    text: qsTr("Sign Message") + translationManager.emptyString
+                    enabled: signMessageLine.text !== ''
+                    small: true
+                    onClicked: {
+                      var signature = appWindow.currentWallet.signMessage(signMessageLine.text, false)
+                      signSignatureLine.text = signature
+                    }
+                }
+
+                SuperiorComponents.StandardButton {
+                    id: signFileButton
+                    visible: fileMode
+                    small: true
+                    Layout.alignment: Qt.AlignBottom
+                    text: qsTr("Sign File") + translationManager.emptyString
+                    enabled: signFileLine.text !== ''
+                    onClicked: {
+                        var signature = appWindow.currentWallet.signMessage(signFileLine.text, true);
+                        signSignatureLine.text = signature;
+                    }
                 }
             }
         }
 
+        ColumnLayout {
+            id: verifySection
+            spacing: 16 * scaleRatio
+
+            SuperiorComponents.LabelSubheader {
+                Layout.fillWidth: true
+                Layout.bottomMargin: 24 * scaleRatio
+                textFormat: Text.RichText
+                text: fileMode ? qsTr("Verify file") + translationManager.emptyString : qsTr("Verify message") + translationManager.emptyString
+            }
+
+            SuperiorComponents.LineEditMulti {
+                id: verifyMessageLine
+                visible: messageMode
+                Layout.fillWidth: true
+                labelFontSize: 14 * scaleRatio
+                labelText: qsTr("Message") + translationManager.emptyString
+                placeholderFontSize: 16 * scaleRatio
+                placeholderText: qsTr("Enter the message to verify") + translationManager.emptyString
+                readOnly: false
+                wrapMode: Text.WrapAnywhere
+                text: ''
+                pasteButton: true
+            }
+
+            RowLayout {
+                id: verifyFileRow
+                Layout.fillWidth: true
+                visible: fileMode
+
+                SuperiorComponents.LineEditMulti {
+                    id: verifyFileLine
+                    labelFontSize: 14 * scaleRatio
+                    labelText: qsTr("File") + translationManager.emptyString
+                    placeholderFontSize: 16 * scaleRatio
+                    placeholderText: qsTr("Enter path to file") + translationManager.emptyString
+                    readOnly: false
+                    Layout.fillWidth: true
+                    wrapMode: Text.WrapAnywhere
+                    text: ''
+                }
+
+                SuperiorComponents.StandardButton {
+                    id: loadFileToVerifyButton
+                    Layout.alignment: Qt.AlignBottom
+                    small: false
+                    text: qsTr("Browse") + translationManager.emptyString;
+                    enabled: true
+                    onClicked: {
+                      verifyFileDialog.open()
+                    }
+                }
+            }
+
+            SuperiorComponents.LineEditMulti {
+                id: verifyAddressLine
+                Layout.fillWidth: true
+                labelFontSize: 14 * scaleRatio
+                labelText: qsTr("Address") + translationManager.emptyString
+                addressValidation: true
+                placeholderFontSize: 16 * scaleRatio
+                placeholderText: qsTr("Enter the Superior Address (example: 44AFFq5kSiGBoZ...)") + translationManager.emptyString
+                wrapMode: Text.WrapAnywhere
+                text: ''
+                pasteButton: true
+            }
+
+            SuperiorComponents.LineEditMulti {
+                id: verifySignatureLine
+                labelFontSize: 14 * scaleRatio
+                labelText: qsTr("Signature") + translationManager.emptyString
+                placeholderFontSize: 16 * scaleRatio
+                placeholderText: qsTr("Enter the signature to verify") + translationManager.emptyString
+                Layout.fillWidth: true
+                pasteButton: true
+                wrapMode: Text.WrapAnywhere
+                text: ''
+            }
+
+            RowLayout{
+                Layout.fillWidth: true
+                Layout.topMargin: 12 * scaleRatio
+                Layout.alignment: Qt.AlignRight
+
+                SuperiorComponents.StandardButton {
+                    id: clearVerifyButton
+                    text: qsTr("Clear") + translationManager.emptyString
+                    enabled: verifyMessageLine.text !== '' || verifyFileLine.text !== '' || verifyAddressLine.text !== '' || verifySignatureLine.text  !== ''
+                    small: true
+                    onClicked: {
+                        verifyMessageLine.text = '';
+                        verifySignatureLine.text = '';
+                        verifyAddressLine.text = '';
+                        verifyFileLine.text = '';
+                    }
+                }
+
+                SuperiorComponents.StandardButton {
+                    id: verifyFileButton
+                    visible: fileMode
+                    small: true
+                    text: qsTr("Verify File") + translationManager.emptyString
+                    enabled: verifyFileLine.text !== '' && verifyAddressLine.text !== '' && verifySignatureLine.text !== ''
+                    onClicked: {
+                      var verified = appWindow.currentWallet.verifySignedMessage(verifyFileLine.text, verifyAddressLine.text, verifySignatureLine.text, true)
+                      displayVerificationResult(verified)
+                    }
+                }
+
+                SuperiorComponents.StandardButton {
+                    id: verifyMessageButton
+                    visible: messageMode
+                    small: true
+                    text: qsTr("Verify Message") + translationManager.emptyString
+                    enabled: verifyMessageLine.text !== '' && verifyAddressLine.text !== '' && verifySignatureLine.text !== ''
+                    onClicked: {
+                      var verified = appWindow.currentWallet.verifySignedMessage(verifyMessageLine.text, verifyAddressLine.text, verifySignatureLine.text, false)
+                      displayVerificationResult(verified)
+                    }
+                }
+            }
+        }
 
         FileDialog {
             id: signFileDialog
@@ -341,5 +422,4 @@ Rectangle {
     function onPageCompleted() {
         console.log("Sign/verify page loaded");
     }
-
 }

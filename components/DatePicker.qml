@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.2
 import QtQuick.Controls 1.2
@@ -295,7 +294,7 @@ Item {
                     Rectangle {
                         anchors.fill: parent
                         radius: parent.implicitHeight / 2
-                        color: dayArea.pressed && styleData.visibleMonth ? "#5777C1" : "transparent"
+                        color: dayArea.pressed && styleData.visibleMonth ? "#FF6C3B" : "transparent"
                     }
 
                     Text {
@@ -307,7 +306,7 @@ Item {
                         color: {
                             if(!styleData.visibleMonth) return "#DBDBDB"
                             if(dayArea.pressed) return "#FFFFFF"
-                            if(styleData.today) return "#5777C1"
+                            if(styleData.today) return "#FF6C3B"
                             return "#4A4848"
                         }
                     }
@@ -385,7 +384,9 @@ Item {
 
                         Image {
                             anchors.centerIn: parent
-                            source: "../images/nextMonth.png"
+                            source: "../images/prevMonth.png"
+                            transformOrigin: Item.Center
+                            rotation: 180
                         }
 
                         MouseArea {

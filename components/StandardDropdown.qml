@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 
@@ -33,17 +32,19 @@ import "../components" as SuperiorComponents
 
 Item {
     id: dropdown
+    property int itemTopMargin: 0
     property alias dataModel: repeater.model
     property string shadowPressedColor
     property string shadowReleasedColor
     property string pressedColor
     property string releasedColor
     property string textColor: "#FFFFFF"
-    property alias currentIndex: column.currentIndex
+    property alias currentIndex: columnid.currentIndex
     property bool expanded: false
     property int dropdownHeight: 42
     property int fontHeaderSize: 16 * scaleRatio
     property int fontItemSize: 14 * scaleRatio
+    property string colorBorder: SuperiorComponents.Style.inputBorderColorInActive
     property string colorHeaderBackground: "transparent"
     property bool headerBorder: true
     property bool headerFontBold: false
@@ -68,7 +69,7 @@ Item {
 
     // Workaroud for suspected memory leak in 5.8 causing malloc crash on app exit
     function update() {
-        firstColText.text = column.currentIndex < repeater.model.rowCount() ? qsTr(repeater.model.get(column.currentIndex).column1) + translationManager.emptyString : ""
+        firstColText.text = columnid.currentIndex < repeater.model.rowCount() ? qsTr(repeater.model.get(columnid.currentIndex).column1) + translationManager.emptyString : ""
     }
 
     Item {
@@ -76,12 +77,13 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
+        anchors.topMargin: parent.itemTopMargin
         height: dropdown.dropdownHeight
 
         Rectangle {
             color: dropdown.colorHeaderBackground
             border.width: dropdown.headerBorder ? 1 : 0
-            border.color: Qt.rgba(1, 1, 1, 0.25)
+            border.color: dropdown.colorBorder
             radius: 4
             anchors.fill: parent
         }
@@ -127,7 +129,7 @@ Item {
         anchors.right: parent.right
         anchors.top: head.bottom
         clip: true
-        height: dropdown.expanded ? column.height : 0
+        height: dropdown.expanded ? columnid.height : 0
         color: dropdown.pressedColor
         //radius: 4
 
@@ -150,7 +152,7 @@ Item {
         }
 
         Column {
-            id: column
+            id: columnid
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: parent.top
@@ -176,7 +178,7 @@ Item {
                     anchors.right: parent.right
                     height: (dropdown.dropdownHeight * 0.75) * scaleRatio
                     //radius: index === repeater.count - 1 ? 4 : 0
-                    color: itemArea.containsMouse || index === column.currentIndex || itemArea.containsMouse ? dropdown.releasedColor : dropdown.pressedColor
+                    color: itemArea.containsMouse || index === columnid.currentIndex || itemArea.containsMouse ? dropdown.releasedColor : dropdown.pressedColor
 
                     Text {
                         id: col1Text
@@ -188,7 +190,7 @@ Item {
                         font.family: SuperiorComponents.Style.fontRegular.name
                         font.bold: true
                         font.pixelSize: fontItemSize
-                        color: itemArea.containsMouse || index === column.currentIndex || itemArea.containsMouse ? "#CEAD34" : "#FFFFFF"
+                        color: itemArea.containsMouse || index === columnid.currentIndex || itemArea.containsMouse ? "#FA6800" : "#FFFFFF"
                         text: qsTr(column1) + translationManager.emptyString
                     }
 
@@ -225,7 +227,7 @@ Item {
 
                         onClicked: {
                             dropdown.expanded = false
-                            column.currentIndex = index
+                            columnid.currentIndex = index
                             changed();
                             dropdown.update()
                         }

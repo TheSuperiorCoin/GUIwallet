@@ -1,4 +1,4 @@
-// Copyright (c) 2017, TheSuperiorCoin Project
+// Copyright (c) 2014-2019, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.7
 import QtQuick.Controls 2.0
@@ -39,14 +38,9 @@ import "../components" as SuperiorComponents
 Item {
     id: root
     visible: false
-    Rectangle {
-        id: bg
-        z: parent.z + 1
-        anchors.fill: parent
-        color: "black"
-        opacity: 0.8
-    }
+    z: parent.z + 2
 
+    property bool isHidden: true
     property alias password: passwordInput1.text
 
     // same signals as Dialog has
@@ -55,10 +49,10 @@ Item {
     signal closeCallback()
 
     function open() {
+        inactiveOverlay.visible = true
         leftPanel.enabled = false
         middlePanel.enabled = false
         titleBar.enabled = false
-        show();
         root.visible = true;
         passwordInput1.text = "";
         passwordInput2.text = "";
@@ -66,11 +60,18 @@ Item {
     }
 
     function close() {
+        inactiveOverlay.visible = false
         leftPanel.enabled = true
         middlePanel.enabled = true
         titleBar.enabled = true
         root.visible = false;
         closeCallback();
+    }
+    
+    function toggleIsHidden() {
+        passwordInput1.echoMode = isHidden ? TextInput.Normal : TextInput.Password;
+        passwordInput2.echoMode = isHidden ? TextInput.Normal : TextInput.Password;
+        isHidden = !isHidden;
     }
 
     // TODO: implement without hardcoding sizes
@@ -87,7 +88,7 @@ Item {
     }
 
     ColumnLayout {
-        z: bg.z + 1
+        z: inactiveOverlay.z + 1
         id: mainLayout
         spacing: 10
         anchors { fill: parent; margins: 35 * scaleRatio }
@@ -100,8 +101,7 @@ Item {
             Layout.maximumWidth: 400 * scaleRatio
 
             Label {
-                text: qsTr("Please enter new password")
-                anchors.left: parent.left
+                text: qsTr("Please enter new password") + translationManager.emptyString
                 Layout.fillWidth: true
 
                 font.pixelSize: 16 * scaleRatio
@@ -114,7 +114,6 @@ Item {
                 id : passwordInput1
                 Layout.topMargin: 6
                 Layout.fillWidth: true
-                anchors.left: parent.left
                 horizontalAlignment: TextInput.AlignLeft
                 verticalAlignment: TextInput.AlignVCenter
                 font.family: SuperiorComponents.Style.fontLight.name
@@ -124,6 +123,8 @@ Item {
                 leftPadding: 10
                 topPadding: 10
                 color: SuperiorComponents.Style.defaultFontColor
+                selectionColor: SuperiorComponents.Style.dimmedFontColor
+                selectedTextColor: SuperiorComponents.Style.defaultFontColor
                 KeyNavigation.tab: passwordInput2
 
                 background: Rectangle {
@@ -133,12 +134,32 @@ Item {
                     color: "black"
 
                     Image {
-                        width: 12
-                        height: 16
-                        source: "../images/lockIcon.png"
+                        width: 26 * scaleRatio
+                        height: 26 * scaleRatio
+                        opacity: 0.7
+                        fillMode: Image.PreserveAspectFit
+                        source: isHidden ? "../images/eyeShow.png" : "../images/eyeHide.png"
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.right: parent.right
                         anchors.rightMargin: 20
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            hoverEnabled: true
+                            onClicked: {
+                                toggleIsHidden()
+                            }
+                            onEntered: {
+                                parent.opacity = 0.9
+                                parent.width = 28 * scaleRatio
+                                parent.height = 28 * scaleRatio
+                            }
+                            onExited: {
+                                parent.opacity = 0.7
+                                parent.width = 26 * scaleRatio
+                                parent.height = 26 * scaleRatio
+                            }
+                        }
                     }
                 }
 
@@ -158,8 +179,7 @@ Item {
             }
 
             Label {
-                text: qsTr("Please confirm new password")
-                anchors.left: parent.left
+                text: qsTr("Please confirm new password") + translationManager.emptyString
                 Layout.fillWidth: true
 
                 font.pixelSize: 16 * scaleRatio
@@ -172,7 +192,6 @@ Item {
                 id : passwordInput2
                 Layout.topMargin: 6
                 Layout.fillWidth: true
-                anchors.left: parent.left
                 horizontalAlignment: TextInput.AlignLeft
                 verticalAlignment: TextInput.AlignVCenter
                 font.family: SuperiorComponents.Style.fontLight.name
@@ -183,6 +202,8 @@ Item {
                 leftPadding: 10
                 topPadding: 10
                 color: SuperiorComponents.Style.defaultFontColor
+                selectionColor: SuperiorComponents.Style.dimmedFontColor
+                selectedTextColor: SuperiorComponents.Style.defaultFontColor
 
                 background: Rectangle {
                     radius: 2
@@ -191,12 +212,32 @@ Item {
                     color: "black"
 
                     Image {
-                        width: 12
-                        height: 16
-                        source: "../images/lockIcon.png"
+                        width: 26 * scaleRatio
+                        height: 26 * scaleRatio
+                        opacity: 0.7
+                        fillMode: Image.PreserveAspectFit
+                        source: isHidden ? "../images/eyeShow.png" : "../images/eyeHide.png"
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.right: parent.right
                         anchors.rightMargin: 20
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            hoverEnabled: true
+                            onClicked: {
+                                toggleIsHidden()
+                            }
+                            onEntered: {
+                                parent.opacity = 0.9
+                                parent.width = 28 * scaleRatio
+                                parent.height = 28 * scaleRatio
+                            }
+                            onExited: {
+                                parent.opacity = 0.7
+                                parent.width = 26 * scaleRatio
+                                parent.height = 26 * scaleRatio
+                            }
+                        }
                     }
                 }
 
@@ -239,7 +280,7 @@ Item {
                 }
                 SuperiorComponents.StandardButton {
                     id: okButton
-                    text: qsTr("Continue")
+                    text: qsTr("Continue") + translationManager.emptyString
                     KeyNavigation.tab: cancelButton
                     enabled: passwordInput1.text === passwordInput2.text
                     onClicked: {

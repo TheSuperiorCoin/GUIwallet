@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,227 +25,191 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
-import superiorComponents.WalletManager 1.0
-import QtQuick 2.2
-import QtQuick.Layouts 1.1
-import "../components"
-import "utils.js" as Utils
+import QtQuick 2.7
+import QtQuick.Dialogs 1.2
+import QtQuick.Layouts 1.2
+import QtQuick.Controls 2.0
+
+import "../js/Wizard.js" as Wizard
+import "../components" as SuperiorComponents
 
 ColumnLayout {
-    Layout.leftMargin: wizardLeftMargin
-    Layout.rightMargin: wizardRightMargin
+    Layout.fillWidth: true
+    Layout.maximumWidth: wizardController.wizardSubViewWidth
+    Layout.alignment: Qt.AlignHCenter
+    spacing: 10 * scaleRatio
 
-    id: passwordPage
-    opacity: 0
-    visible: false
-    property alias titleText: titleText.text
-    Behavior on opacity {
-        NumberAnimation { duration: 100; easing.type: Easing.InQuad }
+    function save(){
+        persistentSettings.useRemoteNode = remoteNode.checked
+        persistentSettings.remoteNodeAddress = remoteNodeEdit.getAddress();
+        persistentSettings.bootstrapNodeAddress = bootstrapNodeEdit.daemonAddrText ? bootstrapNodeEdit.getAddress() : "";
     }
 
-    onOpacityChanged: visible = opacity !== 0
-
-
-    function onPageOpened(settingsObject) {
-    }
-    function onWizardRestarted(){
-    }
-
-    function onPageClosed(settingsObject) {
-        appWindow.persistentSettings.useRemoteNode = remoteNode.checked
-        appWindow.persistentSettings.remoteNodeAddress = remoteNodeEdit.getAddress();
-        appWindow.persistentSettings.bootstrapNodeAddress = bootstrapNodeEdit.daemonAddrText ? bootstrapNodeEdit.getAddress() : "";
-        return true
-    }
-
-    RowLayout {
-        id: dotsRow
-        Layout.alignment: Qt.AlignRight
-
-        ListModel {
-            id: dotsModel
-            ListElement { dotColor: "#36B05B" }
-            ListElement { dotColor: "#36B05B" }
-            ListElement { dotColor: "#FFE00A" }
-            ListElement { dotColor: "#DBDBDB" }
+    SuperiorComponents.RadioButton {
+        id: localNode
+        Layout.fillWidth: true
+        text: qsTr("Start a node automatically in background (recommended)") + translationManager.emptyString
+        fontSize: 16 * scaleRatio
+        checked: !appWindow.persistentSettings.useRemoteNode && !isAndroid && !isIOS
+        visible: !isAndroid && !isIOS
+        onClicked: {
+            checked = true;
+            remoteNode.checked = false;
         }
+    }
 
-        Repeater {
-            model: dotsModel
-            delegate: Rectangle {
-                // Password page is last page when creating view only wallet
-                // TODO: make this dynamic for all pages in wizard
-                visible: (wizard.currentPath != "create_view_only_wallet" || index < 2)
-                width: 12; height: 12
-                radius: 6
-                color: dotColor
+    ColumnLayout {
+        id: blockchainFolderRow
+        visible: localNode.checked
+        spacing: 20 * scaleRatio
+
+        Layout.topMargin: 8 * scaleRatio
+        Layout.fillWidth: true
+
+        SuperiorComponents.LineEdit {
+            id: blockchainFolder
+            Layout.fillWidth: true
+
+            readOnly: true
+            labelText: qsTr("Blockchain location (optional)") + translationManager.emptyString
+            labelFontSize: 14 * scaleRatio
+            placeholderText: qsTr("Default") + translationManager.emptyString
+            placeholderFontSize: 15 * scaleRatio
+            text: persistentSettings.blockchainDataDir
+            inlineButton.small: true
+            inlineButtonText: qsTr("Browse") + translationManager.emptyString
+            inlineButton.onClicked: {
+                if(persistentSettings.blockchainDataDir != "");
+                    blockchainFileDialog.folder = "file://" + persistentSettings.blockchainDataDir;
+                blockchainFileDialog.open();
+                blockchainFolder.focus = true;
             }
         }
-    }
 
-    ColumnLayout {
-        id: headerColumn
+        ColumnLayout{
+            Layout.topMargin: 6 * scaleRatio
+            spacing: 0
 
-        Text {
-            Layout.fillWidth: true
-            id: titleText
-            font.family: "Arial"
-            font.pixelSize: 28 * scaleRatio
-            wrapMode: Text.Wrap
-            horizontalAlignment: Text.AlignHCenter
-            //renderType: Text.NativeRendering
-            color: "#3F3F3F"
-            text: "Daemon settings"
-
-        }
-
-        Text {
-            Layout.fillWidth: true
-            Layout.topMargin: 30 * scaleRatio
-            Layout.bottomMargin: 30 * scaleRatio
-            font.family: "Arial"
-            font.pixelSize: 18 * scaleRatio
-            wrapMode: Text.Wrap
-            //renderType: Text.NativeRendering
-            color: "#4A4646"
-            textFormat: Text.RichText
-//            horizontalAlignment: Text.AlignHCenter
-            text: qsTr("To be able to communicate with the Superior network your wallet needs to be connected to a Superior node. For best privacy it's recommended to run your own node. \
-                        <br><br> \
-                        If you don't have the option to run an own node there's an option to connect to a remote node.")
-                    + translationManager.emptyString
-        }
-    }
-
-    ColumnLayout {
-
-        RowLayout {
-            CheckBox {
-                id: localNode
-                text: qsTr("Start a node automatically in background (recommended)") + translationManager.emptyString
-                checkedIcon: "../images/checkedBlackIcon.png"
-                background: "#FFFFFF"
-                fontColor: "#4A4646"
-                fontSize: 16 * scaleRatio
-                checked: !appWindow.persistentSettings.useRemoteNode && !isAndroid && !isIOS
-                visible: !isAndroid && !isIOS
-                onClicked: {
-                    checked = true;
-                    remoteNode.checked = false;
+            TextArea {
+                text: qsTr("Bootstrap node") + translationManager.emptyString
+                Layout.topMargin: 10 * scaleRatio
+                Layout.fillWidth: true
+                font.family: SuperiorComponents.Style.fontRegular.name
+                color: SuperiorComponents.Style.defaultFontColor
+                font.pixelSize: {
+                    if(wizardController.layoutScale === 2 ){
+                        return 22 * scaleRatio;
+                    } else {
+                        return 16 * scaleRatio;
+                    }
                 }
+
+                selectionColor: SuperiorComponents.Style.dimmedFontColor
+                selectedTextColor: SuperiorComponents.Style.defaultFontColor
+
+                selectByMouse: true
+                wrapMode: Text.WordWrap
+                textMargin: 0
+                leftPadding: 0
+                topPadding: 0
+                bottomPadding: 0
+                readOnly: true
+            }
+
+            TextArea {
+                text: qsTr("Additionally, you may specify a bootstrap node to use Superior immediately.") + translationManager.emptyString
+                Layout.topMargin: 4 * scaleRatio
+                Layout.fillWidth: true
+
+                font.family: SuperiorComponents.Style.fontRegular.name
+                color: SuperiorComponents.Style.dimmedFontColor
+
+                font.pixelSize: {
+                    if(wizardController.layoutScale === 2 ){
+                        return 16 * scaleRatio;
+                    } else {
+                        return 14 * scaleRatio;
+                    }
+                }
+
+                selectionColor: SuperiorComponents.Style.dimmedFontColor
+                selectedTextColor: SuperiorComponents.Style.defaultFontColor
+
+                selectByMouse: true
+                wrapMode: Text.WordWrap
+                textMargin: 0
+                leftPadding: 0
+                topPadding: 0
+                bottomPadding: 0
+                readOnly: true
             }
         }
 
         ColumnLayout {
-            visible: localNode.checked
-            id: blockchainFolderRow
-            Label {
-                Layout.fillWidth: true
-                Layout.topMargin: 20 * scaleRatio
-                fontSize: 14 * scaleRatio
-                fontColor: "black"
-                text: qsTr("Blockchain location") + translationManager.emptyString
-            }
-            LineEdit {
-                id: blockchainFolder
-                Layout.preferredWidth:  200 * scaleRatio
-                Layout.fillWidth: true
-                text: persistentSettings.blockchainDataDir
-                placeholderFontBold: true
-                placeholderFontFamily: "Arial"
-                placeholderColor: Style.legacy_placeholderFontColor
-                placeholderOpacity: 1.0
-                placeholderText: qsTr("(optional)") + translationManager.emptyString
+            spacing: 8
+            Layout.fillWidth: true
 
-                borderColor: Qt.rgba(0, 0, 0, 0.15)
-                backgroundColor: "white"
-                fontColor: "black"
-                fontBold: false
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        mouse.accepted = false
-                        if(persistentSettings.blockchainDataDir != "")
-                            blockchainFileDialog.folder = "file://" + persistentSettings.blockchainDataDir
-                        blockchainFileDialog.open()
-                        blockchainFolder.focus = true
-                    }
-                }
-
-            }
-            Label {
-                Layout.fillWidth: true
-                Layout.topMargin: 20 * scaleRatio
-                fontSize: 14 * scaleRatio
-                color: 'black'
-                text: qsTr("Bootstrap node (leave blank if not wanted)") + translationManager.emptyString
-            }
-            RemoteNodeEdit {
-                Layout.minimumWidth: 300 * scaleRatio
-                opacity: localNode.checked
+            SuperiorComponents.RemoteNodeEdit {
                 id: bootstrapNodeEdit
+                Layout.minimumWidth: 300 * scaleRatio
 
-                placeholderFontBold: true
-                placeholderFontFamily: "Arial"
-                placeholderColor: Style.legacy_placeholderFontColor
-                placeholderOpacity: 1.0
+                //labelText: qsTr("Bootstrap node (leave blank if not wanted)") + translationManager.emptyString
+
+                lineEditBackgroundColor: "transparent"
+                lineEditFontColor: SuperiorComponents.Style.defaultFontColor
+                lineEditFontBold: false
+                lineEditBorderColor: Qt.rgba(255, 255, 255, 0.35)
+                labelFontSize: 14 * scaleRatio
+                placeholderFontSize: 15 * scaleRatio
 
                 daemonAddrText: persistentSettings.bootstrapNodeAddress.split(":")[0].trim()
                 daemonPortText: {
                     var node_split = persistentSettings.bootstrapNodeAddress.split(":");
                     if(node_split.length == 2){
-                        (node_split[1].trim() == "") ? "16035" : node_split[1];
+                        (node_split[1].trim() == "") ? appWindow.getDefaultDaemonRpcPort(persistentSettings.nettype) : node_split[1];
                     } else {
                         return ""
                     }
                 }
             }
         }
+    }
 
-        RowLayout {
-            CheckBox {
-                id: remoteNode
-                text: qsTr("Connect to a remote node") + translationManager.emptyString
-                checkedIcon: "../images/checkedBlackIcon.png"
-                Layout.topMargin: 20 * scaleRatio
-                background: "#FFFFFF"
-                fontColor: "#4A4646"
-                fontSize: 16 * scaleRatio
-                checked: appWindow.persistentSettings.useRemoteNode
-                onClicked: {
-                    checked = true
-                    localNode.checked = false
-                }
-            }
-        }
-
-        RowLayout {
-            RemoteNodeEdit {
-                Layout.minimumWidth: 300 * scaleRatio
-                opacity: remoteNode.checked
-                id: remoteNodeEdit
-                property var rna: persistentSettings.remoteNodeAddress
-                daemonAddrText: rna.search(":") != -1 ? rna.split(":")[0].trim() : ""
-                daemonPortText: rna.search(":") != -1 ? (rna.split(":")[1].trim() == "") ? "16035" : persistentSettings.remoteNodeAddress.split(":")[1] : ""
-
-                placeholderFontBold: true
-                placeholderFontFamily: "Arial"
-                placeholderColor: Style.legacy_placeholderFontColor
-                placeholderOpacity: 1.0
-
-                lineEditBorderColor: Qt.rgba(0, 0, 0, 0.15)
-                lineEditBackgroundColor: "white"
-                lineEditFontColor: "black"
-                lineEditFontBold: false
-            }
+    SuperiorComponents.RadioButton {
+        id: remoteNode
+        Layout.fillWidth: true
+        Layout.topMargin: 8 * scaleRatio
+        text: qsTr("Connect to a remote node") + translationManager.emptyString
+        fontSize: 16 * scaleRatio
+        checked: appWindow.persistentSettings.useRemoteNode
+        onClicked: {
+            checked = true
+            localNode.checked = false
         }
     }
 
+    ColumnLayout {
+        visible: remoteNode.checked
+        spacing: 0 * scaleRatio
 
-    Component.onCompleted: {
-        parent.wizardRestarted.connect(onWizardRestarted)
+        Layout.topMargin: 8 * scaleRatio
+        Layout.fillWidth: true
+
+        SuperiorComponents.RemoteNodeEdit {
+            id: remoteNodeEdit
+            Layout.fillWidth: true
+
+            property var rna: persistentSettings.remoteNodeAddress
+            daemonAddrText: rna.search(":") != -1 ? rna.split(":")[0].trim() : ""
+            daemonPortText: rna.search(":") != -1 ? (rna.split(":")[1].trim() == "") ? appWindow.getDefaultDaemonRpcPort(persistentSettings.nettype) : persistentSettings.remoteNodeAddress.split(":")[1] : ""
+
+            lineEditBackgroundColor: "transparent"
+            lineEditFontColor: SuperiorComponents.Style.defaultFontColor
+            lineEditFontBold: false
+            lineEditBorderColor: Qt.rgba(255, 255, 255, 0.35)
+            labelFontSize: 14 * scaleRatio
+            placeholderFontSize: 15 * scaleRatio
+        }
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 
 import QtQuick 2.0
@@ -35,7 +34,6 @@ Item {
     property alias imageSource : buttonImage.source
 
     signal clicked(var mouse)
-
 
     id: button
     width: parent.height
@@ -48,13 +46,13 @@ Item {
         id: buttonImage
         source: ""
         x : (parent.width - width) / 2
-        y : (parent.height - height)  /2
+        y : (parent.height - height) / 2
         z: 100
     }
 
     MouseArea {
         id: buttonArea
-        anchors.fill: parent
+        anchors.fill: buttonImage
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
 
@@ -62,14 +60,21 @@ Item {
             buttonImage.x = buttonImage.x + 2
             buttonImage.y = buttonImage.y + 2
         }
+
         onReleased: {
-            buttonImage.x = buttonImage.x - 2
-            buttonImage.y = buttonImage.y - 2
+            buttonImage.x = (parent.width - width) / 2
+            buttonImage.y = (parent.height - height) / 2
+        }
+
+        onExited: {
+            if (pressed) {
+                buttonImage.x = (parent.width - width) / 2
+                buttonImage.y = (parent.height - height) / 2
+            }
         }
 
         onClicked: {
             parent.clicked(mouse)
         }
     }
-
 }

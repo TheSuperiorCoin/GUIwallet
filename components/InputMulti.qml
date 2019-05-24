@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015, TheSuperiorCoin Project
+// Copyright (c) 2014-2015, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick.Controls 2.0
 import QtQuick 2.7
@@ -33,34 +32,33 @@ import QtQuick 2.7
 import "../js/TxUtils.js" as TxUtils
 import "../components" as SuperiorComponents
 
-
 TextArea {
-    property bool error: false
-    property bool addressValidation: false
-    property bool wrapAnywhere: true
     property int fontSize: 18 * scaleRatio
     property bool fontBold: false
+    property string fontColor: SuperiorComponents.Style.defaultFontColor
+
+    property bool mouseSelection: true
+    property bool error: false
+    property bool addressValidation: false
 
     id: textArea
     font.family: SuperiorComponents.Style.fontRegular.name
+    color: fontColor
     font.pixelSize: fontSize
     font.bold: fontBold
     horizontalAlignment: TextInput.AlignLeft
-    selectByMouse: true
-    color: SuperiorComponents.Style.defaultFontColor
+    selectByMouse: mouseSelection
+    selectionColor: SuperiorComponents.Style.dimmedFontColor
+    selectedTextColor: SuperiorComponents.Style.defaultFontColor
 
-    wrapMode: {
-        if(wrapAnywhere){
-            return Text.WrapAnywhere;
-        } else {
-            return Text.WordWrap;
-        }
-    }
+    property int minimumHeight: 100 * scaleRatio
+    height: contentHeight > minimumHeight ? contentHeight : minimumHeight
+
     onTextChanged: {
         if(addressValidation){
             // js replacement for `RegExpValidator { regExp: /[0-9A-Fa-f]{95}/g }`
-            textArea.text = textArea.text.replace(/[^a-z0-9]/gi,'');
-            var address_ok = TxUtils.checkAddress(textArea.text, appWindow.persistentSettings.nettype);
+            textArea.text = textArea.text.replace(/[^a-z0-9.@\-]/gi,'');
+            var address_ok = TxUtils.checkAddress(textArea.text, appWindow.persistentSettings.nettype) || TxUtils.isValidOpenAliasAddress(textArea.text);
             if(!address_ok) error = true;
             else error = false;
             TextArea.cursorPosition = textArea.text.length;

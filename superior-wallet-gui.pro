@@ -1,3 +1,8 @@
+# qml components require at least QT 5.7.0
+lessThan (QT_MAJOR_VERSION, 5) | lessThan (QT_MINOR_VERSION, 7) {
+  error("Can't build with Qt $${QT_VERSION}. Use at least Qt 5.7.0")
+}
+
 TEMPLATE = app
 
 QT += qml quick widgets
@@ -5,11 +10,19 @@ QT += qml quick widgets
 WALLET_ROOT=$$PWD/TheSuperiorCoin
 
 CONFIG += c++11 link_pkgconfig
-packagesExist(libpcsclite) {
-    PKGCONFIG += libpcsclite
+packagesExist(libusb-1.0) {
+    PKGCONFIG += libusb-1.0
 }
-QMAKE_CXXFLAGS += -fPIC -fstack-protector
-QMAKE_LFLAGS += -fstack-protector
+packagesExist(protobuf) {
+    PKGCONFIG += protobuf
+}
+packagesExist(hidapi-libusb) {
+    PKGCONFIG += hidapi-libusb
+}
+!win32 {
+    QMAKE_CXXFLAGS += -fPIC -fstack-protector -fstack-protector-strong
+    QMAKE_LFLAGS += -fstack-protector -fstack-protector-strong
+}
 
 # cleaning "auto-generated" bitsuperior directory on "make distclean"
 QMAKE_DISTCLEAN += -r $$WALLET_ROOT
@@ -43,8 +56,11 @@ HEADERS += \
     src/libwalletqt/AddressBook.h \
     src/model/SubaddressModel.h \
     src/libwalletqt/Subaddress.h \
+    src/model/SubaddressAccountModel.h \
+    src/libwalletqt/SubaddressAccount.h \
     src/zxcvbn-c/zxcvbn.h \
     src/libwalletqt/UnsignedTransaction.h \
+    Logger.h \
     MainApp.h
 
 SOURCES += main.cpp \
@@ -68,8 +84,11 @@ SOURCES += main.cpp \
     src/libwalletqt/AddressBook.cpp \
     src/model/SubaddressModel.cpp \
     src/libwalletqt/Subaddress.cpp \
+    src/model/SubaddressAccountModel.cpp \
+    src/libwalletqt/SubaddressAccount.cpp \
     src/zxcvbn-c/zxcvbn.c \
     src/libwalletqt/UnsignedTransaction.cpp \
+    Logger.cpp \
     MainApp.cpp
 
 CONFIG(DISABLE_PASS_STRENGTH_METER) {
@@ -87,10 +106,14 @@ lupdate_only {
 SOURCES = *.qml \
           components/*.qml \
           pages/*.qml \
+          pages/settings/*.qml \
+          pages/merchant/*.qml \
           wizard/*.qml \
           wizard/*js
 }
 
+# Linker flags required by Trezor
+TREZOR_LINKER = $$cat($$WALLET_ROOT/lib/trezor_link_flags.txt)
 
 ios:armv7 {
     message("target is armv7")
@@ -108,7 +131,8 @@ LIBS += -L$$WALLET_ROOT/lib \
         -llmdb \
         -lepee \
         -lunbound \
-        -leasylogging \
+        -lsodium \
+        -leasylogging
 }
 
 android {
@@ -118,13 +142,14 @@ android {
         -llmdb \
         -lepee \
         -lunbound \
+        -lsodium \
         -leasylogging
 }
 
 
 
-QMAKE_CXXFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=1 -Wformat -Wformat-security -fstack-protector -fstack-protector-strong
-QMAKE_CFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=1 -Wformat -Wformat-security -fstack-protector -fstack-protector-strong
+QMAKE_CXXFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=1 -Wformat -Wformat-security
+QMAKE_CFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=1 -Wformat -Wformat-security
 
 ios {
     message("Host is IOS")
@@ -137,6 +162,7 @@ ios {
         -llmdb \
         -lepee \
         -lunbound \
+        -lsodium \
         -leasylogging
 
     LIBS+= \
@@ -236,12 +262,16 @@ win32 {
         -licutu \
         -liconv \
         -lssl \
+        -lsodium \
         -lcrypto \
         -Wl,-Bdynamic \
+        -lwinscard \
         -lws2_32 \
         -lwsock32 \
         -lIphlpapi \
-        -lgdi32
+        -lcrypt32 \
+        -lhidapi \
+        -lgdi32 $$TREZOR_LINKER
     
     !contains(QMAKE_TARGET.arch, x86_64) {
         message("Target is 32bit")
@@ -261,8 +291,12 @@ linux {
         message("using static libraries")
         LIBS+= -Wl,-Bstatic    
         QMAKE_LFLAGS += -static-libgcc -static-libstdc++
+        QMAKE_LIBDIR += /usr/local/ssl/lib
    #     contains(QT_ARCH, x86_64) {
-            LIBS+= -lunbound
+            LIBS+= -lunbound \
+                   -lusb-1.0 \
+                   -lhidapi-hidraw \
+                   -ludev
    #     }
     } else {
       # On some distro's we need to add dynload
@@ -280,7 +314,9 @@ linux {
         -lboost_program_options \
         -lssl \
         -llmdb \
-        -lcrypto
+        -lsodium \
+        -lhidapi-libusb \
+        -lcrypto $$TREZOR_LINKER
 
     if(!android) {
         LIBS+= \
@@ -310,6 +346,7 @@ macx {
         -L/usr/local/opt/openssl/lib \
         -L/usr/local/opt/boost/lib \
         -lboost_serialization \
+        -lhidapi \
         -lboost_thread-mt \
         -lboost_system \
         -lboost_date_time \
@@ -318,47 +355,16 @@ macx {
         -lboost_chrono \
         -lboost_program_options \
         -lssl \
+        -lsodium \
         -lcrypto \
-        -ldl
-    LIBS+= -framework PCSC
+        -ldl $$TREZOR_LINKER
 
     QMAKE_LFLAGS += -pie
 }
 
 
 # translation stuff
-TRANSLATIONS =  \ # English is default language, no explicit translation file
-                $$PWD/translations/superior-core.ts \ # translation source (copy this file when creating a new translation)
-                $$PWD/translations/superior-core_ar.ts \ # Arabic
-                $$PWD/translations/superior-core_pt-br.ts \ # Portuguese (Brazil)
-                $$PWD/translations/superior-core_de.ts \ # German
-                $$PWD/translations/superior-core_eo.ts \ # Esperanto
-                $$PWD/translations/superior-core_es.ts \ # Spanish
-                $$PWD/translations/superior-core_fi.ts \ # Finnish
-                $$PWD/translations/superior-core_fr.ts \ # French
-                $$PWD/translations/superior-core_hr.ts \ # Croatian
-                $$PWD/translations/superior-core_id.ts \ # Indonesian
-                $$PWD/translations/superior-core_hi.ts \ # Hindi
-                $$PWD/translations/superior-core_it.ts \ # Italian
-                $$PWD/translations/superior-core_ja.ts \ # Japanese
-                $$PWD/translations/superior-core_nl.ts \ # Dutch
-                $$PWD/translations/superior-core_pl.ts \ # Polish
-                $$PWD/translations/superior-core_ru.ts \ # Russian
-                $$PWD/translations/superior-core_sv.ts \ # Swedish
-                $$PWD/translations/superior-core_zh-cn.ts \ # Chinese (Simplified-China)
-                $$PWD/translations/superior-core_zh-tw.ts \ # Chinese (Traditional-Taiwan)
-                $$PWD/translations/superior-core_he.ts \ # Hebrew
-                $$PWD/translations/superior-core_ko.ts \ # Korean
-                $$PWD/translations/superior-core_ro.ts \ # Romanian
-                $$PWD/translations/superior-core_da.ts \ # Danish
-                $$PWD/translations/superior-core_cs.ts \ # Czech
-                $$PWD/translations/superior-core_sk.ts \ # Slovak
-                $$PWD/translations/superior-core_sl.ts \ # Slovenian
-                $$PWD/translations/superior-core_rs.ts \ # Serbian
-                $$PWD/translations/superior-core_cat.ts \ # Catalan
-                $$PWD/translations/superior-core_tr.ts \ # Turkish
-                $$PWD/translations/superior-core_ua.ts \ # Ukrainian
-                $$PWD/translations/superior-core_pt-pt.ts \ # Portuguese (Portugal)
+TRANSLATIONS = $$files($$PWD/translations/superior-core_*.ts)
 
 CONFIG(release, debug|release) {
     DESTDIR = release/bin
@@ -371,14 +377,7 @@ CONFIG(release, debug|release) {
 #    LANGREL_OPTIONS = -markuntranslated "MISS_TR "
 }
 
-TARGET_FULL_PATH = $$OUT_PWD/$$DESTDIR
-TRANSLATION_TARGET_DIR = $$TARGET_FULL_PATH/translations
-
-macx {
-    TARGET_FULL_PATH = $$sprintf("%1/%2/%3.app", $$OUT_PWD, $$DESTDIR, $$TARGET)
-    TRANSLATION_TARGET_DIR = $$TARGET_FULL_PATH/Contents/Resources/translations
-}
-
+TRANSLATION_TARGET_DIR = $$OUT_PWD/translations
 
 !ios {
     isEmpty(QMAKE_LUPDATE) {
@@ -405,11 +404,27 @@ macx {
 
     QMAKE_EXTRA_TARGETS += langupd deploy deploy_win
     QMAKE_EXTRA_COMPILERS += langrel
+
+    # Compile an initial version of translation files when running qmake
+    # the first time and generate the resource file for translations.
+    !exists($$TRANSLATION_TARGET_DIR) {
+        mkpath($$TRANSLATION_TARGET_DIR)
+    }
+    qrc_entry = "<RCC>"
+    qrc_entry += '  <qresource prefix="/">'
+    write_file($$TRANSLATION_TARGET_DIR/translations.qrc, qrc_entry)
+    for(tsfile, TRANSLATIONS) {
+        qmfile = $$TRANSLATION_TARGET_DIR/$$basename(tsfile)
+        qmfile ~= s/.ts$/.qm/
+        system($$LANGREL $$LANGREL_OPTIONS $$tsfile -qm $$qmfile)
+        qrc_entry = "    <file>$$basename(qmfile)</file>"
+        write_file($$TRANSLATION_TARGET_DIR/translations.qrc, qrc_entry, append)
+    }
+    qrc_entry = "  </qresource>"
+    qrc_entry += "</RCC>"
+    write_file($$TRANSLATION_TARGET_DIR/translations.qrc, qrc_entry, append)
+    RESOURCES += $$TRANSLATION_TARGET_DIR/translations.qrc
 }
-
-
-
-
 
 
 # Update: no issues with the "slow link process" anymore,
@@ -423,7 +438,7 @@ RESOURCES += qml.qrc
 CONFIG += qtquickcompiler
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH =
+QML_IMPORT_PATH = fonts
 
 # Default rules for deployment.
 include(deployment.pri)
@@ -432,7 +447,7 @@ macx {
 }
 
 win32 {
-    deploy.commands += windeployqt $$sprintf("%1/%2/%3.exe", $$OUT_PWD, $$DESTDIR, $$TARGET) -release -qmldir=$$PWD
+    deploy.commands += windeployqt $$sprintf("%1/%2/%3.exe", $$OUT_PWD, $$DESTDIR, $$TARGET) -release -no-translations -qmldir=$$PWD
     # Win64 msys2 deploy settings
     contains(QMAKE_HOST.arch, x86_64) {
         deploy.commands += $$escape_expand(\n\t) $$PWD/windeploy_helper.sh $$DESTDIR
@@ -454,12 +469,12 @@ OTHER_FILES += \
 
 DISTFILES += \
     notes.txt \
-    TheSuperiorCoin/src/wallet/CMakeLists.txt \
-    components/MobileHeader.qml
+    superior/src/wallet/CMakeLists.txt
 
 
 # windows application icon
-RC_FILE = superior-core.rc
+RC_ICONS = images/appicon.ico
 
-# mac application icon
+# mac Info.plist & application icon
+QMAKE_INFO_PLIST = $$PWD/share/Info.plist
 ICON = $$PWD/images/appicon.icns

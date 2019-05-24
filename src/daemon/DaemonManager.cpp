@@ -1,5 +1,6 @@
 #include "DaemonManager.h"
 #include <QFile>
+#include <QThread>
 #include <QFileInfo>
 #include <QDir>
 #include <QDebug>
@@ -72,7 +73,12 @@ bool DaemonManager::start(const QString &flags, NetworkType::Type nettype, const
 
     arguments << "--check-updates" << "disabled";
 
+    // --max-concurrency based on threads available. max: 6
+    int32_t concurrency = qBound(1, QThread::idealThreadCount() / 2, 6);
 
+    if(!flags.contains("--max-concurrency", Qt::CaseSensitive)){
+        arguments << "--max-concurrency" << QString::number(concurrency);
+    }
 
     qDebug() << "starting superiord " + m_superiord;
     qDebug() << "With command line arguments " << arguments;
@@ -271,9 +277,9 @@ QVariantMap DaemonManager::validateDataDir(const QString &dataDir) const
             valid = false;
         }
 
-        // Make sure there is 20GB storage available
+        // Make sure there is 75GB storage available
         storageAvailable = storage.bytesAvailable()/1000/1000/1000;
-        if (storageAvailable < 20) {
+        if (storageAvailable < 75) {
             valid = false;
         }
     } else {

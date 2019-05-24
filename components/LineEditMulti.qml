@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015, TheSuperiorCoin Project
+// Copyright (c) 2014-2019, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
@@ -33,25 +32,68 @@ import QtQuick.Layouts 1.1
 import "../components" as SuperiorComponents
 
 ColumnLayout {
-    id: lineditmulti
-    property alias text: multiLine.text
-    property alias placeholderText: placeholderLabel.text
+    id: item
+
+    Layout.fillWidth: true
+
+    property alias text: input.text
     property alias labelText: inputLabel.text
-    property alias error: multiLine.error
-    property alias readOnly: multiLine.readOnly
-    property alias addressValidation: multiLine.addressValidation
     property alias labelButtonText: labelButton.text
+    property alias placeholderText: placeholderLabel.text
+
+    property int inputPaddingLeft: 10 * scaleRatio
+    property int inputPaddingRight: 10 * scaleRatio
+    property int inputPaddingTop: 10 * scaleRatio
+    property int inputPaddingBottom: 10 * scaleRatio
+    property int inputRadius: 4
+
+    property bool placeholderCenter: false
+    property string placeholderFontFamily: SuperiorComponents.Style.fontRegular.name
+    property bool placeholderFontBold: false
+    property int placeholderFontSize: 18 * scaleRatio
+    property string placeholderColor: SuperiorComponents.Style.defaultFontColor
+    property real placeholderOpacity: 0.35
+
+    property bool borderDisabled: false
+    property string borderColor: {
+        if(input.error && input.text !== ""){
+            return SuperiorComponents.Style.inputBorderColorInvalid;
+        } else if(input.activeFocus){
+            return SuperiorComponents.Style.inputBorderColorActive;
+        } else {
+            return SuperiorComponents.Style.inputBorderColorInActive;
+        }
+    }
+
+    property bool error: false
+
+    property string labelFontColor: SuperiorComponents.Style.defaultFontColor
     property bool labelFontBold: false
+    property int labelFontSize: 16 * scaleRatio
     property bool labelButtonVisible: false
-    property bool copyButton: false
-    property bool wrapAnywhere: true
-    property bool showingHeader: true
-    property bool showBorder: true
+
+    property string fontColor: "white"
     property bool fontBold: false
     property int fontSize: 16 * scaleRatio
 
+    property bool mouseSelection: true
+    property alias readOnly: input.readOnly
+    property bool copyButton: false
+    property bool pasteButton: false
+    property var onPaste: function(clipboardText) {
+        item.text = clipboardText;
+    }
+    property bool showingHeader: labelText != "" || copyButton || pasteButton
+    property var wrapMode: Text.NoWrap
+    property alias addressValidation: input.addressValidation
+    property string backgroundColor: "" // mock
+
+    property alias inlineButton: inlineButtonId
+    property bool inlineButtonVisible: false
+
     signal labelButtonClicked();
     signal inputLabelLinkActivated();
+    signal editingFinished();
 
     spacing: 0
     Rectangle {
@@ -66,57 +108,81 @@ ColumnLayout {
             anchors.top: parent.top
             anchors.left: parent.left
             font.family: SuperiorComponents.Style.fontRegular.name
-            font.pixelSize: 16 * scaleRatio
+            font.pixelSize: item.labelFontSize
             font.bold: labelFontBold
             textFormat: Text.RichText
-            color: SuperiorComponents.Style.defaultFontColor
+            color: item.labelFontColor
             onLinkActivated: inputLabelLinkActivated()
+
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
+            }
         }
 
-        SuperiorComponents.LabelButton {
-            id: labelButton
-            onClicked: labelButtonClicked()
-            visible: labelButtonVisible
-        }
+        RowLayout {
+            anchors.right: parent.right
+            spacing: 16 * scaleRatio
 
-        SuperiorComponents.LabelButton {
-            id: copyButtonId
-            visible: copyButton && multiLine.text !== ""
-            text: qsTr("Copy")
-            anchors.right: labelButton.visible ? inputLabel.right : parent.right
-            anchors.rightMargin: labelButton.visible? 4 : 0
-            onClicked: {
-                if (multiLine.text.length > 0) {
-                    console.log("Copied to clipboard");
-                    clipboard.setText(multiLine.text);
-                    appWindow.showStatusMessage(qsTr("Copied to clipboard"), 3);
+            SuperiorComponents.LabelButton {
+                id: labelButton
+                onClicked: labelButtonClicked()
+                visible: labelButtonVisible
+            }
+
+            SuperiorComponents.LabelButton {
+                id: copyButtonId
+                visible: copyButton && input.text !== ""
+                text: qsTr("Copy") + translationManager.emptyString
+                onClicked: {
+                    if (input.text.length > 0) {
+                        console.log("Copied to clipboard");
+                        clipboard.setText(input.text);
+                        appWindow.showStatusMessage(qsTr("Copied to clipboard"), 3);
+                    }
                 }
+            }
+
+            SuperiorComponents.LabelButton {
+                id: pasteButtonId
+                onClicked: item.onPaste(clipboard.text())
+                text: qsTr("Paste") + translationManager.emptyString
+                visible: pasteButton
             }
         }
     }
 
     SuperiorComponents.InputMulti {
-        id: multiLine
+        id: input
         readOnly: false
-        addressValidation: true
-        anchors.top: parent.showingHeader ? inputLabelRect.bottom : parent.top
+        addressValidation: false
         Layout.fillWidth: true
-        topPadding: parent.showingHeader ? 10 * scaleRatio : 0
-        bottomPadding: 10 * scaleRatio
-        wrapAnywhere: parent.wrapAnywhere
-        fontSize: parent.fontSize
-        fontBold: parent.fontBold
+        
+        leftPadding: item.inputPaddingLeft
+        rightPadding: item.inputPaddingRight
+        topPadding: item.inputPaddingTop
+        bottomPadding: item.inputPaddingBottom
+
+        wrapMode: item.wrapMode
+        fontSize: item.fontSize
+        fontBold: item.fontBold
+        fontColor: item.fontColor
+        mouseSelection: item.mouseSelection
+        onEditingFinished: item.editingFinished()
+        error: item.error
 
         Text {
             id: placeholderLabel
-            visible: multiLine.text ? false : true
+            visible: input.text ? false : true
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
             anchors.leftMargin: 10 * scaleRatio
-            opacity: 0.25
-            color: SuperiorComponents.Style.defaultFontColor
-            font.family: SuperiorComponents.Style.fontRegular.name
-            font.pixelSize: 18 * scaleRatio
+            opacity: item.placeholderOpacity
+            color: item.placeholderColor
+            font.family: item.placeholderFontFamily
+            font.bold: item.placeholderFontBold
+            font.pixelSize: item.placeholderFontSize
             text: ""
             z: 3
         }
@@ -124,18 +190,18 @@ ColumnLayout {
         Rectangle {
             color: "transparent"
             border.width: 1
-            border.color: {
-              if(multiLine.error && multiLine.text !== ""){
-                  return Qt.rgba(255, 0, 0, 0.45);
-              } else if(multiLine.activeFocus){
-                  return Qt.rgba(255, 255, 255, 0.35);
-              } else {
-                  return Qt.rgba(255, 255, 255, 0.25);
-              }
-            }
-            radius: 4
+            border.color: item.borderColor
+            radius: item.inputRadius
             anchors.fill: parent
-            visible: lineditmulti.showBorder
+            visible: !item.borderDisabled
+        }
+
+        SuperiorComponents.InlineButton {
+            id: inlineButtonId
+            visible: (inlineButtonId.text || inlineButtonId.icon) && inlineButtonVisible ? true : false
+            anchors.right: parent.right
+            anchors.rightMargin: 8 * scaleRatio
+            anchors.verticalCenter: parent.verticalCenter
         }
     }
 }

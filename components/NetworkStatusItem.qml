@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
@@ -44,12 +43,17 @@ Rectangle {
                 return qsTr("Synchronizing")
             if(appWindow.remoteNodeConnected)
                 return qsTr("Remote node")
-            return qsTr("Connected")
+            return appWindow.isMining ? qsTr("Connected") + " + " + qsTr("Mining"): qsTr("Connected")
         }
         if (status == Wallet.ConnectionStatus_WrongVersion)
             return qsTr("Wrong version")
-        if (status == Wallet.ConnectionStatus_Disconnected)
+        if (status == Wallet.ConnectionStatus_Disconnected){
+            if(appWindow.walletMode <= 1){
+                return qsTr("Searching node") + translationManager.emptyString;
+            }
             return qsTr("Disconnected")
+        }
+
         return qsTr("Invalid connection status")
     }
 
@@ -58,7 +62,6 @@ Rectangle {
 
         Item {
             id: iconItem
-            anchors.top: parent.top
             width: 40 * scaleRatio
             height: 40 * scaleRatio
             opacity: {
@@ -71,22 +74,34 @@ Rectangle {
 
             Image {
                 anchors.top: parent.top
-                anchors.topMargin: 6
+                anchors.topMargin: !appWindow.isMining ? 6 * scaleRatio : 4 * scaleRatio
                 anchors.right: parent.right
-                anchors.rightMargin: 11
+                anchors.rightMargin: !appWindow.isMining ? 11 * scaleRatio : 0
                 source: {
-                    if(item.connected == Wallet.ConnectionStatus_Connected){
+                    if(appWindow.isMining) {
+                       return "../images/miningxmr.png"
+                    } else if(item.connected == Wallet.ConnectionStatus_Connected) {
                         return "../images/lightning.png"
                     } else {
                         return "../images/lightning-white.png"
+                    }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        if(!appWindow.isMining) {
+                            middlePanel.settingsView.settingsStateViewState = "Node";
+                            appWindow.showPageRequest("Settings");
+                        } else {
+                            appWindow.showPageRequest("Mining")
+                        }
                     }
                 }
             }
         }
 
         Item {
-            anchors.top: parent.top
-            anchors.left: iconItem.right
             height: 40 * scaleRatio
             width: 260 * scaleRatio
 
@@ -112,9 +127,19 @@ Rectangle {
                 font.pixelSize: 20 * scaleRatio
                 color: "white"
                 text: getConnectionStatusString(item.connected) + translationManager.emptyString
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        if(!appWindow.isMining) {
+                            middlePanel.settingsView.settingsStateViewState = "Node";
+                            appWindow.showPageRequest("Settings");
+                        } else {
+                            appWindow.showPageRequest("Mining")
+                        }
+                    }
+                }
             }
         }
     }
-
-
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.7
 import QtQuick.Controls 2.0
@@ -47,6 +46,7 @@ Item {
     signal rejected()
 
     function open() {
+        inactiveOverlay.visible = true
         leftPanel.enabled = false
         middlePanel.enabled = false
         titleBar.enabled = false
@@ -57,6 +57,7 @@ Item {
     }
 
     function close() {
+        inactiveOverlay.visible = false
         leftPanel.enabled = true
         middlePanel.enabled = true
         titleBar.enabled = true
@@ -64,7 +65,7 @@ Item {
     }
 
     ColumnLayout {
-        z: bg.z + 1
+        z: parent.z + 1
         id: mainLayout
         spacing: 10
         anchors { fill: parent; margins: 35 }
@@ -78,7 +79,6 @@ Item {
 
             Label {
                 id: label
-                anchors.left: parent.left
                 Layout.fillWidth: true
 
                 font.pixelSize: 16 * scaleRatio
@@ -92,7 +92,6 @@ Item {
                 focus: true
                 Layout.topMargin: 6
                 Layout.fillWidth: true
-                anchors.left: parent.left
                 horizontalAlignment: TextInput.AlignLeft
                 verticalAlignment: TextInput.AlignVCenter
                 font.family: SuperiorComponents.Style.fontLight.name
@@ -102,6 +101,8 @@ Item {
                 leftPadding: 10
                 topPadding: 10
                 color: SuperiorComponents.Style.defaultFontColor
+                selectionColor: SuperiorComponents.Style.dimmedFontColor
+                selectedTextColor: SuperiorComponents.Style.defaultFontColor
 
                 background: Rectangle {
                     radius: 2
@@ -144,7 +145,7 @@ Item {
                     small: true
                     width: 120
                     fontSize: 14
-                    text: qsTr("Ok")
+                    text: qsTr("Ok") + translationManager.emptyString
                     KeyNavigation.tab: cancelButton
                     onClicked: {
                         root.close()
@@ -153,13 +154,5 @@ Item {
                 }
             }
         }
-    }
-
-    Rectangle {
-        id: bg
-        z: parent.z + 1
-        anchors.fill: parent
-        color: "black"
-        opacity: 0.8
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 import QtQuick.Controls 2.0
@@ -48,6 +47,7 @@ Rectangle {
     property alias textArea: dialogContent
     property alias okText: okButton.text
     property alias cancelText: cancelButton.text
+    property alias closeVisible: closeButton.visible
 
     property var icon
 
@@ -90,55 +90,63 @@ Rectangle {
     }
 
     // TODO: implement without hardcoding sizes
-    width: isMobile ? screenWidth : 520
-    height: isMobile ? screenHeight : 380
+    width: isMobile ? screenWidth : 520 * scaleRatio
+    height: isMobile ? screenHeight : 380 * scaleRatio
 
     ColumnLayout {
         id: mainLayout
-        spacing: 10
-        anchors { fill: parent; margins: 15 }
+        spacing: 10 * scaleRatio
+        anchors.fill: parent
+        anchors.margins: (isMobile? 17 : 20) * scaleRatio
 
         RowLayout {
             id: column
-            //anchors {fill: parent; margins: 16 }
             Layout.topMargin: 14 * scaleRatio
-            Layout.alignment: Qt.AlignHCenter
+            Layout.fillWidth: true
 
             SuperiorComponents.Label {
                 id: dialogTitle
-                horizontalAlignment: Text.AlignHCenter
                 fontSize: 18 * scaleRatio
                 fontFamily: "Arial"
                 color: SuperiorComponents.Style.defaultFontColor
             }
-
         }
 
-        RowLayout {
-            TextArea {
-                id : dialogContent
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                renderType: Text.QtRendering
-                font.family: SuperiorComponents.Style.fontLight.name
-                textFormat: TextEdit.AutoText
-                readOnly: true
-                font.pixelSize: 14 * scaleRatio
-                selectByMouse: false
-                wrapMode: TextEdit.Wrap
-                color: SuperiorComponents.Style.defaultFontColor
+        Item {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.preferredHeight: 240 * scaleRatio
 
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        appWindow.showStatusMessage(qsTr("Double tap to copy"),3)
-                    }
-                    onDoubleClicked: {
-                        parent.selectAll()
-                        parent.copy()
-                        parent.deselect()
-                        console.log("copied to clipboard");
-                        appWindow.showStatusMessage(qsTr("Content copied to clipboard"),3)
+            Flickable {
+                id: flickable
+                anchors.fill: parent
+                ScrollBar.vertical: ScrollBar { }
+
+                TextArea.flickable: TextArea {
+                    id: dialogContent
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    renderType: Text.QtRendering
+                    font.family: SuperiorComponents.Style.fontLight.name
+                    textFormat: TextEdit.AutoText
+                    readOnly: true
+                    font.pixelSize: 14 * scaleRatio
+                    selectByMouse: false
+                    wrapMode: TextEdit.Wrap
+                    color: SuperiorComponents.Style.defaultFontColor
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            appWindow.showStatusMessage(qsTr("Double tap to copy"),3)
+                        }
+                        onDoubleClicked: {
+                            parent.selectAll()
+                            parent.copy()
+                            parent.deselect()
+                            console.log("copied to clipboard");
+                            appWindow.showStatusMessage(qsTr("Content copied to clipboard"),3)
+                        }
                     }
                 }
             }
@@ -147,7 +155,7 @@ Rectangle {
         // Ok/Cancel buttons
         RowLayout {
             id: buttons
-            spacing: 60
+            spacing: 60 * scaleRatio
             Layout.alignment: Qt.AlignHCenter
 
             SuperiorComponents.StandardButton {
@@ -161,20 +169,47 @@ Rectangle {
 
             SuperiorComponents.StandardButton {
                 id: okButton
-                text: qsTr("OK")
+                text: qsTr("OK") + translationManager.emptyString
                 KeyNavigation.tab: cancelButton
                 onClicked: {
                     root.close()
                     root.accepted()
-
                 }
             }
         }
     }
 
+    // close icon
+    Rectangle {
+        id: closeButton
+        anchors.top: parent.top
+        anchors.right: parent.right
+        width: 48 * scaleRatio
+        height: 48 * scaleRatio
+        color: "transparent"
+
+        Image {
+            anchors.centerIn: parent
+            width: 16 * scaleRatio
+            height: 16 * scaleRatio
+            source: "../images/close.png"
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                root.close()
+                root.rejected()
+            }
+            cursorShape: Qt.PointingHandCursor
+            onEntered: closeButton.color = "#262626";
+            onExited: closeButton.color = "transparent";
+        }
+    }
+
     // window borders
     Rectangle{
-        width: 1
+        width: 1 * scaleRatio
         color: SuperiorComponents.Style.grey
         anchors.left: parent.left
         anchors.top: parent.top
@@ -182,7 +217,7 @@ Rectangle {
     }
 
     Rectangle{
-        width: 1
+        width: 1 * scaleRatio
         color: SuperiorComponents.Style.grey
         anchors.right: parent.right
         anchors.top: parent.top
@@ -190,7 +225,7 @@ Rectangle {
     }
 
     Rectangle{
-        height: 1
+        height: 1 * scaleRatio
         color: SuperiorComponents.Style.grey
         anchors.left: parent.left
         anchors.top: parent.top
@@ -198,7 +233,7 @@ Rectangle {
     }
 
     Rectangle{
-        height: 1
+        height: 1 * scaleRatio
         color: SuperiorComponents.Style.grey
         anchors.left: parent.left
         anchors.bottom: parent.bottom

@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,50 +25,79 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
-import QtQuick 2.2
+import QtQuick 2.5
 import QtQuick.Window 2.0
 import QtQuick.Layouts 1.1
 
 Rectangle {
     id: titleBar
 
-    property int mouseX: 0
-    property bool containsMouse: false
-    property alias basicButtonVisible: goToBasicVersionButton.visible
-    property bool customDecorations: true
-    signal goToBasicVersion(bool yes)
-    height: customDecorations && !isMobile ? 50 : 0
+    height: {
+        if(!customDecorations || isMobile){
+            return 0;
+        }
+
+        if(small) return 38 * scaleRatio;
+        else return 50 * scaleRatio;
+    }
     y: -height
-    property string title
-    property alias maximizeButtonVisible: maximizeButton.visible
     z: 1
 
-    Item {
-        id: test
-        width: parent.width
-        height: 50
-        z: 1
+    property string title
+    property int mouseX: 0
+    property bool containsMouse: false
+    property bool basicButtonVisible: false
+    property bool customDecorations: persistentSettings.customDecorations
+    property bool showWhatIsButton: true
+    property bool showMinimizeButton: false
+    property bool showMaximizeButton: false
+    property bool showCloseButton: true
+    property bool showSuperiorLogo: false
+    property bool small: false
+    property alias titleBarGradientImageOpacity: titleBarGradientImage.opacity
+    property bool orange: false
+    property string buttonHoverColor: "#262626"
+    property string buttonHoverColorOrange: "#44FFFFFF"
 
-        // use jpg for gradiency
+    signal closeClicked
+    signal maximizeClicked
+    signal minimizeClicked
+    signal goToBasicVersion(bool yes)
+
+    Item {
+        // Background gradient
+        width: parent.width
+        height: parent.height
+        z: parent.z + 1
+
         Image {
+           id: titleBarGradientImage
+           visible: !titleBar.orange
            anchors.fill: parent
-           height: parent.height
-           width: parent.width
+           height: titleBar.height
+           width: titleBar.width
            source: "../images/titlebarGradient.jpg"
+        }
+
+        Rectangle {
+            visible: titleBar.orange
+            width: parent.width
+            height: parent.height
+            color: "#ff6600"
         }
     }
 
-    Item{
+    Item {
         id: titlebarlogo
         width: 125
-        height: 50
+        height: parent.height
         anchors.centerIn: parent
         visible: customDecorations
-        z: 1
+        z: parent.z + 1
 
         Image {
+            visible: !isMobile && showSuperiorLogo && !titleBar.orange
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.topMargin: 11
@@ -76,39 +105,100 @@ Rectangle {
             height: 28
             source: "../images/titlebarLogo.png"
         }
-    }
-
-    // collapse left panel
-    Rectangle {
-        id: goToBasicVersionButton
-        property bool containsMouse: titleBar.mouseX >= x && titleBar.mouseX <= x + width
-        property bool checked: false
-        anchors.top: parent.top
-        anchors.left: parent.left
-        color:  "transparent"
-        height: 50 * scaleRatio
-        width: height
-        visible: isMobile
-        z: 2
 
         Image {
-            width: 14
-            height: 14
-            anchors.centerIn: parent
-            source: "../images/expand.png"
+            visible: !isMobile && showSuperiorLogo && titleBar.orange
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.topMargin: 11
+            width: 132
+            height: 22
+            source: "../images/superiorLogo_white.png"
+        }
+    }
+
+    Label {
+        id: titleLabel
+        visible: !showSuperiorLogo && customDecorations && titleBar.title !== ''
+        anchors.centerIn: parent
+        fontSize: 18
+        text: titleBar.title
+        z: parent.z + 1
+    }
+
+    RowLayout {
+        anchors.left: parent.left
+        anchors.top: parent.top
+        width: 40
+        height: parent.height
+        spacing: 0
+        z: parent.z + 2
+
+        Rectangle {
+            Layout.preferredHeight: parent.height
+            Layout.preferredWidth: Layout.preferredHeight
+
+            id: goToBasicVersionButton
+            property bool containsMouse: titleBar.mouseX >= x && titleBar.mouseX <= x + width
+            property bool checked: false
+            color:  "transparent"
+            height: titleBar.height
+            width: height
+            visible: !titleBar.orange && titleBar.basicButtonVisible
+
+            Image {
+                width: 14
+                height: 14
+                anchors.centerIn: parent
+                source: "../images/expand.png"
+            }
+
+            MouseArea {
+                id: basicMouseArea
+                hoverEnabled: true
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onEntered: { goToBasicVersionButton.color = titleBar.orange ? titleBar.buttonHoverColorOrange : titleBar.buttonHoverColor }
+                onExited: goToBasicVersionButton.color = "transparent";
+                onClicked: {
+                    releaseFocus()
+                    parent.checked = !parent.checked
+                    titleBar.goToBasicVersion(leftPanel.visible)
+                }
+            }
         }
 
-        MouseArea {
-            id: basicMouseArea
-            hoverEnabled: true
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onEntered: goToBasicVersionButton.color = "#262626";
-            onExited: goToBasicVersionButton.color = "transparent";
-            onClicked: {
-                releaseFocus()
-                parent.checked = !parent.checked
-                titleBar.goToBasicVersion(leftPanel.visible)
+        // language selection
+        Rectangle {
+            Layout.preferredHeight: parent.height
+            Layout.preferredWidth: Layout.preferredHeight
+            visible: !titleBar.orange && persistentSettings.customDecorations
+
+            id: languageSelection
+            property bool containsMouse: titleBar.mouseX >= x && titleBar.mouseX <= x + width
+            property bool checked: false
+            color:  "transparent"
+            height: titleBar.height
+            width: height
+            z: parent.z + 2
+
+            Image {
+                width: 14
+                height: 14
+                anchors.centerIn: parent
+                source: "../images/langFlagGrey.png"
+            }
+
+            MouseArea {
+                hoverEnabled: true
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onEntered: parent.color = "#262626";
+                onExited: parent.color = "transparent";
+                onClicked: {
+                    releaseFocus();
+                    appWindow.toggleLanguageView();
+                }
             }
         }
     }
@@ -119,36 +209,11 @@ Rectangle {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         visible: parent.customDecorations
-        z: 2
-
-        Rectangle {
-            id: whatIsAreaButton
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            width: 42
-            color: containsMouse ? "#6B0072" : "#00000000"
-
-            Image {
-                anchors.centerIn: parent
-                width: 9
-                height: 16
-                source: "../images/question.png"
-            }
-
-            MouseArea {
-                id: whatIsArea
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                onEntered: whatIsAreaButton.color = "#262626";
-                onExited: whatIsAreaButton.color = "transparent";
-                onClicked: {
-
-                }
-            }
-        }
+        z: parent.z + 2
 
         Rectangle {
             id: minimizeButton
+            visible: showMinimizeButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: 42
@@ -164,16 +229,21 @@ Rectangle {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onEntered: minimizeButton.color = "#262626";
-                onExited: minimizeButton.color = "transparent";
-                onClicked: {
-                    appWindow.visibility = Window.Minimized
+                onEntered: {
+                    if(titleBar.orange){
+                        minimizeButton.color = titleBar.buttonHoverColorOrange;
+                    } else {
+                        minimizeButton.color = titleBar.buttonHoverColor;
+                    }
                 }
+                onExited: minimizeButton.color = "transparent";
+                onClicked: minimizeClicked();
             }
         }
 
         Rectangle {
             id: maximizeButton
+            visible: showMaximizeButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: 42
@@ -192,17 +262,21 @@ Rectangle {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onEntered: maximizeButton.color = "#262626";
-                onExited: maximizeButton.color = "transparent";
-                onClicked: {
-                    appWindow.visibility = appWindow.visibility !== Window.FullScreen ? Window.FullScreen :
-                                                                                        Window.Windowed
+                onEntered: {
+                    if(titleBar.orange){
+                        maximizeButton.color = titleBar.buttonHoverColorOrange;
+                    } else {
+                        maximizeButton.color = titleBar.buttonHoverColor;
+                    }
                 }
+                onExited: maximizeButton.color = "transparent";
+                onClicked: maximizeClicked();
             }
         }
 
         Rectangle {
             id: closeButton
+            visible: showCloseButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: 42
@@ -217,13 +291,39 @@ Rectangle {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: appWindow.close();
+                onClicked: closeClicked();
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onEntered: closeButton.color = "#262626";
+                onEntered: {
+                    if(titleBar.orange){
+                        closeButton.color = titleBar.buttonHoverColorOrange;
+                    } else {
+                        closeButton.color = titleBar.buttonHoverColor;
+                    }
+                }
                 onExited: closeButton.color = "transparent";
             }
         }
     }
 
+    // window borders
+    Rectangle {
+        visible: !titleBar.orange
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        anchors.left: parent.left
+        height: 1
+        color: "#2F2F2F"
+        z: parent.z + 1
+    }
+
+    Rectangle {
+        visible: titleBar.small && !titleBar.orange
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.left: parent.left
+        height: 1
+        color: "#2F2F2F"
+        z: parent.z + 1
+    }
 }

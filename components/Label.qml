@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,9 +25,8 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
-import QtQuick 2.0
+import QtQuick 2.5
 import QtQuick.Layouts 1.1
 
 import "../components" as SuperiorComponents
@@ -36,7 +35,7 @@ Item {
     id: item
     property alias text: label.text
     property alias color: label.color
-    property alias textFormat: label.textFormat
+    property int textFormat: Text.PlainText
     property string tipText: ""
     property int fontSize: 16 * scaleRatio
     property bool fontBold: false
@@ -44,6 +43,9 @@ Item {
     property string fontFamily: ""
     property alias wrapMode: label.wrapMode
     property alias horizontalAlignment: label.horizontalAlignment
+    property alias hoveredLink: label.hoveredLink
+    property alias elide: label.elide
+    property alias textWidth: label.width
     signal linkActivated()
     height: label.height * scaleRatio
     width: label.width * scaleRatio
@@ -65,5 +67,6 @@ Item {
         font.bold: fontBold
         color: fontColor
         onLinkActivated: item.linkActivated()
+        textFormat: parent.textFormat
     }
 }

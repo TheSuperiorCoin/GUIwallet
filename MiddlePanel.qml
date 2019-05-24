@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,19 +25,21 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 
 import QtQml 2.0
 import QtQuick 2.2
-// QtQuick.Controls 2.0 isn't stable enough yet. Needs more testing.
-//import QtQuick.Controls 2.0
+import QtQuick.Controls 2.0
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 import QtGraphicalEffects 1.0
 import superiorComponents.Wallet 1.0
 
+import "components" as SuperiorComponents
 import "./pages"
+import "./pages/settings"
+import "./pages/merchant"
+import "components" as SuperiorComponents
 
 Rectangle {
     id: root
@@ -56,6 +58,7 @@ Rectangle {
 
     property Transfer transferView: Transfer { }
     property Receive receiveView: Receive { }
+    property Merchant merchantView: Merchant { }
     property TxKey txkeyView: TxKey { }
     property SharedRingDB sharedringdbView: SharedRingDB { }
     property History historyView: History { }
@@ -64,7 +67,7 @@ Rectangle {
     property Mining miningView: Mining { }
     property AddressBook addressBookView: AddressBook { }
     property Keys keysView: Keys { }
-
+    property Account accountView: Account { }
 
     signal paymentClicked(string address, string paymentId, string amount, int mixinCount, int priority, string description)
     signal sweepUnmixableClicked()
@@ -72,11 +75,16 @@ Rectangle {
     signal getProofClicked(string txid, string address, string message);
     signal checkProofClicked(string txid, string address, string message, string signature);
 
+    Rectangle {
+        // grey background on merchantView
+        visible: currentView === merchantView
+        color: SuperiorComponents.Style.superiorGrey
+        anchors.fill: parent
+    }
+
     Image {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
+        anchors.fill: parent
+        visible: currentView !== merchantView
         source: "../images/middlePanelBg.jpg"
     }
 
@@ -108,21 +116,21 @@ Rectangle {
 
         states: [
             State {
-                name: "Dashboard"
-                PropertyChanges {  }
-            }, State {
                 name: "History"
                 PropertyChanges { target: root; currentView: historyView }
-                PropertyChanges { target: historyView; model: appWindow.currentWallet ? appWindow.currentWallet.historyModel : null }
-                PropertyChanges { target: mainFlickable; contentHeight: historyView.tableHeight + 220 * scaleRatio }
+                PropertyChanges { target: mainFlickable; contentHeight: historyView.contentHeight + 100 * scaleRatio}
             }, State {
                 name: "Transfer"
                 PropertyChanges { target: root; currentView: transferView }
-                PropertyChanges { target: mainFlickable; contentHeight: 1000 * scaleRatio }
+                PropertyChanges { target: mainFlickable; contentHeight: 700 * scaleRatio }
             }, State {
                name: "Receive"
                PropertyChanges { target: root; currentView: receiveView }
-               PropertyChanges { target: mainFlickable; contentHeight: 1000 * scaleRatio }
+               PropertyChanges { target: mainFlickable; contentHeight: receiveView.receiveHeight + 100 }
+            }, State {
+                name: "Merchant"
+                PropertyChanges { target: root; currentView: merchantView }
+                PropertyChanges { target: mainFlickable; contentHeight: merchantView.merchantHeight + 100 }
             }, State {
                name: "TxKey"
                PropertyChanges { target: root; currentView: txkeyView }
@@ -130,7 +138,7 @@ Rectangle {
             }, State {
                name: "SharedRingDB"
                PropertyChanges { target: root; currentView: sharedringdbView }
-               PropertyChanges { target: mainFlickable; contentHeight: minHeight  }
+               PropertyChanges { target: mainFlickable; contentHeight: sharedringdbView.panelHeight + 100  }
             }, State {
                 name: "AddressBook"
                 PropertyChanges {  target: root; currentView: addressBookView  }
@@ -138,42 +146,53 @@ Rectangle {
             }, State {
                 name: "Sign"
                PropertyChanges { target: root; currentView: signView }
-               PropertyChanges { target: mainFlickable; contentHeight: 1200 * scaleRatio  }
+               PropertyChanges { target: mainFlickable; contentHeight: 1000 * scaleRatio  }
             }, State {
                 name: "Settings"
                PropertyChanges { target: root; currentView: settingsView }
-               PropertyChanges { target: mainFlickable; contentHeight: 2000 * scaleRatio }
+               PropertyChanges { target: mainFlickable; contentHeight: settingsView.settingsHeight }
             }, State {
                 name: "Mining"
                 PropertyChanges { target: root; currentView: miningView }
-                PropertyChanges { target: mainFlickable; contentHeight: minHeight  }
+                PropertyChanges { target: mainFlickable; contentHeight: 700 * scaleRatio}
             }, State {
                 name: "Keys"
                 PropertyChanges { target: root; currentView: keysView }
-                PropertyChanges { target: mainFlickable; contentHeight: minHeight  + 200 * scaleRatio }
-            }
+                PropertyChanges { target: mainFlickable; contentHeight: keysView.keysHeight }
+            }, State {
+	           name: "Account"
+	           PropertyChanges { target: root; currentView: accountView }
+	           PropertyChanges { target: mainFlickable; contentHeight: minHeight }
+            }	
         ]
 
     // color stripe at the top
     Row {
         id: styledRow
+        visible: currentView !== merchantView
         height: 4
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-
+        z: parent.z + 1
 
         Rectangle { height: 4; width: parent.width / 5; color: "#FFE00A" }
         Rectangle { height: 4; width: parent.width / 5; color: "#6B0072" }
-        Rectangle { height: 4; width: parent.width / 5; color: "#CEAC41" }
+        Rectangle { height: 4; width: parent.width / 5; color: "#FF6C3C" }
         Rectangle { height: 4; width: parent.width / 5; color: "#FFD781" }
-        Rectangle { height: 4; width: parent.width / 5; color: "#CDAE3E" }
+        Rectangle { height: 4; width: parent.width / 5; color: "#FF4F41" }
     }
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 18
-        anchors.topMargin: appWindow.persistentSettings.customDecorations ? 50 : 0
+        anchors.margins: {
+            if(currentView === merchantView || currentView === historyView)
+                return 0;
+
+            return 20 * scaleRatio;
+        }
+
+        anchors.topMargin: appWindow.persistentSettings.customDecorations ? 50 * scaleRatio : 0
         spacing: 0
 
         Flickable {
@@ -182,13 +201,19 @@ Rectangle {
             Layout.fillHeight: true
             clip: true
 
+            ScrollBar.vertical: ScrollBar {
+                parent: mainFlickable.parent
+                anchors.left: parent.right
+                anchors.leftMargin: 3
+                anchors.top: parent.top
+                anchors.topMargin: 4
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: persistentSettings.customDecorations ? 4 : 0 
+            }
+
             onFlickingChanged: {
                 releaseFocus();
             }
-
-            // Disabled scrollbars, gives crash on startup on windows
-//            ScrollIndicator.vertical: ScrollIndicator { }
-//            ScrollBar.vertical: ScrollBar { }       // uncomment to test
 
             // Views container
             StackView {

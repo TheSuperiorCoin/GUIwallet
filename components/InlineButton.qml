@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015, TheSuperiorCoin Project
+// Copyright (c) 2014-2019, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
@@ -34,15 +33,24 @@ import "../components" as SuperiorComponents
 
 Item {
     id: inlineButton
-    height: rect.height * scaleRatio
+    height: parent.height
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+
+    property bool small: false
     property string shadowPressedColor: "#B32D00"
-    property string shadowReleasedColor: "#BF9B30"
-    property string pressedColor: "#BF9B30"
-    property string releasedColor: "#CEAC41"
+    property string shadowReleasedColor: "#FF4304"
+    property string pressedColor: "#FF4304"
+    property string releasedColor: "#FF6C3C"
     property string icon: ""
-    property string textColor: "#FFFFFF"
-    property int fontSize: 12 * scaleRatio
+    property string textColor: "black"
+    property int fontSize: small ? 14 * scaleRatio : 16 * scaleRatio
+    property int rectHeight: small ? 24 * scaleRatio : 28 * scaleRatio
+    property int rectHMargin: small ? 16 * scaleRatio : 22 * scaleRatio
     property alias text: inlineText.text
+    property alias fontPixelSize: inlineText.font.pixelSize
+    property alias fontFamily: inlineText.font
+    property alias buttonColor: rect.color
     signal clicked()
 
     function doClick() {
@@ -56,20 +64,27 @@ Item {
         color: SuperiorComponents.Style.buttonBackgroundColorDisabled
         border.color: "black"
         height: 28 * scaleRatio
-        width: inlineText.width + 22 * scaleRatio
+        width: inlineText.text ? (inlineText.width + 22) * scaleRatio : inlineButton.icon ? (inlineImage.width + 16) * scaleRatio : rect.height
         radius: 4
 
-        anchors.top: parent.top
+        anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
 
         Text {
             id: inlineText
             font.family: SuperiorComponents.Style.fontBold.name
             font.bold: true
-            font.pixelSize: 16 * scaleRatio
-            color: "black"
+            font.pixelSize: inlineButton.fontSize
+            color: inlineButton.textColor
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
+        }
+
+        Image {
+            id: inlineImage
+            visible: inlineButton.icon !== ""
+            anchors.centerIn: parent
+            source: inlineButton.icon
         }
 
         MouseArea {
@@ -79,12 +94,12 @@ Item {
             anchors.fill: parent
             onClicked: doClick()
             onEntered: {
-                rect.color = "#707070";
+                rect.color = buttonColor ? buttonColor : "#707070";
                 rect.opacity = 0.8;
             }
             onExited: {
                 rect.opacity = 1.0;
-                rect.color = "#808080";
+                rect.color = buttonColor ? buttonColor : "#808080";
             }
         }
     }

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 BUILD_TYPE=$1
+BUILD_TREZOR=${BUILD_TREZOR-true}
 source ./utils.sh
 platform=$(get_platform)
 # default build type
@@ -63,7 +64,7 @@ fi
 source ./utils.sh
 pushd $(pwd)
 ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-SUPERIOR_DIR=TheSuperiorCoin
+SUPERIOR_DIR=superior
 SUPERIORD_EXEC=superiord
 
 MAKE='make'
@@ -72,6 +73,7 @@ if [[ $platform == *bsd* ]]; then
 fi
 
 # build libwallet
+export BUILD_TREZOR
 ./get_libwallet_api.sh $BUILD_TYPE
  
 # build zxcvbn

@@ -7612,7 +7612,7 @@ filling            18091
 settling           18086
 retaining          18085
 helsinki           18082
-pressed            16035
+pressed            18081
 bulls              18076
 compromise         18069
 proud              18066

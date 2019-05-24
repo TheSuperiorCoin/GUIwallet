@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015, TheSuperiorCoin Project
+// Copyright (c) 2014-2015, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
@@ -44,7 +43,6 @@ Rectangle {
     width: labelButtonText.width + 14
     anchors.right: copyButton.left
     anchors.rightMargin: 6
-    visible: isValidOpenAliasAddress(addressLine.text)
 
     Text {
         id: labelButtonText

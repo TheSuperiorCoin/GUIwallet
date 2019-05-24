@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 import QtQuick.Controls 1.4
@@ -91,7 +90,7 @@ Window {
             }
 
             Text {
-                text: qsTr("Starting local node in %1 seconds").arg(countDown);
+                text: qsTr("Starting local node in %1 seconds").arg(countDown) + translationManager.emptyString;
                 font.pixelSize: 18
                 Layout.alignment: Qt.AlignHCenter
                 Layout.fillWidth: true
@@ -109,7 +108,7 @@ Window {
                 id: okButton
                 visible:false
                 fontSize: 14
-                text: qsTr("Start daemon (%1)").arg(countDown)
+                text: qsTr("Start daemon (%1)").arg(countDown) + translationManager.emptyString
                 KeyNavigation.tab: cancelButton
                 onClicked: {
                     timer.stop();
@@ -122,7 +121,7 @@ Window {
             SuperiorComponents.StandardButton {
                 id: cancelButton
                 fontSize: 14
-                text: qsTr("Use custom settings")
+                text: qsTr("Use custom settings") + translationManager.emptyString
 
                 onClicked: {
                     timer.stop();

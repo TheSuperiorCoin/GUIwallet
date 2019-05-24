@@ -24,6 +24,8 @@ class AddressBook;
 class AddressBookModel;
 class Subaddress;
 class SubaddressModel;
+class SubaddressAccount;
+class SubaddressAccountModel;
 
 class Wallet : public QObject
 {
@@ -44,13 +46,14 @@ class Wallet : public QObject
     Q_PROPERTY(AddressBook * addressBook READ addressBook)
     Q_PROPERTY(SubaddressModel * subaddressModel READ subaddressModel)
     Q_PROPERTY(Subaddress * subaddress READ subaddress)
+    Q_PROPERTY(SubaddressAccountModel * subaddressAccountModel READ subaddressAccountModel)
+    Q_PROPERTY(SubaddressAccount * subaddressAccount READ subaddressAccount)
     Q_PROPERTY(bool viewOnly READ viewOnly)
     Q_PROPERTY(QString secretViewKey READ getSecretViewKey)
     Q_PROPERTY(QString publicViewKey READ getPublicViewKey)
     Q_PROPERTY(QString secretSpendKey READ getSecretSpendKey)
     Q_PROPERTY(QString publicSpendKey READ getPublicSpendKey)
     Q_PROPERTY(QString daemonLogPath READ getDaemonLogPath CONSTANT)
-    Q_PROPERTY(QString walletLogPath READ getWalletLogPath CONSTANT)
     Q_PROPERTY(quint64 walletCreationHeight READ getWalletCreationHeight WRITE setWalletCreationHeight NOTIFY walletCreationHeightChanged)
 
 public:
@@ -112,10 +115,10 @@ public:
     Q_INVOKABLE bool store(const QString &path = "");
 
     //! initializes wallet
-    Q_INVOKABLE bool init(const QString &daemonAddress, quint64 upperTransactionLimit = 0, bool isRecovering = false, quint64 restoreHeight = 0);
+    Q_INVOKABLE bool init(const QString &daemonAddress, quint64 upperTransactionLimit = 0, bool isRecovering = false, bool isRecoveringFromDevice = false, quint64 restoreHeight = 0);
 
     //! initializes wallet asynchronously
-    Q_INVOKABLE void initAsync(const QString &daemonAddress, quint64 upperTransactionLimit = 0, bool isRecovering = false, quint64 restoreHeight = 0);
+    Q_INVOKABLE void initAsync(const QString &daemonAddress, quint64 upperTransactionLimit = 0, bool isRecovering = false, bool isRecoveringFromDevice = false, quint64 restoreHeight = 0);
 
     // Set daemon rpc user/pass
     Q_INVOKABLE void setDaemonLogin(const QString &daemonUsername = "", const QString &daemonPassword = "");
@@ -159,6 +162,10 @@ public:
 
     //! returns daemon's blockchain target height
     Q_INVOKABLE quint64 daemonBlockChainTargetHeight() const;
+
+    //! export/import key images
+    Q_INVOKABLE bool exportKeyImages(const QString& path);
+    Q_INVOKABLE bool importKeyImages(const QString& path);
 
     //! refreshes the wallet
     Q_INVOKABLE bool refresh();
@@ -231,6 +238,12 @@ public:
     //! returns subadress model
     SubaddressModel *subaddressModel();
 
+    //! returns subaddress account
+    SubaddressAccount *subaddressAccount() const;
+
+    //! returns subadress account model
+    SubaddressAccountModel *subaddressAccountModel() const;
+
     //! generate payment id
     Q_INVOKABLE QString generatePaymentId() const;
 
@@ -278,10 +291,10 @@ public:
     QString getWalletLogPath() const;
 
     // Blackalled outputs
-    Q_INVOKABLE bool blackballOutput(const QString &pubkey);
-    Q_INVOKABLE bool blackballOutputs(const QList<QString> &pubkeys, bool add);
+    Q_INVOKABLE bool blackballOutput(const QString &amount, const QString &offset);
+    Q_INVOKABLE bool blackballOutputs(const QList<QString> &outputs, bool add);
     Q_INVOKABLE bool blackballOutputs(const QString &filename, bool add);
-    Q_INVOKABLE bool unblackballOutput(const QString &pubkey);
+    Q_INVOKABLE bool unblackballOutput(const QString &amount, const QString &offset);
 
     // Rings
     Q_INVOKABLE QString getRing(const QString &key_image);
@@ -309,6 +322,8 @@ signals:
     void newBlock(quint64 height, quint64 targetHeight);
     void historyModelChanged() const;
     void walletCreationHeightChanged();
+    void deviceButtonRequest(quint64 buttonCode);
+    void deviceButtonPressed();
 
     // emitted when transaction is created async
     void transactionCreated(PendingTransaction * transaction, QString address, QString paymentId, quint32 mixinCount);
@@ -345,6 +360,8 @@ private:
     mutable AddressBookModel * m_addressBookModel;
     Subaddress * m_subaddress;
     mutable SubaddressModel * m_subaddressModel;
+    SubaddressAccount * m_subaddressAccount;
+    mutable SubaddressAccountModel * m_subaddressAccountModel;
     QMutex m_connectionStatusMutex;
     bool m_connectionStatusRunning;
     QString m_daemonUsername;

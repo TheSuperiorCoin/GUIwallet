@@ -1,4 +1,4 @@
-Copyright (c) 2014-2018, TheSuperiorCoin Project
+Copyright (c) 2014-2018, SuperiorCoin Project
 
 
 ## Current status : ALPHA
@@ -10,7 +10,7 @@ Copyright (c) 2014-2018, TheSuperiorCoin Project
 
 # Base environnement
 
-        cd TheSuperiorCoin/utils/build_scripts
+        cd superior/utils/build_scripts
         docker build -f android32.Dockerfile -t superior-android .
         cd ..
 

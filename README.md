@@ -1,20 +1,24 @@
 # Superior GUI
 
-Copyright (c) 2017-2020, The Superior Project
-Copyright (c) 2014-2017 Part of this may Include Source Code from MONERO Project
+Copyright (c) 2014-2019, SuperiorCoin Project
 
-## Development Resources
+## Development resources
 
-- Web: [superior-coin.com](https://superior-coin.com)
-- BCT: [BitCoinTalk](https://bitcointalk.org/index.php?topic=2088169.0)
-- Mail: [admin@Superior-coin.com](mailto:admin@Superior-coin.com)
-- Github: [https://github.com/TheSuperiorCoin/GUIwallet](https://github.com/TheSuperiorCoin/GUIwallet)
-- IRC: [#SuperiorCoin on Freenode](irc://chat.freenode.net/#Superiorcoin)
-- FB: [https://www.facebook.com/TheSuperiorCoin](https://www.facebook.com/TheSuperiorCoin)
+- Web: [getsuperior.org](https://getsuperior.org)
+- Forum: [forum.getsuperior.org](https://forum.getsuperior.org)
+- Mail: [dev@getsuperior.org](mailto:dev@getsuperior.org)
+- Github: [https://github.com/superior-project/superior-gui](https://github.com/superior-project/superior-gui)
+- IRC: [#superior-dev on Freenode](irc://chat.freenode.net/#superior-dev)
+- Translation platform (Pootle): [translate.getsuperior.org](https://translate.getsuperior.org)
+
+## Vulnerability response
+
+- Our [Vulnerability Response Process](https://github.com/superior-project/meta/blob/master/VULNERABILITY_RESPONSE_PROCESS.md) encourages responsible disclosure
+- We are also available via [HackerOne](https://hackerone.com/superior)
 
 ## Introduction
 
-SuperiorCoin is a private, secure, untraceable, decentralised digital currency. You are your bank, you control your funds, and nobody can trace your transfers unless you allow them to do so.
+Superior is a private, secure, untraceable, decentralised digital currency. You are your bank, you control your funds, and nobody can trace your transfers unless you allow them to do so.
 
 **Privacy:** Superior uses a cryptographically sound system to allow you to send and receive funds without your transactions being easily revealed on the blockchain (the ledger of transactions that everyone has). This ensures that your purchases, receipts, and all transfers remain absolutely private by default.
 
@@ -22,90 +26,120 @@ SuperiorCoin is a private, secure, untraceable, decentralised digital currency. 
 
 **Untraceability:** By taking advantage of ring signatures, a special property of a certain type of cryptography, Superior is able to ensure that transactions are not only untraceable, but have an optional measure of ambiguity that ensures that transactions cannot easily be tied back to an individual user or computer.
 
-## About this Project
+## About this project
 
-This is the GUI for the [core Superior implementation](https://github.com/TheSuperiorCoin/TheSuperiorCoin). It is open source and completely free to use without restrictions, except for those specified in the license agreement below. There are no restrictions on anyone creating an alternative implementation of Superior that uses the protocol and network in a compatible manner.
+This is the GUI for the [core Superior implementation](https://github.com/superior-project/superior). It is open source and completely free to use without restrictions, except for those specified in the license agreement below. There are no restrictions on anyone creating an alternative implementation of Superior that uses the protocol and network in a compatible manner.
 
 As with many development projects, the repository on Github is considered to be the "staging" area for the latest changes. Before changes are merged into that branch on the main repository, they are tested by individual developers in their own branches, submitted as a pull request, and then subsequently tested by contributors who focus on testing and code reviews. That having been said, the repository should be carefully considered before using it in a production environment, unless there is a patch in the repository for a particular show-stopping issue you are experiencing. It is generally a better idea to use a tagged release for stability.
 
-## Supporting the Project
+## Supporting the project
 
-Superior development can be supported directly through donations.
+Superior is a 100% community-sponsored endeavor. If you want to join our efforts, the easiest thing you can do is support the project financially. Both Superior and Bitcoin donations can be made to **donate.getsuperior.org** if using a client that supports the [OpenAlias](https://openalias.org) standard.
 
-Both Superior and Bitcoin donations can be made using address's below
+SuperiorCoin donation address is: `44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A` (viewkey: `f359631075708155cc3d92a32b75a7d02a5dcf27756707b47a2b31b21c389501`)
 
-The SuperiorCoin donation address is: `5QaiHzo64sLDo42ky98uXtJ3zswCdpUrk1q5nSidtqovjjiC7FmxRt84Zu3HkpYQX1PLDU72aQMK6Cif4muRxwt3RyZXY6y` (viewkey: `Notupdated`)
+The Bitcoin donation address is: `1KTexdemPdxSBcG55heUuTjDRYqbC5ZL8H`
 
-The Bitcoin donation address is: `1CuZRQKAs8d2c4A1WW4rGgXCyMkFHsezz2`
+GUI development funding and/or some supporting services are also graciously provided by sponsors:
 
-Core development funding and/or some supporting services are also graciously provided by sponsors:
+[<img width="80" src="https://static.getsuperior.org/images/sponsors/mysuperior.png"/>](https://mysuperior.com)
+[<img width="150" src="https://static.getsuperior.org/images/sponsors/kitware.png?1"/>](http://kitware.com)
+[<img width="100" src="https://static.getsuperior.org/images/sponsors/dome9.png"/>](http://dome9.com)
+[<img width="150" src="https://static.getsuperior.org/images/sponsors/araxis.png"/>](http://araxis.com)
+[<img width="150" src="https://static.getsuperior.org/images/sponsors/jetbrains.png"/>](http://www.jetbrains.com/)
+[<img width="150" src="https://static.getsuperior.org/images/sponsors/navicat.png"/>](http://www.navicat.com/)
+[<img width="150" src="https://static.getsuperior.org/images/sponsors/symas.png"/>](http://www.symas.com/)
+
+There are also several mining pools that kindly donate a portion of their fees, [a list of them can be found on our Bitcointalk post](https://bitcointalk.org/index.php?topic=583449.0).
 
 ## License
 
 See [LICENSE](LICENSE).
 
-## Installing Superior Core from a Package
+## Translations
 
-There are a few pakages availble on the website [SuperiorCoin](http://superior-coin.com)
+Do you speak a second language and would like to help translate the Superior GUI? Check out Pootle, our localization platform, at [translate.getsuperior.org](https://translate.getsuperior.org/projects/superior-gui/). Choose the language and suggest a translation for a string or review an existing one. The Localization Workgroup made [a guide with step-by-step instructions](https://github.com/superior-ecosystem/superior-translations/blob/master/pootle.md) for Pootle.
+&nbsp;
+
+If you need help/support or any info you can contact the localization workgroup on the IRC channel #superior-translations (relayed on matrix/riot and MatterMost) or by email at translate[at]getsuperior[dot]org. For more info about the Localization workgroup: [github.com/superior-ecosystem/superior-translations](https://github.com/superior-ecosystem/superior-translations)
+
+## Installing the Superior GUI from a package
+
+Packages are available for
+
+* Arch Linux via AUR: [superior-wallet-qt](https://aur.archlinux.org/packages/superior-wallet-qt/)
+* Void Linux: xbps-install -S superior-core
+* GuixSD: guix package -i superior-core
 
 Packaging for your favorite distribution would be a welcome contribution!
 
-## Compiling Superior Core from Source
+## Compiling the Superior GUI from source
 
 ### On Linux:
 
-(Tested on Ubuntu 16.04 x86, 16.10 x64 and Linux Mint 18 "Sarah" - Cinnamon x64)
+(Tested on Ubuntu 17.10 x64, Ubuntu 18.04 x64 and Gentoo x64)
 
-1. Install Superior dependencies.
+1. Install Superior dependencies
 
-	`sudo apt install build-essential cmake libboost-all-dev miniupnpc libunbound-dev graphviz doxygen libunwind8-dev pkg-config libssl-dev`
+  - For Debian distributions (Debian, Ubuntu, Mint, Tails...)
 
-2. Grab an up-to-date copy of the Superior-core repository.
+	`sudo apt install build-essential cmake libboost-all-dev miniupnpc libunbound-dev graphviz doxygen libunwind8-dev pkg-config libssl-dev libzmq3-dev libsodium-dev libhidapi-dev`
 
-	`git clone https://github.com/TheSuperiorCoin/GUIwallet.git`
+  - For Gentoo
 
-3. Go into the repository.
+	`sudo emerge app-arch/xz-utils app-doc/doxygen dev-cpp/gtest dev-libs/boost dev-libs/expat dev-libs/openssl dev-util/cmake media-gfx/graphviz net-dns/unbound net-libs/ldns net-libs/miniupnpc net-libs/zeromq sys-libs/libunwind dev-libs/libsodium dev-libs/hidapi`
 
-	`cd Superior-core`
+  - For Fedora
 
-4. Use the script to compile the Superior libs necessary to run the GUI.
+	`sudo dnf install make automake cmake gcc-c++ boost-devel miniupnpc-devel graphviz doxygen unbound-devel libunwind-devel pkgconfig openssl-devel libcurl-devel hidapi-devel libusb-devel`
 
-	`./get_libwallet_api.sh`
+2. Install Qt:
 
+  *Note*: Qt 5.7 is the minimum version required to build the GUI. This makes **some** distributions (mostly based on debian, like Ubuntu 16.x or Linux Mint 18.x) obsolete. You can still build the GUI if you install an [official Qt release](https://wiki.qt.io/Install_Qt_5_on_Ubuntu), but this is not officially supported.
 
-5. Install the GUI dependencies.
+  - For Ubuntu 17.10+
 
-  - For Ubuntu 16.04 x86
+    `sudo apt install qtbase5-dev qt5-default qtdeclarative5-dev qml-module-qtquick-controls qml-module-qtquick-controls2 qml-module-qtquick-dialogs qml-module-qtquick-xmllistmodel qml-module-qt-labs-settings qml-module-qt-labs-folderlistmodel qttools5-dev-tools qml-module-qtquick-templates2`
 
-	`sudo apt-get install qtbase5-dev qt5-default qtdeclarative5-dev qml-module-qtquick-controls qml-module-qtquick-xmllistmodel qttools5-dev-tools qml-module-qtquick-dialogs`
+  - For Gentoo
 
-  - For Ubuntu 16.04+ x64
-
-     `sudo apt-get install qtbase5-dev qt5-default qtdeclarative5-dev qml-module-qtquick-controls qml-module-qtquick-xmllistmodel qttools5-dev-tools qml-module-qtquick-dialogs qml-module-qt-labs-settings libqt5qml-graphicaleffects`
-
-  - For Linux Mint 18 "Sarah" - Cinnamon x64
-
-     `sudo apt install qml-module-qt-labs-settings qml-module-qtgraphicaleffects`
+    `sudo emerge dev-qt/qtcore:5 dev-qt/qtdeclarative:5 dev-qt/qtquickcontrols:5 dev-qt/qtquickcontrols2:5 dev-qt/qtgraphicaleffects:5`
 
   - Optional : To build the flag `WITH_SCANNER`
 
-     `sudo apt install qtmultimedia5-dev qml-module-qtmultimedia libzbar-dev`
+    - For Ubuntu
 
-6. Build the GUI.
+      `sudo apt install qtmultimedia5-dev qml-module-qtmultimedia libzbar-dev`
 
-	`./build.sh`
+    - For Gentoo
 
-7. Run the GUI client.
+      The *qml* USE flag must be enabled.
 
-	`./build/release/bin/Superior-wallet-gui`
+      `emerge dev-qt/qtmultimedia:5 media-gfx/zbar`
+
+
+3. Clone repository
+
+    `git clone https://github.com/superior-project/superior-gui.git`
+
+4. Build
+
+    ```
+    cd superior-gui
+    QT_SELECT=5 ./build.sh
+    ```
+
+The executable can be found in the build/release/bin folder.
 
 ### On OS X:
 
 1. Install Xcode from AppStore
-2. Install [homebrew](http://brew.sh/)
-3. Install [Superior](https://github.com/Superior-project/Superior) dependencies:
 
-  `brew install boost --c++11`
+2. Install [homebrew](http://brew.sh/)
+
+3. Install [superior](https://github.com/superior-project/superior) dependencies:
+
+  `brew install boost`
 
   `brew install openssl` - to install openssl headers
 
@@ -113,37 +147,33 @@ Packaging for your favorite distribution would be a welcome contribution!
 
   `brew install cmake`
 
+  `brew install zeromq`
+
+  *Note*: If cmake can not find zmq.hpp file on OS X, installing `zmq.hpp` from https://github.com/zeromq/cppzmq to `/usr/local/include` should fix that error.
+
+4. Install Qt:
+
   `brew install qt5`  (or download QT 5.8+ from [qt.io](https://www.qt.io/download-open-source/))
 
   If you have an older version of Qt installed via homebrew, you can force it to use 5.x like so:
   
   `brew link --force --overwrite qt5`
 
-4. Install latest Qt using official installer from [qt.io](https://www.qt.io/download-open-source/) (homebrew version might be outdated).
-5. Add Qt bin dir to your path (check first if directory exists; 5.8 is the current version)
+5. Add the Qt bin directory to your path
 
-    `export PATH=$PATH:$HOME/Qt/5.8/clang_64/bin`
+    Example: `export PATH=$PATH:$HOME/Qt/5.8/clang_64/bin`
 
-5. Add Qt bin dir to your path.  Example:
+    This is the directory where Qt 5.x is installed on **your** system
 
-    `export PATH=$PATH:/usr/local/opt/qt5/bin`
+6. Grab an up-to-date copy of the superior-gui repository
 
-    make sure this is where Qt 5.x is installed on **your** system eg `$HOME/Qt/5.8/clang_64/bin` if you downloaded from qt.io.
+  `git clone https://github.com/superior-project/superior-gui.git`
 
-6. Grab an up-to-date copy of the SuperiorCoinGUi repository.
+7. Go into the repository
 
-  `git clone https://github.com/TheSuperiorCoin/GUIwallet.git`
+  `cd superior-gui`
 
-7. Go into the repository.
-
-  `cd GUIwallet`
-
-8. Grab an up-to-date copy of the git clone https://github.com/TheSuperiorCoin/TheSuperiorCoin.git
-
-    change the name of that folder to Superior
-    cd ..
-
-9. Start the build:
+8. Start the build
 
   `./build.sh`
 
@@ -151,7 +181,7 @@ The executable can be found in the `build/release/bin` folder.
 
 **Note:** Workaround for "ERROR: Xcode not set up properly"
 
-Edit `$HOME/Qt/5.7/clang_64/mkspecs/features/mac/default_pre.prf`
+Edit `$HOME/Qt/5.8/clang_64/mkspecs/features/mac/default_pre.prf`
 
 replace
 `isEmpty($$list($$system("/usr/bin/xcrun -find xcrun 2>/dev/null")))`
@@ -162,65 +192,57 @@ with
 More info: http://stackoverflow.com/a/35098040/1683164
 
 
-### On Windows: 64bit
+### On Windows:
 
-1. **Preparing the Build Environment**
+SuperiorCoin GUI on Windows is 64 bits only; 32-bit Windows GUI builds are not officially supported anymore.
 
-* Download and install the [MSYS2 installer](http://msys2.github.io), use the 64-bit download.
-* Open the MSYS shell via the `MSYS2 Shell` shortcut
-* Update packages using pacman:  
+1. Install [MSYS2](https://www.msys2.org/), follow the instructions on that page on how to update system and packages to the latest versions
 
-        pacman -Syuu  
+2. Open an 64-bit MSYS2 shell: Use the *MSYS2 MinGW 64-bit* shortcut, or use the `msys2_shell.cmd` batch file with a `-mingw64` parameter
 
-* Exit the MSYS shell using Alt+F4  
-* Edit the properties for the `MSYS2 Shell` shortcut changing "msys2_shell.bat" to "msys2_shell.cmd -mingw64".
-* Restart MSYS shell via modified shortcut and update packages again using pacman:  
+3. Install MSYS2 packages for Superior dependencies; the needed 64-bit packages have `x86_64` in their names
 
-        pacman -Syuu  
+    ```
+    pacman -S mingw-w64-x86_64-toolchain make mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-openssl mingw-w64-x86_64-zeromq mingw-w64-x86_64-libsodium mingw-w64-x86_64-hidapi
+    ```
 
+    Optional : To build the flag `WITH_SCANNER`
 
-* Install dependencies:
+      ```
+      pacman -S mingw-w64-x86_64-zbar
+      ```
 
-    To build for 64-bit Windows:
+    You find more details about those dependencies in the [Superior documentation](https://github.com/superior-project/superior). Note that that there is no more need to compile Boost from source; like everything else, you can install it now with a MSYS2 package.
 
-        pacman -S mingw-w64-x86_64-toolchain make mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-openssl mingw-w64-x86_64-zeromq mingw-w64-x86_64-libsodium
+4. Install Qt5
 
+    ```
+    pacman -S mingw-w64-x86_64-qt5
+    ```
 
-* Open the MingW shell via `MinGW-w64-Win64 Shell` shortcut on 64-bit Windows. Note that if you are
-  running 64-bit Windows, you will have both 64-bit and 32-bit MinGW shells.
+    There is no more need to download some special installer from the Qt website, the standard MSYS2 package for Qt will do in almost all circumstances.
 
-3. Install git into msys2 environment:
+5. Install git
 
     ```
     pacman -S git
     ```
 
-4. Install Qt5 
+6. Clone repository
 
     ```
-    mingw-w64-x86_64-qt5
+    git clone https://github.com/superior-project/superior-gui.git
     ```
 
-   - continue with installation
+7. Build
 
-5. Open ```MinGW-w64 Win64 Shell``` shell:
-
-   ```%MSYS_ROOT%\msys2_shell.cmd -mingw64```
-
-   Where ```%MSYS_ROOT%``` will be  ```c:\msys64``` if your host OS
-   is x64-based
-
-6. Clone repository:
     ```
-    cd
-    git clone https://github.com/TheSuperiorCoin/GUIwallet.git
-    ```
-
-7. Build the GUI:
-    ```
-    cd GUIwallet
-    ./build.sh
+    cd superior-gui
+    source ./build.sh release-static
     cd build
     make deploy
     ```
-    The resulting executable can be found in ```.\release\bin```
+
+    **Note:** The use of `source` above is a dirty workaround for a suspected bug in the current QT version 5.11.2-3 available in the MSYS2 packaging system, see https://github.com/superior-project/superior-gui/issues/1559 for more info.
+
+The executable can be found in the `.\release\bin` directory.

@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 import superiorComponents.Wallet 1.0
@@ -43,7 +42,7 @@ Rectangle {
     function updateProgress(currentBlock,targetBlock, blocksToSync, statusTxt){
         if(targetBlock > 0) {
             var remaining = (currentBlock < targetBlock) ? targetBlock - currentBlock : 0
-            var progressLevel = (blocksToSync > 0 && blocksToSync != remaining) ? (100*(blocksToSync - remaining)/blocksToSync).toFixed(0) : (100*currentBlock / targetBlock).toFixed(0)
+            var progressLevel = (blocksToSync > 0 && blocksToSync != remaining) ? (100*(blocksToSync - remaining)/blocksToSync).toFixed(0) : (100*(currentBlock / targetBlock)).toFixed(0)
             fillLevel = progressLevel
             if(typeof statusTxt != "undefined" && statusTxt != "") {
                 progressText.text = statusTxt;
@@ -68,7 +67,7 @@ Rectangle {
             font.pixelSize: 13 * scaleRatio
             font.bold: true
             color: "white"
-            text: qsTr("Synchronizing %1").arg(syncType)
+            text: qsTr("Synchronizing %1").arg(syncType) + translationManager.emptyString
             height: 18 * scaleRatio
         }
 
@@ -105,7 +104,7 @@ Rectangle {
                 width: (maxWidth * fillLevel) / 100
                 radius: 8
                 // could change color based on progressbar status; if(item.fillLevel < 99 )
-                color: "#CEAD34"
+                color: "#FA6800"
             }
 
             Rectangle {

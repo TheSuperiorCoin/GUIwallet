@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 import QtQuick.Controls 1.4
@@ -34,18 +33,18 @@ import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
 import superiorComponents.Clipboard 1.0
 import "../version.js" as Version
-import "../components"
+import "../components" as SuperiorComponents
 import "." 1.0
 
 
 Rectangle {
-    property bool viewOnly: false
     id: page
+    property bool viewOnly: false
+    property int keysHeight: mainLayout.height + 100 * scaleRatio // Ensure sufficient height for QR code, even in minimum width window case.
 
     color: "transparent"
 
     Clipboard { id: clipboard }
-
     ColumnLayout {
         id: mainLayout
 
@@ -53,90 +52,54 @@ Rectangle {
         anchors.top: parent.top
         anchors.right: parent.right
 
-        anchors.margins: (isMobile)? 17 : 20
+        anchors.margins: (isMobile)? 17 * scaleRatio : 20 * scaleRatio
         anchors.topMargin: 40 * scaleRatio
 
         spacing: 30 * scaleRatio
         Layout.fillWidth: true
 
-        RowLayout{
-            // TODO: Move the warning box to its own component, so it can be used in multiple places
-            visible: warningText.text !== ""
-  
-            Rectangle {
-                id: statusRect
-                Layout.preferredHeight: warningText.height + 26
-                Layout.fillWidth: true
-  
-                radius: 2
-                border.color: Qt.rgba(255, 255, 255, 0.25)
-                border.width: 1
-                color: "transparent"
-  
-                GridLayout{
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: warningText.height + 40
-  
-                    Image {
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.preferredHeight: 33
-                        Layout.preferredWidth: 33
-                        Layout.leftMargin: 10
-                        Layout.topMargin: 10
-                        source: "../images/warning.png"
-                    }
-  
-                    Text {
-                        id: warningText
-                        Layout.topMargin: 12 * scaleRatio
-                        Layout.preferredWidth: statusRect.width - 80
-                        Layout.leftMargin: 6
-                        text: qsTr("WARNING: Do not reuse your Superior keys on another fork, UNLESS this fork has key reuse mitigations built in. Doing so will harm your privacy." + translationManager.emptyString)
-                        wrapMode: Text.Wrap
-                        font.family: Style.fontRegular.name
-                        font.pixelSize: 15 * scaleRatio
-                        color: Style.defaultFontColor
-                        textFormat: Text.RichText
-                        onLinkActivated: {
-                            appWindow.startDaemon(appWindow.persistentSettings.daemonFlags);
-                        }
-                    }
-                }
-            }
+        SuperiorComponents.WarningBox {
+            text: qsTr("WARNING: Do not reuse your Superior keys on another fork, UNLESS this fork has key reuse mitigations built in. Doing so will harm your privacy.") + translationManager.emptyString;
         }
-        
+
         //! Manage wallet
         ColumnLayout {
             Layout.fillWidth: true
 
-            Label {
+            SuperiorComponents.Label {
                 Layout.fillWidth: true
                 fontSize: 22 * scaleRatio
                 Layout.topMargin: 10 * scaleRatio
                 text: qsTr("Mnemonic seed") + translationManager.emptyString
             }
+
             Rectangle {
                 Layout.fillWidth: true
-                height: 2
-                color: Style.dividerColor
-                opacity: Style.dividerOpacity
+                height: 2 * scaleRatio
+                color: SuperiorComponents.Style.dividerColor
+                opacity: SuperiorComponents.Style.dividerOpacity
                 Layout.bottomMargin: 10 * scaleRatio
             }
 
-            LineEditMulti{
+            SuperiorComponents.WarningBox {
+                text: qsTr("WARNING: Copying your seed to clipboard can expose you to malicious software, which may record your seed and steal your Superior. Please write down your seed manually.") + translationManager.emptyString
+            }
+
+            SuperiorComponents.LineEditMulti {
                 id: seedText
                 spacing: 0
                 copyButton: true
                 addressValidation: false
                 readOnly: true
-                wrapAnywhere: false
+                wrapMode: Text.WordWrap
+                fontColor: "white"
             }
         }
 
         ColumnLayout {
             Layout.fillWidth: true
 
-            Label {
+            SuperiorComponents.Label {
                 Layout.fillWidth: true
                 fontSize: 22 * scaleRatio
                 Layout.topMargin: 10 * scaleRatio
@@ -145,38 +108,51 @@ Rectangle {
             Rectangle {
                 Layout.fillWidth: true
                 height: 2
-                color: Style.dividerColor
-                opacity: Style.dividerOpacity
+                color: SuperiorComponents.Style.dividerColor
+                opacity: SuperiorComponents.Style.dividerOpacity
                 Layout.bottomMargin: 10 * scaleRatio
             }
-            TextEdit {
-                id: keysText
-                wrapMode: TextEdit.Wrap
-                Layout.fillWidth: true;
-                font.pixelSize: 14 * scaleRatio
-                textFormat: TextEdit.RichText
+            SuperiorComponents.LineEdit {
+                Layout.fillWidth: true
+                id: secretViewKey
                 readOnly: true
-                color: Style.defaultFontColor
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        appWindow.showStatusMessage(qsTr("Double tap to copy"),3)
-                    }
-                    onDoubleClicked: {
-                        parent.selectAll()
-                        parent.copy()
-                        parent.deselect()
-                        console.log("copied to clipboard");
-                        appWindow.showStatusMessage(qsTr("Keys copied to clipboard"),3)
-                    }
-                }
+                copyButton: true
+                labelText: qsTr("Secret view key") + translationManager.emptyString
+                fontSize: 16 * scaleRatio
+            }
+            SuperiorComponents.LineEdit {
+                Layout.fillWidth: true
+                Layout.topMargin: 25 * scaleRatio
+                id: publicViewKey
+                readOnly: true
+                copyButton: true
+                labelText: qsTr("Public view key") + translationManager.emptyString
+                fontSize: 16 * scaleRatio
+            }
+            SuperiorComponents.LineEdit {
+                Layout.fillWidth: true
+                Layout.topMargin: 25 * scaleRatio
+                id: secretSpendKey
+                readOnly: true
+                copyButton: true
+                labelText: qsTr("Secret spend key") + translationManager.emptyString
+                fontSize: 16 * scaleRatio
+            }
+            SuperiorComponents.LineEdit {
+                Layout.fillWidth: true
+                Layout.topMargin: 25 * scaleRatio
+                id: publicSpendKey
+                readOnly: true
+                copyButton: true
+                labelText: qsTr("Public spend key") + translationManager.emptyString
+                fontSize: 16 * scaleRatio
             }
         }
 
         ColumnLayout {
             Layout.fillWidth: true
 
-            Label {
+            SuperiorComponents.Label {
                 Layout.fillWidth: true
                 fontSize: 22 * scaleRatio
                 Layout.topMargin: 10 * scaleRatio
@@ -185,28 +161,30 @@ Rectangle {
             Rectangle {
                 Layout.fillWidth: true
                 height: 2
-                color: Style.dividerColor
-                opacity: Style.dividerOpacity
+                color: SuperiorComponents.Style.dividerColor
+                opacity: SuperiorComponents.Style.dividerOpacity
                 Layout.bottomMargin: 10 * scaleRatio
             }
 
-            RowLayout {
-                StandardButton {
-                    enabled: !fullWalletQRCode.visible
+            ColumnLayout {
+                SuperiorComponents.RadioButton {
                     id: showFullQr
-                    small: true
+                    enabled: !this.checked
+                    checked: fullWalletQRCode.visible
                     text: qsTr("Spendable Wallet") + translationManager.emptyString
                     onClicked: {
                         viewOnlyQRCode.visible = false
+                        showViewOnlyQr.checked = false
                     }
                 }
-                StandardButton {
-                    enabled: fullWalletQRCode.visible
+                SuperiorComponents.RadioButton {
+                    enabled: !this.checked
                     id: showViewOnlyQr
-                    small: true
+                    checked: viewOnlyQRCode.visible
                     text: qsTr("View Only Wallet") + translationManager.emptyString
                     onClicked: {
                         viewOnlyQRCode.visible = true
+                        showFullQr.checked = false
                     }
                 }
                 Layout.bottomMargin: 30 * scaleRatio
@@ -234,7 +212,7 @@ Rectangle {
                 Layout.fillWidth: true
                 font.bold: true
                 font.pixelSize: 16 * scaleRatio
-                color: Style.defaultFontColor
+                color: SuperiorComponents.Style.defaultFontColor
                 text: (viewOnlyQRCode.visible) ? qsTr("View Only Wallet") + translationManager.emptyString : qsTr("Spendable Wallet") + translationManager.emptyString
                 horizontalAlignment: Text.AlignHCenter
             }
@@ -245,22 +223,23 @@ Rectangle {
     function onPageCompleted() {
         console.log("keys page loaded");
 
-        keysText.text = "<b>" + qsTr("Secret view key") + ":</b> " + currentWallet.secretViewKey
-        keysText.text += "<br><br><b>" + qsTr("Public view key") + ":</b> " + currentWallet.publicViewKey
-        keysText.text += (!currentWallet.viewOnly) ? "<br><br><b>" + qsTr("Secret spend key") + ":</b> " + currentWallet.secretSpendKey : ""
-        keysText.text += "<br><br><b>" + qsTr("Public spend key") + ":</b> " + currentWallet.publicSpendKey
+        secretViewKey.text = currentWallet.secretViewKey
+        publicViewKey.text = currentWallet.publicViewKey
+        secretSpendKey.text = (!currentWallet.viewOnly) ? currentWallet.secretSpendKey : ""
+        publicSpendKey.text = currentWallet.publicSpendKey
 
         seedText.text = currentWallet.seed
 
         if(typeof currentWallet != "undefined") {
-            viewOnlyQRCode.source = "image://qrcode/superior:" + currentWallet.address+"?secret_view_key="+currentWallet.secretViewKey+"&restore_height="+currentWallet.restoreHeight
-            fullWalletQRCode.source = viewOnlyQRCode.source +"&secret_spend_key="+currentWallet.secretSpendKey
+            viewOnlyQRCode.source = "image://qrcode/superior_wallet:" + currentWallet.address(0, 0) + "?view_key="+currentWallet.secretViewKey+"&height="+currentWallet.walletCreationHeight
+            fullWalletQRCode.source = viewOnlyQRCode.source +"&spend_key="+currentWallet.secretSpendKey
 
             if(currentWallet.viewOnly) {
                 viewOnlyQRCode.visible = true
                 showFullQr.visible = false
                 showViewOnlyQr.visible = false
-                seedText.text = qsTr("(View Only Wallet -  No mnemonic seed available)") + translationManager.emptyString
+                seedText.text = qsTr("(View Only Wallet - No mnemonic seed available)") + translationManager.emptyString
+                secretSpendKey.text = qsTr("(View Only Wallet - No secret spend key available)") + translationManager.emptyString
             }
         }
     }

@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015, TheSuperiorCoin Project
+// Copyright (c) 2014-2015, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,10 +25,10 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
+import QtGraphicalEffects 1.0
 import "." 1.0
 
 RowLayout {
@@ -41,6 +41,7 @@ RowLayout {
     property int fontSize: 14 * scaleRatio
     property alias fontColor: label.color
     property int textMargin: 8 * scaleRatio
+    property bool darkDropIndicator: false
     signal clicked()
     height: 25 * scaleRatio
 
@@ -56,7 +57,6 @@ RowLayout {
             height: label.height
             width: (label.width + indicatorRect.width + checkBox.textMargin)
             color: "transparent"
-            anchors.left: parent.left
 
             Text {
                 id: label
@@ -75,12 +75,19 @@ RowLayout {
                 anchors.left: label.right
                 anchors.leftMargin: textMargin
                 color: "transparent"
+                rotation: checkBox.checked ? 180  * scaleRatio : 0
 
                 Image {
                     id: indicatorImage
                     anchors.centerIn: parent
                     source: "../images/whiteDropIndicator.png"
-                    rotation: checkBox.checked ? 180  * scaleRatio : 0
+                    visible: !darkDropIndicator
+                }
+                ColorOverlay {
+                    anchors.fill: indicatorImage
+                    source: indicatorImage
+                    color: "#FF000000"
+                    visible: darkDropIndicator
                 }
             }
 

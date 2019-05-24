@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 //
 // All rights reserved.
 //
@@ -25,7 +25,6 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
 import QtQuick.Controls 2.0
@@ -33,7 +32,7 @@ import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
 
-import "../components"
+import "../components" as SuperiorComponents
 import superiorComponents.Clipboard 1.0
 import superiorComponents.Wallet 1.0
 import superiorComponents.WalletManager 1.0
@@ -41,104 +40,22 @@ import superiorComponents.TransactionHistory 1.0
 import superiorComponents.TransactionHistoryModel 1.0
 import superiorComponents.Subaddress 1.0
 import superiorComponents.SubaddressModel 1.0
+import "../js/TxUtils.js" as TxUtils
 
 Rectangle {
     id: pageReceive
     color: "transparent"
     property var model
-    property var current_address
-    property alias addressText : pageReceive.current_address
-    property string trackingLineText: ""
+    property alias receiveHeight: mainLayout.height
 
-    function makeQRCodeString() {
-        var s = "superior:"
-        var nfields = 0
-        s += current_address;
-        var amount = amountLine.text.trim()
-        if (amount !== "") {
-          s += (nfields++ ? "&" : "?")
-          s += "tx_amount=" + amount
+    function renameSubaddressLabel(_index){
+        inputDialog.labelText = qsTr("Set the label of the selected address:") + translationManager.emptyString;
+        inputDialog.inputText = appWindow.currentWallet.getSubaddressLabel(appWindow.currentWallet.currentSubaddressAccount, _index);
+        inputDialog.onAcceptedCallback = function() {
+            appWindow.currentWallet.subaddress.setLabel(appWindow.currentWallet.currentSubaddressAccount, _index, inputDialog.inputText);
         }
-        return s
-    }
-
-    function setTrackingLineText(text) {
-        // don't replace with same text, it wrecks selection while the user is selecting
-        // also keep track of text, because when we read back the text from the widget,
-        // we do not get what we put it, but some extra HTML stuff on top
-        if (text != trackingLineText) {
-            trackingLine.text = text
-            trackingLineText = text
-        }
-    }
-
-    function update() {
-        if (!appWindow.currentWallet) {
-            setTrackingLineText("-")
-            return
-        }
-        if (appWindow.currentWallet.connected() == Wallet.ConnectionStatus_Disconnected) {
-            setTrackingLineText(qsTr("WARNING: no connection to daemon"))
-            return
-        }
-
-        var model = appWindow.currentWallet.historyModel
-        var count = model.rowCount()
-        var totalAmount = 0
-        var nTransactions = 0
-        var list = []
-        var blockchainHeight = 0
-        for (var i = 0; i < count; ++i) {
-            var idx = model.index(i, 0)
-            var isout = model.data(idx, TransactionHistoryModel.TransactionIsOutRole);
-            var subaddrAccount = model.data(idx, TransactionHistoryModel.TransactionSubaddrAccountRole);
-            var subaddrIndex = model.data(idx, TransactionHistoryModel.TransactionSubaddrIndexRole);
-            if (!isout && subaddrAccount == appWindow.currentWallet.currentSubaddressAccount && subaddrIndex == table.currentIndex) {
-                var amount = model.data(idx, TransactionHistoryModel.TransactionAtomicAmountRole);
-                totalAmount = walletManager.addi(totalAmount, amount)
-                nTransactions += 1
-
-                var txid = model.data(idx, TransactionHistoryModel.TransactionHashRole);
-                var blockHeight = model.data(idx, TransactionHistoryModel.TransactionBlockHeightRole);
-                if (blockHeight == 0) {
-                    list.push(qsTr("in the txpool: %1").arg(txid) + translationManager.emptyString)
-                } else {
-                    if (blockchainHeight == 0)
-                        blockchainHeight = walletManager.blockchainHeight()
-                    var confirmations = blockchainHeight - blockHeight - 1
-                    var displayAmount = model.data(idx, TransactionHistoryModel.TransactionDisplayAmountRole);
-                    if (confirmations > 1) {
-                        list.push(qsTr("%2 confirmations: %3 (%1)").arg(txid).arg(confirmations).arg(displayAmount) + translationManager.emptyString)
-                    } else {
-                        list.push(qsTr("1 confirmation: %2 (%1)").arg(txid).arg(displayAmount) + translationManager.emptyString)
-                    }
-                }
-            }
-        }
-        // if there are too many txes, only show the first 3
-        if (list.length > 3) {
-            list.length = 3;
-            list.push("...");
-        }
-
-        if (nTransactions == 0) {
-            setTrackingLineText(qsTr("No transaction found yet...") + translationManager.emptyString)
-            return
-        }
-
-        var text = ((nTransactions == 1) ? qsTr("Transaction found") : qsTr("%1 transactions found").arg(nTransactions)) + translationManager.emptyString
-
-        var expectedAmount = walletManager.amountFromString(amountLine.text)
-        if (expectedAmount && expectedAmount != amount) {
-            var displayTotalAmount = walletManager.displayAmount(totalAmount)
-            if (amount > expectedAmount) {
-                text += qsTr(" with more money (%1)").arg(displayTotalAmount) + translationManager.emptyString
-            } else if (amount < expectedAmount) {
-                text += qsTr(" with not enough money (%1)").arg(displayTotalAmount) + translationManager.emptyString
-            }
-        }
-
-        setTrackingLineText(text + "<br>" + list.join("<br>"))
+        inputDialog.onRejectedCallback = null;
+        inputDialog.open()
     }
 
     Clipboard { id: clipboard }
@@ -146,7 +63,7 @@ Rectangle {
     /* main layout */
     ColumnLayout {
         id: mainLayout
-        anchors.margins: (isMobile)? 17 : 40
+        anchors.margins: (isMobile)? 17 * scaleRatio : 20 * scaleRatio
         anchors.topMargin: 40 * scaleRatio
 
         anchors.left: parent.left
@@ -157,274 +74,259 @@ Rectangle {
         property int labelWidth: 120 * scaleRatio
         property int editWidth: 400 * scaleRatio
         property int lineEditFontSize: 12 * scaleRatio
-        property int qrCodeSize: 240 * scaleRatio
+        property int qrCodeSize: 220 * scaleRatio
 
         ColumnLayout {
             id: addressRow
             spacing: 0
-            Label {
-                id: addressLabel
+
+            SuperiorComponents.LabelSubheader {
+                Layout.fillWidth: true
+                textFormat: Text.RichText
                 text: qsTr("Addresses") + translationManager.emptyString
-                width: mainLayout.labelWidth
             }
 
-            Rectangle {
-                id: header
+            ColumnLayout {
+                id: subaddressListRow
+                property int subaddressListItemHeight: 50 * scaleRatio
+                Layout.topMargin: 6 * scaleRatio
                 Layout.fillWidth: true
-                Layout.topMargin: 10
-                visible: table.count > 0
+                Layout.minimumWidth: 240
+                Layout.preferredHeight: subaddressListItemHeight * subaddressListView.count
+                visible: subaddressListView.count >= 1
 
-                height: 10
-                color: "transparent"
-
-                Rectangle {
-                    anchors.top: parent.top
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    anchors.leftMargin: 10
-
-                    height: 1
-                    color: "#404040"
-                }
-
-                Image {
-                    anchors.top: parent.top
-                    anchors.left: parent.left
-
-                    width: 10
-                    height: 10
-
-                    source: "../images/historyBorderRadius.png"
-                }
-
-                Image {
-                    anchors.top: parent.top
-                    anchors.right: parent.right
-
-                    width: 10
-                    height: 10
-
-                    source: "../images/historyBorderRadius.png"
-                    rotation: 90
-                }
-            }
-
-            Rectangle {
-                id: tableRect
-                property int table_max_height: 260
-                Layout.fillWidth: true
-                Layout.preferredHeight: table.contentHeight < table_max_height ? table.contentHeight : table_max_height
-                color: "transparent"
-
-                Scroll {
-                    id: flickableScroll
-                    anchors.right: table.right
-                    anchors.top: table.top
-                    anchors.bottom: table.bottom
-                    flickable: table
-                }
-
-                SubaddressTable {
-                    id: table
+                ListView {
+                    id: subaddressListView
+                    Layout.fillWidth: true
                     anchors.fill: parent
-                    onContentYChanged: flickableScroll.flickableContentYChanged()
+                    clip: true
+                    boundsBehavior: ListView.StopAtBounds
+                    delegate: Rectangle {
+                        id: tableItem2
+                        height: subaddressListRow.subaddressListItemHeight
+                        width: parent.width
+                        Layout.fillWidth: true
+                        color: "transparent"
+
+                        Rectangle{
+                            anchors.right: parent.right
+                            anchors.left: parent.left
+                            anchors.top: parent.top
+                            height: 1
+                            color: "#404040"
+                            visible: index !== 0
+                        }
+
+                        Rectangle {
+                            anchors.fill: parent
+                            anchors.topMargin: 5
+                            anchors.rightMargin: 80
+                            color: "transparent"
+
+                            SuperiorComponents.Label {
+                                id: idLabel
+                                color: index === appWindow.current_subaddress_table_index ? "white" : "#757575"
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 6 * scaleRatio
+                                fontSize: 14 * scaleRatio
+                                fontBold: true
+                                text: "#" + index
+                            }
+
+                            SuperiorComponents.Label {
+                                id: nameLabel
+                                color: "#a5a5a5"
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: idLabel.right
+                                anchors.leftMargin: 6 * scaleRatio
+                                fontSize: 14 * scaleRatio
+                                fontBold: true
+                                text: label
+                                elide: Text.ElideRight
+                                textWidth: addressLabel.x - nameLabel.x - 1
+                            }
+
+                            SuperiorComponents.Label {
+                                id: addressLabel
+                                color: "white"
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.right
+                                anchors.leftMargin: (mainLayout.width < 510 ? -130 : -190) * scaleRatio
+                                fontSize: 14 * scaleRatio
+                                fontBold: true
+                                text: TxUtils.addressTruncate(address, mainLayout.width < 510 ? 6 : 10)
+                            }
+
+                            MouseArea {
+                                cursorShape: Qt.PointingHandCursor
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                onEntered: {
+                                    tableItem2.color = "#26FFFFFF"
+                                }
+                                onExited: {
+                                    tableItem2.color = "transparent"
+                                }
+                                onClicked: {
+                                    subaddressListView.currentIndex = index;
+                                }
+                            }
+                        }
+
+                        SuperiorComponents.IconButton {
+                            id: renameButton
+                            imageSource: "../images/editIcon.png"
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.right: parent.right
+                            anchors.rightMargin: 30 * scaleRatio
+                            anchors.topMargin: 1 * scaleRatio
+                            visible: index !== 0
+
+                            onClicked: {
+                                renameSubaddressLabel(index);
+                            }
+                        }
+
+                        SuperiorComponents.IconButton {
+                            id: copyButton
+                            imageSource: "../images/dropdownCopy.png"
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.top: undefined
+                            anchors.right: parent.right
+
+                            onClicked: {
+                                console.log("Address copied to clipboard");
+                                clipboard.setText(address);
+                                appWindow.showStatusMessage(qsTr("Address copied to clipboard"),3);
+                            }
+                        }
+                    }
                     onCurrentItemChanged: {
-                        current_address = appWindow.currentWallet.address(appWindow.currentWallet.currentSubaddressAccount, table.currentIndex);
+                        // reset global vars
+                        appWindow.current_subaddress_table_index = subaddressListView.currentIndex;
+                        appWindow.current_address = appWindow.currentWallet.address(
+                            appWindow.currentWallet.currentSubaddressAccount,
+                            subaddressListView.currentIndex
+                        );
+                    }
+                }
+            }
+
+            Rectangle {
+                color: "#404040"
+                Layout.fillWidth: true
+                height: 1
+            }
+
+            SuperiorComponents.CheckBox {
+                id: addNewAddressCheckbox
+                border: false
+                checkedIcon: "qrc:///images/plus-in-circle-medium-white.png"
+                uncheckedIcon: "qrc:///images/plus-in-circle-medium-white.png"
+                fontSize: 14 * scaleRatio
+                iconOnTheLeft: true
+                Layout.fillWidth: true
+                Layout.topMargin: 10 * scaleRatio
+                text: qsTr("Create new address") + translationManager.emptyString;
+                onClicked: {
+                    inputDialog.labelText = qsTr("Set the label of the new address:") + translationManager.emptyString
+                    inputDialog.inputText = qsTr("(Untitled)") + translationManager.emptyString
+                    inputDialog.onAcceptedCallback = function() {
+                        appWindow.currentWallet.subaddress.addRow(appWindow.currentWallet.currentSubaddressAccount, inputDialog.inputText)
+                        current_subaddress_table_index = appWindow.currentWallet.numSubaddresses(appWindow.currentWallet.currentSubaddressAccount) - 1
+                    }
+                    inputDialog.onRejectedCallback = null;
+                    inputDialog.open()
+                }
+            }
+        }
+
+        ColumnLayout {
+            Layout.alignment: Qt.AlignHCenter
+            spacing: 11 * scaleRatio
+            property int qrSize: 220 * scaleRatio
+
+            Rectangle {
+                id: qrContainer
+                color: "white"
+                Layout.fillWidth: true
+                Layout.maximumWidth: parent.qrSize
+                Layout.preferredHeight: width
+                radius: 4 * scaleRatio
+
+                Image {
+                    id: qrCode
+                    anchors.fill: parent
+                    anchors.margins: 1 * scaleRatio
+
+                    smooth: false
+                    fillMode: Image.PreserveAspectFit
+                    source: "image://qrcode/" + TxUtils.makeQRCodeString(appWindow.current_address)
+
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.RightButton
+                        onPressAndHold: qrFileDialog.open()
                     }
                 }
             }
 
             RowLayout {
-                spacing: 20
-                Layout.topMargin: 20
+                spacing: parent.spacing
 
-                StandardButton {
-                    small: true
-                    text: qsTr("Create new address") + translationManager.emptyString;
+                SuperiorComponents.StandardButton {
+                    rightIcon: "../images/download-white.png"
+                    onClicked: qrFileDialog.open()
+                }
+
+                SuperiorComponents.StandardButton {
+                    rightIcon: "../images/external-link-white.png"
                     onClicked: {
-                        inputDialog.labelText = qsTr("Set the label of the new address:") + translationManager.emptyString
-                        inputDialog.inputText = qsTr("(Untitled)")
-                        inputDialog.onAcceptedCallback = function() {
-                            appWindow.currentWallet.subaddress.addRow(appWindow.currentWallet.currentSubaddressAccount, inputDialog.inputText)
-                            table.currentIndex = appWindow.currentWallet.numSubaddresses() - 1
-                        }
-                        inputDialog.onRejectedCallback = null;
-                        inputDialog.open()
+                        clipboard.setText(TxUtils.makeQRCodeString(appWindow.current_address));
+                        appWindow.showStatusMessage(qsTr("Copied to clipboard") + translationManager.emptyString, 3);
                     }
                 }
-                StandardButton {
-                    small: true
-                    enabled: table.currentIndex > 0
-                    text: qsTr("Rename") + translationManager.emptyString;
-                    onClicked: {
-                        inputDialog.labelText = qsTr("Set the label of the selected address:") + translationManager.emptyString
-                        inputDialog.inputText = appWindow.currentWallet.getSubaddressLabel(appWindow.currentWallet.currentSubaddressAccount, table.currentIndex)
-                        inputDialog.onAcceptedCallback = function() {
-                            appWindow.currentWallet.subaddress.setLabel(appWindow.currentWallet.currentSubaddressAccount, table.currentIndex, inputDialog.inputText)
-                        }
-                        inputDialog.onRejectedCallback = null;
-                        inputDialog.open()
-                    }
-                }
-            }
-        }
-
-        ColumnLayout {
-            id: amountRow
-            Label {
-                id: amountLabel
-                text: qsTr("Amount") + translationManager.emptyString
-                width: mainLayout.labelWidth
-            }
-
-
-            LineEdit {
-                id: amountLine
-                placeholderText: qsTr("Amount to receive") + translationManager.emptyString
-                readOnly: false
-                width: mainLayout.editWidth
-                Layout.fillWidth: true
-                validator: DoubleValidator {
-                    bottom: 0.0
-                    top: 18446744.073709551615
-                    decimals: 12
-                    notation: DoubleValidator.StandardNotation
-                    locale: "C"
-                }
-            }
-        }
-
-        ColumnLayout {
-            id: trackingRow
-            visible: !isAndroid && !isIOS
-            Label {
-                id: trackingLabel
-                textFormat: Text.RichText
-                text: "<style type='text/css'>a {text-decoration: none; color: #CEAC41; font-size: 14px;}</style>" +
-                      qsTr("Tracking") +
-                      "<font size='2'> (</font><a href='#'>" +
-                      qsTr("help") +
-                      "</a><font size='2'>)</font>" +
-                      translationManager.emptyString
-                width: mainLayout.labelWidth
-                onLinkActivated: {
-                    trackingHowToUseDialog.title  = qsTr("Tracking payments") + translationManager.emptyString;
-                    trackingHowToUseDialog.text = qsTr(
-                        "<p><font size='+2'>This is a simple sales tracker:</font></p>" +
-                        "<p>Let your customer scan that QR code to make a payment (if that customer has software which " +
-                        "supports QR code scanning).</p>" +
-                        "<p>This page will automatically scan the blockchain and the tx pool " +
-                        "for incoming transactions using this QR code. If you input an amount, it will also check " +
-                        "that incoming transactions total up to that amount.</p>" +
-                        "It's up to you whether to accept unconfirmed transactions or not. It is likely they'll be " +
-                        "confirmed in short order, but there is still a possibility they might not, so for larger " +
-                        "values you may want to wait for one or more confirmation(s).</p>"
-                    )
-                    trackingHowToUseDialog.icon = StandardIcon.Information
-                    trackingHowToUseDialog.open()
-                }
-            }
-
-            TextEdit {
-                id: trackingLine
-                readOnly: true
-                width: mainLayout.editWidth
-                Layout.fillWidth: true
-                textFormat: Text.RichText
-                text: ""
-                selectByMouse: true
-                color: 'white'
             }
         }
 
         MessageDialog {
-            id: trackingHowToUseDialog
+            id: receivePageDialog
             standardButtons: StandardButton.Ok
         }
 
         FileDialog {
             id: qrFileDialog
-            title: "Please choose a name"
+            title: qsTr("Please choose a name") + translationManager.emptyString
             folder: shortcuts.pictures
             selectExisting: false
-            nameFilters: [ "Image (*.png)"]
+            nameFilters: ["Image (*.png)"]
             onAccepted: {
-                if( ! walletManager.saveQrCode(makeQRCodeString(), walletManager.urlToLocalPath(fileUrl))) {
+                if(!walletManager.saveQrCode(TxUtils.makeQRCodeString(appWindow.current_address), walletManager.urlToLocalPath(fileUrl))) {
                     console.log("Failed to save QrCode to file " + walletManager.urlToLocalPath(fileUrl) )
-                    trackingHowToUseDialog.title  = qsTr("Save QrCode") + translationManager.emptyString;
-                    trackingHowToUseDialog.text = qsTr("Failed to save QrCode to ") + walletManager.urlToLocalPath(fileUrl) + translationManager.emptyString;
-                    trackingHowToUseDialog.icon = StandardIcon.Error
-                    trackingHowToUseDialog.open()
+                    receivePageDialog.title = qsTr("Save QrCode") + translationManager.emptyString;
+                    receivePageDialog.text = qsTr("Failed to save QrCode to ") + walletManager.urlToLocalPath(fileUrl) + translationManager.emptyString;
+                    receivePageDialog.icon = StandardIcon.Error
+                    receivePageDialog.open()
                 }
             }
         }
-        ColumnLayout {
-            Menu {
-                id: qrMenu
-                title: "QrCode"
-                MenuItem {
-                   text: qsTr("Save As") + translationManager.emptyString;
-                   onTriggered: qrFileDialog.open()
-                }
-            }
-
-            Image {
-                id: qrCode
-                anchors.margins: 50 * scaleRatio
-                Layout.fillWidth: true
-                Layout.minimumHeight: mainLayout.qrCodeSize
-                smooth: false
-                fillMode: Image.PreserveAspectFit
-                source: "image://qrcode/" + makeQRCodeString()
-                
-                Rectangle{
-                    anchors.horizontalCenter: qrCode.horizontalCenter
-                    anchors.verticalCenter: qrCode.verticalCenter
-                    clip: true
-
-                    width: mainLayout.qrCodeSize+20
-                    
-                    height: mainLayout.qrCodeSize+20
-                    color: "transparent"
-                    border.width: 10
-                    border.color: "white"
-                    }
-                
-                MouseArea {
-                    anchors.fill: parent
-                    acceptedButtons: Qt.RightButton
-                    onClicked: {
-                        if (mouse.button == Qt.RightButton)
-                            qrMenu.popup()
-                    }
-                    onPressAndHold: qrFileDialog.open()
-                }
-            }
-        }
-    }
-
-    Timer {
-        id: timer
-        interval: 2000; running: false; repeat: true
-        onTriggered: update()
     }
 
     function onPageCompleted() {
         console.log("Receive page loaded");
-        table.model = currentWallet.subaddressModel;
+        subaddressListView.model = appWindow.currentWallet.subaddressModel;
 
         if (appWindow.currentWallet) {
-            current_address = appWindow.currentWallet.address(appWindow.currentWallet.currentSubaddressAccount, 0)
+            appWindow.current_address = appWindow.currentWallet.address(appWindow.currentWallet.currentSubaddressAccount, 0)
             appWindow.currentWallet.subaddress.refresh(appWindow.currentWallet.currentSubaddressAccount)
-            table.currentIndex = 0
         }
+    }
 
-        update()
-        timer.running = true
+    function clearFields() {
+        // @TODO: add fields
     }
 
     function onPageClosed() {
-        timer.running = false
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2018, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,14 +25,14 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.2
 import QtQuick.Layouts 1.1
 import QtGraphicalEffects 1.0
 import superiorComponents.Wallet 1.0
 import superiorComponents.NetworkType 1.0
-import "components"
+import superiorComponents.Clipboard 1.0
+import "components" as SuperiorComponents
 
 Rectangle {
     id: panel
@@ -47,8 +47,9 @@ Rectangle {
     property alias daemonProgressBar : daemonProgressBar
     property alias minutesToUnlockTxt: unlockedBalanceLabel.text
     property int titleBarHeight: 50
+    property string copyValue: ""
+    Clipboard { id: clipboard }
 
-    signal dashboardClicked()
     signal historyClicked()
     signal transferClicked()
     signal receiveClicked()
@@ -59,13 +60,15 @@ Rectangle {
     signal miningClicked()
     signal signClicked()
     signal keysClicked()
+    signal merchantClicked()
+    signal accountClicked()
 
     function selectItem(pos) {
         menuColumn.previousButton.checked = false
-        if(pos === "Dashboard") menuColumn.previousButton = dashboardButton
-        else if(pos === "History") menuColumn.previousButton = historyButton
+        if(pos === "History") menuColumn.previousButton = historyButton
         else if(pos === "Transfer") menuColumn.previousButton = transferButton
         else if(pos === "Receive")  menuColumn.previousButton = receiveButton
+        else if(pos === "Merchant")  menuColumn.previousButton = merchantButton
         else if(pos === "AddressBook") menuColumn.previousButton = addressBookButton
         else if(pos === "Mining") menuColumn.previousButton = miningButton
         else if(pos === "TxKey")  menuColumn.previousButton = txkeyButton
@@ -73,7 +76,8 @@ Rectangle {
         else if(pos === "Sign") menuColumn.previousButton = signButton
         else if(pos === "Settings") menuColumn.previousButton = settingsButton
         else if(pos === "Advanced") menuColumn.previousButton = advancedButton
-
+        else if(pos === "Keys") menuColumn.previousButton = keysButton
+        else if(pos === "Account") menuColumn.previousButton = accountButton
         menuColumn.previousButton.checked = true
     }
 
@@ -96,7 +100,7 @@ Rectangle {
         visible: true
         z: 2
         id: column1
-        height: 200
+        height: 210
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
@@ -111,10 +115,10 @@ Rectangle {
                 anchors.leftMargin: 20
                 anchors.verticalCenter: parent.verticalCenter
                 height: 490 * scaleRatio
-                width: 259 * scaleRatio
+                width: 260 * scaleRatio
 
                 Image {
-                    width: 259; height: 170
+                    width: 260; height: 170
                     fillMode: Image.PreserveAspectFit
                     source: "images/card-background.png"
                 }
@@ -143,6 +147,37 @@ Rectangle {
                     font.pixelSize: 12
                     font.bold: true
                     color: "#ff9323"
+                }
+
+                Rectangle {
+                    height: (logoutImage.height + 8) * scaleRatio
+                    width: (logoutImage.width + 8) * scaleRatio
+                    color: "transparent"
+                    anchors.right: parent.right
+                    anchors.rightMargin: 8
+                    anchors.top: parent.top
+                    anchors.topMargin: 25
+
+                    Image {
+                        id: logoutImage
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        height: 16 * scaleRatio
+                        width: 13 * scaleRatio
+                        source: "../images/logout.png"
+                    }
+
+                    MouseArea{
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            middlePanel.addressBookView.clearFields();
+                            middlePanel.transferView.clearFields();
+                            middlePanel.receiveView.clearFields();
+                            appWindow.showWizard();
+                        }
+                    }
                 }
             }
 
@@ -174,6 +209,23 @@ Rectangle {
                         }
                         return defaultSize;
                     }
+
+                    MouseArea {
+                        hoverEnabled: true
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onEntered: {
+                            parent.color = SuperiorComponents.Style.orange
+                        }
+                        onExited: {
+                            parent.color = SuperiorComponents.Style.white
+                        }
+                        onClicked: {
+                                console.log("Copied to clipboard");
+                                clipboard.setText(parent.text);
+                                appWindow.showStatusMessage(qsTr("Copied to clipboard"),3)
+                        }
+                    }
                 }
 
                 Text {
@@ -195,19 +247,37 @@ Rectangle {
                         }
                         return defaultSize;
                     }
+
+                    MouseArea {
+                        hoverEnabled: true
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onEntered: {
+                            parent.color = SuperiorComponents.Style.orange
+                        }
+                        onExited: {
+                            parent.color = SuperiorComponents.Style.white
+                        }
+                        onClicked: {
+                                console.log("Copied to clipboard");
+                                clipboard.setText(parent.text);
+                                appWindow.showStatusMessage(qsTr("Copied to clipboard"),3)
+                        }
+                    }
                 }
 
-                Label {
+                SuperiorComponents.Label {
                     id: unlockedBalanceLabel
                     visible: true
                     text: qsTr("Unlocked balance") + translationManager.emptyString
+                    fontSize: 14
                     anchors.left: parent.left
                     anchors.leftMargin: 20
                     anchors.top: parent.top
                     anchors.topMargin: 110
                 }
 
-                Label {
+                SuperiorComponents.Label {
                     visible: !isMobile
                     id: balanceLabel
                     text: qsTr("Balance") + translationManager.emptyString
@@ -216,26 +286,14 @@ Rectangle {
                     anchors.leftMargin: 20
                     anchors.top: parent.top
                     anchors.topMargin: 60
+                    elide: Text.ElideRight
+                    textWidth: 238
                 }
                 Item { //separator
                     anchors.left: parent.left
                     anchors.right: parent.right
                     height: 1
                 }
-              /* Disable twitter/news panel
-                Image {
-                    anchors.left: parent.left
-                    anchors.verticalCenter: logo.verticalCenter
-                    anchors.leftMargin: 19
-                    source: appWindow.rightPanelExpanded ? "images/expandRightPanel.png" :
-                                                           "images/collapseRightPanel.png"
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: appWindow.rightPanelExpanded = !appWindow.rightPanelExpanded
-                }
-              */
             }
         }
     }
@@ -247,16 +305,16 @@ Rectangle {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.top: (isMobile)? parent.top : column1.bottom
-        anchors.topMargin: (isMobile)? 0 : 32
         color: "transparent"
 
 
         Flickable {
             id:flicker
-            contentHeight: 500 * scaleRatio
-            anchors.fill: parent
+            contentHeight: menuColumn.height
+            anchors.top: parent.top
+            anchors.bottom: networkStatus.top
+            width: parent.width
             clip: true
-
 
         Column {
 
@@ -267,34 +325,6 @@ Rectangle {
             clip: true
             property var previousButton: transferButton
 
-            // ------------- Dashboard tab ---------------
-
-            /*
-            MenuButton {
-                id: dashboardButton
-                anchors.left: parent.left
-                anchors.right: parent.right
-                text: qsTr("Dashboard") + translationManager.emptyString
-                symbol: qsTr("D") + translationManager.emptyString
-                dotColor: "#FFE00A"
-                checked: true
-                onClicked: {
-                    parent.previousButton.checked = false
-                    parent.previousButton = dashboardButton
-                    panel.dashboardClicked()
-                }
-            }
-
-
-            Rectangle {
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.leftMargin: 16
-                color: dashboardButton.checked || transferButton.checked ? "#1C1C1C" : "#313131"
-                height: 1
-            }
-            */
-
             // top border
             Rectangle {
                 anchors.left: parent.left
@@ -304,14 +334,38 @@ Rectangle {
                 height: 1
             }
 
+            // ------------- Account tab ---------------
+            SuperiorComponents.MenuButton {
+                id: accountButton
+                anchors.left: parent.left
+                anchors.right: parent.right
+                text: qsTr("Account") + translationManager.emptyString
+                symbol: qsTr("T") + translationManager.emptyString
+                dotColor: "#44AAFF"
+                onClicked: {
+                    parent.previousButton.checked = false
+                    parent.previousButton = accountButton
+                    panel.accountClicked()
+                }
+            }
+
+            Rectangle {
+                visible: accountButton.present
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: 16
+                color: "#313131"
+                height: 1
+            }
+
             // ------------- Transfer tab ---------------
-            MenuButton {
+            SuperiorComponents.MenuButton {
                 id: transferButton
                 anchors.left: parent.left
                 anchors.right: parent.right
                 text: qsTr("Send") + translationManager.emptyString
                 symbol: qsTr("S") + translationManager.emptyString
-                dotColor: "#CEAC41"
+                dotColor: "#FF6C3C"
                 onClicked: {
                     parent.previousButton.checked = false
                     parent.previousButton = transferButton
@@ -330,13 +384,13 @@ Rectangle {
 
             // ------------- AddressBook tab ---------------
 
-            MenuButton {
+            SuperiorComponents.MenuButton {
                 id: addressBookButton
                 anchors.left: parent.left
                 anchors.right: parent.right
                 text: qsTr("Address book") + translationManager.emptyString
                 symbol: qsTr("B") + translationManager.emptyString
-                dotColor: "#CDAE3E"
+                dotColor: "#FF4F41"
                 under: transferButton
                 onClicked: {
                     parent.previousButton.checked = false
@@ -355,7 +409,7 @@ Rectangle {
             }
 
             // ------------- Receive tab ---------------
-            MenuButton {
+            SuperiorComponents.MenuButton {
                 id: receiveButton
                 anchors.left: parent.left
                 anchors.right: parent.right
@@ -377,13 +431,40 @@ Rectangle {
                 height: 1
             }
 
+            // ------------- Merchant tab ---------------
+
+            SuperiorComponents.MenuButton {
+                id: merchantButton
+                visible: appWindow.walletMode >= 2
+                anchors.left: parent.left
+                anchors.right: parent.right
+                text: qsTr("Merchant") + translationManager.emptyString
+                symbol: qsTr("U") + translationManager.emptyString
+                dotColor: "#FF4F41"
+                under: receiveButton
+                onClicked: {
+                    parent.previousButton.checked = false
+                    parent.previousButton = merchantButton
+                    panel.merchantClicked()
+                }
+            }
+
+            Rectangle {
+                visible: merchantButton.present && appWindow.walletMode >= 2
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: 16
+                color: "#313131"
+                height: 1
+            }
+
             // ------------- History tab ---------------
 
-            MenuButton {
+            SuperiorComponents.MenuButton {
                 id: historyButton
                 anchors.left: parent.left
                 anchors.right: parent.right
-                text: qsTr("History") + translationManager.emptyString
+                text: qsTr("Transactions") + translationManager.emptyString
                 symbol: qsTr("H") + translationManager.emptyString
                 dotColor: "#6B0072"
                 onClicked: {
@@ -402,8 +483,9 @@ Rectangle {
             }
 
             // ------------- Advanced tab ---------------
-            MenuButton {
+            SuperiorComponents.MenuButton {
                 id: advancedButton
+                visible: appWindow.walletMode >= 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 text: qsTr("Advanced") + translationManager.emptyString
@@ -414,8 +496,9 @@ Rectangle {
                     parent.previousButton = advancedButton
                 }
             }
+
             Rectangle {
-                visible: advancedButton.present
+                visible: advancedButton.present && appWindow.walletMode >= 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.leftMargin: 16
@@ -424,9 +507,9 @@ Rectangle {
             }
 
             // ------------- Mining tab ---------------
-            MenuButton {
+            SuperiorComponents.MenuButton {
                 id: miningButton
-                visible: !isAndroid && !isIOS
+                visible: !isAndroid && !isIOS && appWindow.walletMode >= 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 text: qsTr("Mining") + translationManager.emptyString
@@ -441,7 +524,7 @@ Rectangle {
             }
 
             Rectangle {
-                visible: miningButton.present
+                visible: miningButton.present && appWindow.walletMode >= 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.leftMargin: 16
@@ -449,8 +532,9 @@ Rectangle {
                 height: 1
             }
             // ------------- TxKey tab ---------------
-            MenuButton {
+            SuperiorComponents.MenuButton {
                 id: txkeyButton
+                visible: appWindow.walletMode >= 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 text: qsTr("Prove/check") + translationManager.emptyString
@@ -464,7 +548,7 @@ Rectangle {
                 }
             }
             Rectangle {
-                visible: txkeyButton.present
+                visible: txkeyButton.present && appWindow.walletMode >= 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.leftMargin: 16
@@ -472,12 +556,13 @@ Rectangle {
                 height: 1
             }
             // ------------- Shared RingDB tab ---------------
-            MenuButton {
+            SuperiorComponents.MenuButton {
                 id: sharedringdbButton
+                visible: appWindow.walletMode >= 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 text: qsTr("Shared RingDB") + translationManager.emptyString
-                symbol: qsTr("A") + translationManager.emptyString
+                symbol: qsTr("G") + translationManager.emptyString
                 dotColor: "#FFD781"
                 under: advancedButton
                 onClicked: {
@@ -487,7 +572,7 @@ Rectangle {
                 }
             }
             Rectangle {
-                visible: sharedringdbButton.present
+                visible: sharedringdbButton.present && appWindow.walletMode >= 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.leftMargin: 16
@@ -497,8 +582,9 @@ Rectangle {
 
 
             // ------------- Sign/verify tab ---------------
-            MenuButton {
+            SuperiorComponents.MenuButton {
                 id: signButton
+                visible: appWindow.walletMode >= 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 text: qsTr("Sign/verify") + translationManager.emptyString
@@ -512,7 +598,7 @@ Rectangle {
                 }
             }
             Rectangle {
-                visible: signButton.present
+                visible: signButton.present && appWindow.walletMode >= 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.leftMargin: 16
@@ -520,7 +606,7 @@ Rectangle {
                 height: 1
             }
             // ------------- Settings tab ---------------
-            MenuButton {
+            SuperiorComponents.MenuButton {
                 id: settingsButton
                 anchors.left: parent.left
                 anchors.right: parent.right
@@ -542,8 +628,9 @@ Rectangle {
                 height: 1
             }
             // ------------- Sign/verify tab ---------------
-            MenuButton {
+            SuperiorComponents.MenuButton {
                 id: keysButton
+                visible: appWindow.walletMode >= 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 text: qsTr("Seed & Keys") + translationManager.emptyString
@@ -557,7 +644,7 @@ Rectangle {
                 }
             }
             Rectangle {
-                visible: settingsButton.present
+                visible: settingsButton.present && appWindow.walletMode >= 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.leftMargin: 16
@@ -569,33 +656,44 @@ Rectangle {
 
         } // Flickable
 
-        NetworkStatusItem {
+        Rectangle {
+            id: separator
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 0
+            anchors.rightMargin: 0
+            anchors.bottom: networkStatus.top;
+            height: 10 * scaleRatio
+            color: "transparent"
+        }
+
+        SuperiorComponents.NetworkStatusItem {
             id: networkStatus
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.leftMargin: 4
-            anchors.rightMargin: 4
+            anchors.leftMargin: 5 * scaleRatio
+            anchors.rightMargin: 0
             anchors.bottom: (progressBar.visible)? progressBar.top : parent.bottom;
             connected: Wallet.ConnectionStatus_Disconnected
-            height: 58 * scaleRatio
+            height: 48 * scaleRatio
         }
 
-        ProgressBar {
+        SuperiorComponents.ProgressBar {
             id: progressBar
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: daemonProgressBar.top
-            height: 35 * scaleRatio
-            syncType: qsTr("Wallet")
+            height: 48 * scaleRatio
+            syncType: qsTr("Wallet") + translationManager.emptyString
             visible: networkStatus.connected
         }
 
-        ProgressBar {
+        SuperiorComponents.ProgressBar {
             id: daemonProgressBar
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            syncType: qsTr("Daemon")
+            syncType: qsTr("Daemon") + translationManager.emptyString
             visible: networkStatus.connected
             height: 62 * scaleRatio
         }

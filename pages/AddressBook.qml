@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2018, TheSuperiorCoin Project
+// Copyright (c) 2014-2019, SuperiorCoin Project
 // 
 // All rights reserved.
 // 
@@ -25,159 +25,484 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// This may contain code Copyright (c) 2014-2017, The Monero Project
 
 import QtQuick 2.0
+import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.1
-import "../components"
+import QtQuick.Dialogs 1.2
+import "../components" as SuperiorComponents
+import "../js/TxUtils.js" as TxUtils
 import superiorComponents.AddressBook 1.0
 import superiorComponents.AddressBookModel 1.0
+import superiorComponents.Clipboard 1.0
+import superiorComponents.NetworkType 1.0
+import FontAwesome 1.0
 
 Rectangle {
     id: root
     color: "transparent"
-    property var model
+    property bool selectAndSend: false
+    property bool editEntry: false
+
+    Clipboard { id: clipboard }
 
     ColumnLayout {
-        id: columnLayout
-        anchors.margins: (isMobile)? 17 : 40
+        id: mainLayout
+        anchors.margins: (isMobile)? 17 * scaleRatio : 20 * scaleRatio
+        anchors.topMargin: 40 * scaleRatio
+
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.right: parent.right
-        spacing: 26 * scaleRatio
 
-        RowLayout {
-            StandardButton {
-                id: qrfinderButton
-                text: qsTr("Qr Code") + translationManager.emptyString
-                visible : appWindow.qrScannerEnabled
-                enabled : visible
-                width: visible ? 60 * scaleRatio : 0
-                onClicked: {
-                    cameraUi.state = "Capture"
-                    cameraUi.qrcode_decoded.connect(updateFromQrCode)
+        spacing: 20 * scaleRatio
+
+        ColumnLayout {
+            id: addressBookEmptyLayout
+            visible: addressBookListView.count == 0
+            spacing: 0
+            Layout.fillWidth: true
+
+            TextArea {
+                id: titleLabel
+                Layout.fillWidth: true
+                color: SuperiorComponents.Style.defaultFontColor
+                font.family: SuperiorComponents.Style.fontRegular.name
+                font.pixelSize: 32 * scaleRatio
+                horizontalAlignment: TextInput.AlignLeft
+                selectByMouse: false
+                wrapMode: Text.WordWrap;
+                textMargin: 0
+                leftPadding: 0
+                topPadding: 0
+                text: qsTr("Save your most used addresses here") + translationManager.emptyString
+                width: parent.width
+                readOnly: true
+
+                // @TODO: Legacy. Remove after Qt 5.8.
+                // https://stackoverflow.com/questions/41990013
+                MouseArea {
+                   anchors.fill: parent
+                   enabled: false
                 }
             }
 
-            LineEdit {
-                Layout.fillWidth: true;
-                id: addressLine
-                labelText: qsTr("Address") + translationManager.emptyString
-                error: true;
-                placeholderText: qsTr("5...") + translationManager.emptyString
+            TextArea {
+                Layout.fillWidth: true
+                color: SuperiorComponents.Style.greyFontColor
+                font.family: SuperiorComponents.Style.fontRegular.name
+                font.pixelSize: 16 * scaleRatio
+                horizontalAlignment: TextInput.AlignLeft
+                selectByMouse: false
+                wrapMode: Text.WordWrap;
+                textMargin: 0
+                leftPadding: 0
+                topPadding: 0
+                text: qsTr("This makes it easier to send or receive Superior and reduces errors when typing in addresses manually.") + translationManager.emptyString
+                width: parent.width
+                readOnly: true
+
+                // @TODO: Legacy. Remove after Qt 5.8.
+                // https://stackoverflow.com/questions/41990013
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: false
+                }
+            }
+
+            SuperiorComponents.StandardButton {
+                id: addFirstEntryButton
+                Layout.topMargin: 20
+                text: qsTr("Add an address") + translationManager.emptyString
+                onClicked: {
+                    root.showAddAddress();
+                }
             }
         }
 
-        LineEdit {
-            id: paymentIdLine
-            Layout.fillWidth: true;
-            labelText: qsTr("Payment ID <font size='2'>(Optional)</font>") + translationManager.emptyString
-            placeholderText: qsTr("Paste 64 hexadecimal characters") + translationManager.emptyString
-//            tipText: qsTr("<b>Payment ID</b><br/><br/>A unique user name used in<br/>the address book. It is not a<br/>transfer of information sent<br/>during the transfer")
-//                    + translationManager.emptyString
-        }
+        ColumnLayout {
+            id: addressBookLayout
+            visible: addressBookListView.count >= 1
+            spacing: 0
 
-        LineEdit {
-            id: descriptionLine
-            Layout.fillWidth: true;
-            labelText: qsTr("Description <font size='2'>(Optional)</font>") + translationManager.emptyString
-            placeholderText: qsTr("Give this entry a name or description") + translationManager.emptyString
-        }
+            SuperiorComponents.Label {
+                Layout.bottomMargin: 20
+                fontSize: 32 * scaleRatio
+                text: qsTr("Address book") + translationManager.emptyString
+            }
 
+            ColumnLayout {
+                id: addressBookListRow
+                property int addressBookListItemHeight: 50 * scaleRatio
+                Layout.fillWidth: true
+                Layout.minimumWidth: 240
+                Layout.preferredHeight: addressBookListItemHeight * addressBookListView.count
 
-        RowLayout {
-            id: addButton
-            Layout.bottomMargin: 17 * scaleRatio
-            StandardButton {
-                text: qsTr("Add") + translationManager.emptyString
-                enabled: checkInformation(addressLine.text, paymentIdLine.text, appWindow.persistentSettings.nettype)
+                ListView {
+                    id: addressBookListView
+                    Layout.fillWidth: true
+                    anchors.fill: parent
+                    clip: true
+                    boundsBehavior: ListView.StopAtBounds
+                    interactive: false
+                    delegate: Rectangle {
+                        id: tableItem2
+                        height: addressBookListRow.addressBookListItemHeight
+                        width: parent.width
+                        Layout.fillWidth: true
+                        color: "transparent"
 
+                        function doSend() {
+                            console.log("Sending to: ", address +" "+ paymentId);
+                            middlePanel.sendTo(address, paymentId, description);
+                            leftPanel.selectItem(middlePanel.state)
+                        }
+
+                        Rectangle {
+                            anchors.right: parent.right
+                            anchors.left: parent.left
+                            anchors.top: parent.top
+                            height: 1
+                            color: SuperiorComponents.Style.grey
+                        }
+
+                        Rectangle {
+                            anchors.fill: parent
+                            anchors.topMargin: 5 * scaleRatio
+                            anchors.rightMargin: 110 * scaleRatio
+                            color: "transparent"
+
+                            SuperiorComponents.Label {
+                                id: descriptionLabel
+                                color: SuperiorComponents.Style.defaultFontColor
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 6 * scaleRatio
+                                fontSize: 16 * scaleRatio
+                                text: description
+                                elide: Text.ElideRight
+                                textWidth: addressLabel.x - descriptionLabel.x - 1
+                            }
+
+                            SuperiorComponents.Label {
+                                id: addressLabel
+                                color: SuperiorComponents.Style.defaultFontColor
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.right
+                                anchors.leftMargin: -addressLabel.width - 5  * scaleRatio
+
+                                fontSize: 16 * scaleRatio
+                                fontFamily: SuperiorComponents.Style.fontMonoRegular.name;
+                                text: TxUtils.addressTruncatePretty(address, mainLayout.width < 540 ? 1 : (mainLayout.width < 700 ? 2 : 3));
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                visible: root.selectAndSend
+                                onClicked: {
+                                    doSend();
+                                }
+                            }
+                        }
+
+                        SuperiorComponents.IconButton {
+                            id: sendToButton
+                            imageSource: "../images/arrow-right-in-circle.png"
+                            image.opacity: 0.5
+                            anchors.right: parent.right
+                            anchors.rightMargin: 63 * scaleRatio
+                            onClicked: {
+                                doSend();
+                            }
+                        }
+
+                        SuperiorComponents.IconButton {
+                            id: renameButton
+                            imageSource: "../images/rename.png"
+                            image.opacity: 0.5
+                            anchors.right: parent.right
+                            anchors.rightMargin: 30 * scaleRatio
+                            anchors.topMargin: 1 * scaleRatio
+
+                            onClicked: {
+                                addressBookListView.currentIndex = index;
+                                root.showEditAddress(address, description);
+                            }
+                        }
+
+                        SuperiorComponents.IconButton {
+                            id: copyButton
+                            imageSource: "../images/clipboard.png"
+                            image.opacity: 0.5
+                            anchors.right: parent.right
+
+                            onClicked: {
+                                console.log("Address copied to clipboard");
+                                clipboard.setText(address);
+                                appWindow.showStatusMessage(qsTr("Address copied to clipboard"),3);
+                            }
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                color: SuperiorComponents.Style.grey
+                Layout.fillWidth: true
+                height: 1
+            }
+
+            SuperiorComponents.CheckBox {
+                id: addNewEntryCheckbox
+                border: false
+                checkedIcon: "qrc:///images/plus-in-circle-medium-white.png"
+                uncheckedIcon: "qrc:///images/plus-in-circle-medium-white.png"
+                fontSize: 16 * scaleRatio
+                iconOnTheLeft: true
+                Layout.fillWidth: true
+                Layout.topMargin: 10 * scaleRatio
+                text: qsTr("Add address") + translationManager.emptyString;
                 onClicked: {
-                    if (!currentWallet.addressBook.addRow(addressLine.text.trim(), paymentIdLine.text.trim(), descriptionLine.text)) {
-                        informationPopup.title = qsTr("Error") + translationManager.emptyString;
-                        // TODO: check currentWallet.addressBook.errorString() instead.
-                        if(currentWallet.addressBook.errorCode() === AddressBook.Invalid_Address)
-                             informationPopup.text  = qsTr("Invalid address") + translationManager.emptyString
-                        else if(currentWallet.addressBook.errorCode() === AddressBook.Invalid_Payment_Id)
-                             informationPopup.text  = currentWallet.addressBook.errorString()
-                        else
-                             informationPopup.text  = qsTr("Can't create entry") + translationManager.emptyString
+                    root.showAddAddress();
+                }
+            }
 
-                        informationPopup.onCloseCallback = null
-                        informationPopup.open();
+        }
+        ColumnLayout {
+            id: addContactLayout
+            visible: false
+            spacing: 0
+
+            SuperiorComponents.Label {
+                fontSize: 32 * scaleRatio
+                wrapMode: Text.WordWrap
+                text: (root.editEntry ? qsTr("Edit an address") : qsTr("Add an address")) + translationManager.emptyString
+            }
+
+            SuperiorComponents.LineEditMulti {
+                id: addressLine
+                Layout.topMargin: 20
+                labelText: qsTr("<style type='text/css'>a {text-decoration: none; color: #858585; font-size: 14px;}</style>\
+                                 Address") + translationManager.emptyString
+                placeholderText: {
+                    if(persistentSettings.nettype == NetworkType.MAINNET){
+                        return "4.. / 8.. / OpenAlias";
+                    } else if (persistentSettings.nettype == NetworkType.STAGENET){
+                        return "5.. / 7..";
+                    } else if(persistentSettings.nettype == NetworkType.TESTNET){
+                        return "9.. / B..";
+                    }
+                }
+                wrapMode: Text.WrapAnywhere
+                addressValidation: true
+                pasteButton: true
+                onPaste: function(clipboardText) {
+                    const parsed = walletManager.parse_uri_to_object(clipboardText);
+                    if (!parsed.error) {
+                        addressLine.text = parsed.address;
+                        descriptionLine.text = parsed.tx_description;
                     } else {
-                        addressLine.text = "";
-                        paymentIdLine.text = "";
-                        descriptionLine.text = "";
+                        addressLine.text = clipboardText;
+                    }
+                }
+                inlineButton.text: FontAwesome.qrcode
+                inlineButton.fontPixelSize: 22
+                inlineButton.fontFamily: FontAwesome.fontFamily
+                inlineButton.textColor: SuperiorComponents.Style.defaultFontColor
+                inlineButton.buttonColor: SuperiorComponents.Style.orange
+                inlineButton.onClicked: {
+                    cameraUi.state = "Capture"
+                    cameraUi.qrcode_decoded.connect(root.updateFromQrCode)
+                }
+                inlineButtonVisible : appWindow.qrScannerEnabled && !addressLine.text
+            }
+
+            SuperiorComponents.StandardButton {
+                id: resolveButton
+                Layout.topMargin: 10
+                text: qsTr("Resolve") + translationManager.emptyString
+                visible: TxUtils.isValidOpenAliasAddress(addressLine.text)
+                enabled : visible
+                onClicked: {
+                    var result = walletManager.resolveOpenAlias(addressLine.text)
+                    if (result) {
+                        var parts = result.split("|")
+                        if (parts.length === 2) {
+                            var address_ok = walletManager.addressValid(parts[1], appWindow.persistentSettings.nettype)
+                            if (parts[0] === "true") {
+                                if (address_ok) {
+                                    // prepend openalias to description
+                                    descriptionLine.text = descriptionLine.text ? addressLine.text + " " + descriptionLine.text : addressLine.text
+                                    addressLine.text = parts[1]
+                                } else {
+                                    root.oa_message(qsTr("No valid address found at this OpenAlias address"))
+                                }
+                            } else if (parts[0] === "false") {
+                                if (address_ok) {
+                                    addressLine.text = parts[1]
+                                    root.oa_message(qsTr("Address found, but the DNSSEC signatures could not be verified, so this address may be spoofed"))
+                                } else {
+                                    root.oa_message(qsTr("No valid address found at this OpenAlias address, but the DNSSEC signatures could not be verified, so this may be spoofed"))
+                                }
+                            } else {
+                                root.oa_message(qsTr("Internal error"))
+                            }
+                        } else {
+                            root.oa_message(qsTr("Internal error"))
+                        }
+                    } else {
+                        root.oa_message(qsTr("No address found"))
+                    }
+                }
+            }
+
+            SuperiorComponents.LineEditMulti {
+                id: descriptionLine
+                Layout.topMargin: 20
+                labelText: qsTr("<style type='text/css'>a {text-decoration: none; color: #858585; font-size: 14px;}</style>\
+                                 Description") + translationManager.emptyString
+                placeholderText: qsTr("Add a name...") + translationManager.emptyString
+            }
+            RowLayout {
+                Layout.topMargin: 20
+                SuperiorComponents.StandardButton {
+                    id: addButton
+                    text: (root.editEntry ? qsTr("Save") : qsTr("Add")) + translationManager.emptyString
+                    enabled: root.checkInformation(addressLine.text, appWindow.persistentSettings.nettype)
+                    onClicked: {
+                        console.log("Add")
+                        if (!currentWallet.addressBook.addRow(addressLine.text.trim(),"", descriptionLine.text)) {
+                            informationPopup.title = qsTr("Error") + translationManager.emptyString;
+                            // TODO: check currentWallet.addressBook.errorString() instead.
+                            if(currentWallet.addressBook.errorCode() === AddressBook.Invalid_Address)
+                                 informationPopup.text  = qsTr("Invalid address") + translationManager.emptyString
+                            else if(currentWallet.addressBook.errorCode() === AddressBook.Invalid_Payment_Id)
+                                 informationPopup.text  = currentWallet.addressBook.errorString()
+                            else
+                                 informationPopup.text  = qsTr("Can't create entry") + translationManager.emptyString
+
+                            informationPopup.onCloseCallback = null
+                            informationPopup.open();
+                        } else {
+                            if (root.editEntry) {
+                                currentWallet.addressBook.deleteRow(addressBookListView.currentIndex);
+                            }
+                            root.showAddressBook();
+                        }
+                    }
+                }
+
+                Text {
+                    id: cancelButton
+                    Layout.leftMargin: 20
+                    font.pixelSize: 16 * scaleRatio
+                    font.bold: false
+                    color: SuperiorComponents.Style.defaultFontColor
+                    text: qsTr("Cancel") + translationManager.emptyString
+
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.showAddressBook();
+                    }
+                }
+
+                Text {
+                    id: deleteButton
+                    visible: root.editEntry
+                    Layout.leftMargin: 20
+                    font.pixelSize: 16 * scaleRatio
+                    font.bold: false
+                    color: SuperiorComponents.Style.defaultFontColor
+                    text: qsTr("Delete") + translationManager.emptyString
+
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            currentWallet.addressBook.deleteRow(addressBookListView.currentIndex);
+                            root.showAddressBook();
+                        }
                     }
                 }
             }
         }
     }
 
-    Rectangle {
-        id: tableRect
-        anchors.top: columnLayout.bottom
-        anchors.leftMargin: (isMobile)? 17 : 40
-        anchors.rightMargin: (isMobile)? 17 : 40
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        height: parent.height - addButton.y - addButton.height - 36 * scaleRatio
-        color: "transparent"
-
-        Behavior on height {
-            NumberAnimation { duration: 200; easing.type: Easing.InQuad }
-        }
-
-        Scroll {
-            id: flickableScroll
-            anchors.right: table.right
-            anchors.rightMargin: -14
-            anchors.top: table.top
-            anchors.bottom: table.bottom
-            flickable: table
-        }
-
-        AddressBookTable {
-            id: table
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            onContentYChanged: flickableScroll.flickableContentYChanged()
-            model: root.model
-        }
+    function checkInformation(address, nettype) {
+        address = address.trim()
+        var address_ok = walletManager.addressValid(address, nettype)
+        addressLine.error = !address_ok
+        return address_ok
     }
 
-    function checkInformation(address, payment_id, nettype) {
-      address = address.trim()
-      payment_id = payment_id.trim()
-
-      var address_ok = walletManager.addressValid(address, nettype)
-      var payment_id_ok = payment_id.length == 0 || walletManager.paymentIdValid(payment_id)
-      var ipid = walletManager.paymentIdFromAddress(address, nettype)
-      if (ipid.length > 0 && payment_id.length > 0)
-         payment_id_ok = false
-
-      addressLine.error = !address_ok
-      paymentIdLine.error = !payment_id_ok
-
-      return address_ok && payment_id_ok
+    function clearFields() {
+        addressLine.text = "";
+        descriptionLine.text = "";
     }
 
-    function onPageCompleted() {
-        console.log("adress book");
-        root.model = currentWallet.addressBookModel;
+    function showAddressBook() {
+        addressBookEmptyLayout.visible = addressBookListView.count == 0
+        addressBookLayout.visible = addressBookListView.count >= 1;
+        addContactLayout.visible = false;
+        clearFields();
+    }
+
+    function showAddAddress() {
+        root.editEntry = false;
+        addressBookEmptyLayout.visible = false
+        addressBookLayout.visible = false;
+        addContactLayout.visible = true;
+    }
+
+    function showEditAddress(address, description) {
+        //TODO: real contact editing, requires API change
+        root.editEntry = true;
+        addressBookEmptyLayout.visible = false
+        addressBookLayout.visible = false;
+        addContactLayout.visible = true;
+        addressLine.text = address;
+        descriptionLine.text = description;
     }
 
     function updateFromQrCode(address, payment_id, amount, tx_description, recipient_name) {
         console.log("updateFromQrCode")
         addressLine.text = address
-        paymentIdLine.text = payment_id
-        //amountLine.text = amount
         descriptionLine.text = recipient_name + " " + tx_description
         cameraUi.qrcode_decoded.disconnect(updateFromQrCode)
     }
 
+    function oa_message(text) {
+      oaPopup.title = qsTr("OpenAlias error") + translationManager.emptyString
+      oaPopup.text = text
+      oaPopup.icon = StandardIcon.Information
+      oaPopup.onCloseCallback = null
+      oaPopup.open()
+    }
+
+    SuperiorComponents.StandardDialog {
+        // dynamically change onclose handler
+        property var onCloseCallback
+        id: oaPopup
+        cancelVisible: false
+        onAccepted: {
+            if (onCloseCallback) {
+                onCloseCallback()
+            }
+        }
+    }
+    function onPageCompleted() {
+        console.log("adress book");
+        addressBookListView.model = currentWallet.addressBookModel;
+        showAddressBook();
+    }
+
+    function onPageClosed() {
+        root.selectAndSend = false;
+        root.editEntry = false;
+        clearFields();
+    }
 }
