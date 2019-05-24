@@ -598,8 +598,8 @@ Rectangle {
             });
         }
 
-        // 18089 has precedence
-        var filteredNodes = Utils.filterNodes(nodes, "18089");
+        // 16035 has precedence
+        var filteredNodes = Utils.filterNodes(nodes, "16035");
         if(filteredNodes.length > 0){
             node = Utils.randomChoice(filteredNodes);
             console.log('Choosing remote node \''+ node +'\' from a list of ' + filteredNodes.length);
