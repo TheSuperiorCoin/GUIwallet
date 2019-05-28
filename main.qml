@@ -99,9 +99,9 @@ ApplicationWindow {
 
         // superior-gui workgroup maintained
         if(isWindows)
-            return "http://autonode.xmr.pm/";
+            return "https://superior-coin.com/";
         else
-            return "https://autonode.xmr.pm/"
+            return "https://superior-coin.com/"
     }
 
     // true if wallet ever synchronized
