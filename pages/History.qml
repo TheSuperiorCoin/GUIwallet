@@ -618,7 +618,7 @@ Rectangle {
                                 Text {
                                     font.family: SuperiorComponents.Style.fontRegular.name
                                     font.pixelSize: 15 * scaleRatio
-                                    text: _amount + " XMR"
+                                    text: _amount + " SUP"
                                     color: SuperiorComponents.Style.defaultFontColor
                                     anchors.verticalCenter: parent.verticalCenter
 
@@ -668,7 +668,7 @@ Rectangle {
                                     font.pixelSize: 15 * scaleRatio
                                     text: {
                                         if(!isout && confirmationsRequired === 60) return qsTr("Yes") + translationManager.emptyString;
-                                        if(fee !== "") return fee + " XMR";
+                                        if(fee !== "") return fee + " SUP";
                                         return "-";
                                     }
 
@@ -876,7 +876,7 @@ Rectangle {
                                     anchors.leftMargin: 16 * scaleRatio
                                     width: 28
                                     height: 28
-                                    source: "qrc:///images/miningxmr.png"
+                                    source: "qrc:///images/miningsup.png"
                                 }
 
                                 SuperiorComponents.StandardButton {

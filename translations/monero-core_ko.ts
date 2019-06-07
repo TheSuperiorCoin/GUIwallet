@@ -2043,7 +2043,7 @@ You can change the password in the wallet settings.</source>
     </message>
     <message>
         <location filename="../pages/Transfer.qml" line="51"/>
-        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #FF6C3C; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;Start daemon&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
+        <source>&lt;style type=&apos;text/css&apos;&gt;a {text-decoration: none; color: #B79B0F; font-size: 14px;}&lt;/style&gt;&lt;font size=&apos;2&apos;&gt; (&lt;/font&gt;&lt;a href=&apos;#&apos;&gt;Start daemon&lt;/a&gt;&lt;font size=&apos;2&apos;&gt;)&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3247,7 +3247,7 @@ Spending address index: </source>
     <message>
         <location filename="../main.qml" line="913"/>
         <source>This address received %1 superior, with %2 confirmation(s).</source>
-        <translation>이 주소로 %1 XMR을 받아, %2 번의 컨펌을 받았습니다.</translation>
+        <translation>이 주소로 %1 SUP을 받아, %2 번의 컨펌을 받았습니다.</translation>
     </message>
     <message>
         <location filename="../main.qml" line="1858"/>
@@ -3313,7 +3313,7 @@ Spending address index: </source>
     <message>
         <location filename="../main.qml" line="910"/>
         <source>This address received %1 superior, but the transaction is not yet mined</source>
-        <translation>이 주소는 % 1XMR을 받았지만, 해당 거래가 아직 채굴에 포함되지 않았습니다</translation>
+        <translation>이 주소는 % 1SUP을 받았지만, 해당 거래가 아직 채굴에 포함되지 않았습니다</translation>
     </message>
     <message>
         <location filename="../main.qml" line="917"/>

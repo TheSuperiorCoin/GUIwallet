@@ -391,7 +391,7 @@ Rectangle{
                     Layout.fillWidth: true
                     fontSize: 15 * scaleRatio
                     labelFontSize: 14 * scaleRatio
-                    property string style: "<style type='text/css'>a {cursor:pointer;text-decoration: none; color: #FF6C3C}</style>"
+                    property string style: "<style type='text/css'>a {cursor:pointer;text-decoration: none; color: #B79B0F}</style>"
                     labelText: qsTr("Blockchain location") + style + qsTr(" <a href='#'> (change)</a>") + translationManager.emptyString
                     placeholderText: qsTr("(default)") + translationManager.emptyString
                     placeholderFontSize: 15 * scaleRatio

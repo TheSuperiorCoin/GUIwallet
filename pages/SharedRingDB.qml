@@ -113,7 +113,7 @@ Rectangle {
         SuperiorComponents.LabelSubheader {
             Layout.fillWidth: true
             textFormat: Text.RichText
-            text: "<style type='text/css'>a {text-decoration: none; color: #FF6C3C; font-size: 14px;}</style>" +
+            text: "<style type='text/css'>a {text-decoration: none; color: #B79B0F; font-size: 14px;}</style>" +
                   qsTr("Outputs marked as spent") + " <a href='#'>" + qsTr("Help") + "</a>" + translationManager.emptyString
             onLinkActivated: {
                 sharedRingDBDialog.title  = qsTr("Outputs marked as spent") + translationManager.emptyString;
@@ -250,7 +250,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.topMargin: 24 * scaleRatio
             textFormat: Text.RichText
-            text: "<style type='text/css'>a {text-decoration: none; color: #FF6C3C; font-size: 14px;}</style>" +
+            text: "<style type='text/css'>a {text-decoration: none; color: #B79B0F; font-size: 14px;}</style>" +
                   qsTr("Rings") + " <a href='#'>" + qsTr("Help") + "</a>" + translationManager.emptyString
             onLinkActivated: {
                 sharedRingDBDialog.title  = qsTr("Rings") + translationManager.emptyString;

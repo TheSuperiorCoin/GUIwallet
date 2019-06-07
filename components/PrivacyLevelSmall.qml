@@ -73,7 +73,7 @@ Item {
             //radius: 2
             width: ruler.x
 
-            color: "#FF6C3C"
+            color: "#B79B0F"
 
             Timer {
                 interval: 500

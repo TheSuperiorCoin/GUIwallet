@@ -273,7 +273,7 @@ Item {
                     font.pixelSize: 12 * scaleRatio
                     font.bold: false
                     color: "white"
-                    text: "<style type='text/css'>a {text-decoration: none; color: #FF6C3C; font-size: 12px;}</style>Currently selected address: " + addressLabel + " <a href='#'>(Change)</a>"
+                    text: "<style type='text/css'>a {text-decoration: none; color: #B79B0F; font-size: 12px;}</style>Currently selected address: " + addressLabel + " <a href='#'>(Change)</a>"
                     textFormat: Text.RichText
 
                     MouseArea {
@@ -450,7 +450,7 @@ Item {
                         font.pixelSize: 14 * scaleRatio
                         font.bold: false
                         color: "white"
-                        text: qsTr("Amount to receive") + " (XMR)"
+                        text: qsTr("Amount to receive") + " (SUP)"
                     }
 
                     Image {
@@ -497,7 +497,7 @@ Item {
                     }
 
                     Text {
-                        // @TODO: When we have XMR/USD rate avi. in the future.
+                        // @TODO: When we have SUP/USD rate avi. in the future.
                         visible: false
                         font.pixelSize: 14 * scaleRatio
                         font.bold: false
