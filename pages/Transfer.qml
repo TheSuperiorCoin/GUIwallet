@@ -222,7 +222,7 @@ Rectangle {
               labelButtonText: qsTr("Resolve") + translationManager.emptyString
               placeholderText: {
                   if(persistentSettings.nettype == NetworkType.MAINNET){
-                      return "4.. / 8.. / OpenAlias";
+                      return "5.. / OpenAlias";
                   } else if (persistentSettings.nettype == NetworkType.STAGENET){
                       return "5.. / 7..";
                   } else if(persistentSettings.nettype == NetworkType.TESTNET){
@@ -251,7 +251,7 @@ Rectangle {
               inlineButton.fontPixelSize: 22
               inlineButton.fontFamily: FontAwesome.fontFamily
               inlineButton.textColor: SuperiorComponents.Style.defaultFontColor
-              inlineButton.buttonColor: SuperiorComponents.Style.orange
+              inlineButton.buttonColor: SuperiorComponents.Style.gold
               inlineButton.onClicked: {
                   cameraUi.state = "Capture"
                   cameraUi.qrcode_decoded.connect(updateFromQrCode)

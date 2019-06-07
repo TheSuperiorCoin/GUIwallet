@@ -451,7 +451,7 @@ Rectangle {
                             anchors.fill: parent
                             hoverEnabled: pages > 1
                             cursorShape: hoverEnabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                            onEntered: parent.color = SuperiorComponents.Style.orange
+                            onEntered: parent.color = SuperiorComponents.Style.gold
                             onExited: parent.color = SuperiorComponents.Style.defaultFontColor
                             onClicked: {
                                 if(pages === 1)
@@ -626,7 +626,7 @@ Rectangle {
                                         state: "copyable"
                                         anchors.fill: parent
                                         hoverEnabled: true
-                                        onEntered: parent.color = SuperiorComponents.Style.orange
+                                        onEntered: parent.color = SuperiorComponents.Style.gold
                                         onExited: parent.color = SuperiorComponents.Style.defaultFontColor
                                     }
                                 }
@@ -679,7 +679,7 @@ Rectangle {
                                         state: "copyable"
                                         anchors.fill: parent
                                         hoverEnabled: true
-                                        onEntered: parent.color = SuperiorComponents.Style.orange
+                                        onEntered: parent.color = SuperiorComponents.Style.gold
                                         onExited: parent.color = SuperiorComponents.Style.defaultFontColor
                                     }
                                 }
@@ -734,7 +734,7 @@ Rectangle {
                                         state: "copyable"
                                         anchors.fill: parent
                                         hoverEnabled: true
-                                        onEntered: parent.color = SuperiorComponents.Style.orange
+                                        onEntered: parent.color = SuperiorComponents.Style.gold
                                         onExited: parent.color = SuperiorComponents.Style.defaultFontColor
                                     }
                                 }
@@ -783,7 +783,7 @@ Rectangle {
                                         state: "copyable"
                                         anchors.fill: parent
                                         hoverEnabled: true
-                                        onEntered: parent.color = SuperiorComponents.Style.orange
+                                        onEntered: parent.color = SuperiorComponents.Style.gold
                                         onExited: parent.color = SuperiorComponents.Style.defaultFontColor
                                     }
                                 }
@@ -838,7 +838,7 @@ Rectangle {
                                         state: "copyable"
                                         anchors.fill: parent
                                         hoverEnabled: true
-                                        onEntered: parent.color = SuperiorComponents.Style.orange
+                                        onEntered: parent.color = SuperiorComponents.Style.gold
                                         onExited: parent.color = SuperiorComponents.Style.defaultFontColor
                                     }
                                 }
@@ -936,7 +936,7 @@ Rectangle {
                                     state: "copyable"
                                     anchors.fill: parent
                                     hoverEnabled: true
-                                    onEntered: parent.color = SuperiorComponents.Style.orange
+                                    onEntered: parent.color = SuperiorComponents.Style.gold
                                     onExited: parent.color = SuperiorComponents.Style.defaultFontColor
                                 }
                             }
@@ -1002,7 +1002,7 @@ Rectangle {
                                     state: "copyable"
                                     anchors.fill: parent
                                     hoverEnabled: true
-                                    onEntered: parent.color = SuperiorComponents.Style.orange
+                                    onEntered: parent.color = SuperiorComponents.Style.gold
                                     onExited: parent.color = SuperiorComponents.Style.defaultFontColor
                                 }
                             }
@@ -1049,7 +1049,7 @@ Rectangle {
                                     state: "copyable"
                                     anchors.fill: parent
                                     hoverEnabled: true
-                                    onEntered: parent.color = SuperiorComponents.Style.orange
+                                    onEntered: parent.color = SuperiorComponents.Style.gold
                                     onExited: parent.color = SuperiorComponents.Style.defaultFontColor
                                 }
                             }
@@ -1103,7 +1103,7 @@ Rectangle {
                                     state: "copyable_address"
                                     anchors.fill: parent
                                     hoverEnabled: true
-                                    onEntered: parent.color = SuperiorComponents.Style.orange
+                                    onEntered: parent.color = SuperiorComponents.Style.gold
                                     onExited: parent.color = SuperiorComponents.Style.defaultFontColor
                                 }
                             }

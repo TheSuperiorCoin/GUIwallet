@@ -56,7 +56,7 @@ Rectangle {
     property bool showSuperiorLogo: false
     property bool small: false
     property alias titleBarGradientImageOpacity: titleBarGradientImage.opacity
-    property bool orange: false
+    property bool gold: false
     property string buttonHoverColor: "#262626"
     property string buttonHoverColorOrange: "#44FFFFFF"
 
@@ -73,7 +73,7 @@ Rectangle {
 
         Image {
            id: titleBarGradientImage
-           visible: !titleBar.orange
+           visible: !titleBar.gold
            anchors.fill: parent
            height: titleBar.height
            width: titleBar.width
@@ -81,10 +81,10 @@ Rectangle {
         }
 
         Rectangle {
-            visible: titleBar.orange
+            visible: titleBar.gold
             width: parent.width
             height: parent.height
-            color: "#ff6600"
+            color: "#DAA520"
         }
     }
 
@@ -97,7 +97,7 @@ Rectangle {
         z: parent.z + 1
 
         Image {
-            visible: !isMobile && showSuperiorLogo && !titleBar.orange
+            visible: !isMobile && showSuperiorLogo && !titleBar.gold
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.topMargin: 11
@@ -107,7 +107,7 @@ Rectangle {
         }
 
         Image {
-            visible: !isMobile && showSuperiorLogo && titleBar.orange
+            visible: !isMobile && showSuperiorLogo && titleBar.gold
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.topMargin: 11
@@ -144,7 +144,7 @@ Rectangle {
             color:  "transparent"
             height: titleBar.height
             width: height
-            visible: !titleBar.orange && titleBar.basicButtonVisible
+            visible: !titleBar.gold && titleBar.basicButtonVisible
 
             Image {
                 width: 14
@@ -158,7 +158,7 @@ Rectangle {
                 hoverEnabled: true
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
-                onEntered: { goToBasicVersionButton.color = titleBar.orange ? titleBar.buttonHoverColorOrange : titleBar.buttonHoverColor }
+                onEntered: { goToBasicVersionButton.color = titleBar.gold ? titleBar.buttonHoverColorOrange : titleBar.buttonHoverColor }
                 onExited: goToBasicVersionButton.color = "transparent";
                 onClicked: {
                     releaseFocus()
@@ -172,7 +172,7 @@ Rectangle {
         Rectangle {
             Layout.preferredHeight: parent.height
             Layout.preferredWidth: Layout.preferredHeight
-            visible: !titleBar.orange && persistentSettings.customDecorations
+            visible: !titleBar.gold && persistentSettings.customDecorations
 
             id: languageSelection
             property bool containsMouse: titleBar.mouseX >= x && titleBar.mouseX <= x + width
@@ -230,7 +230,7 @@ Rectangle {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onEntered: {
-                    if(titleBar.orange){
+                    if(titleBar.gold){
                         minimizeButton.color = titleBar.buttonHoverColorOrange;
                     } else {
                         minimizeButton.color = titleBar.buttonHoverColor;
@@ -263,7 +263,7 @@ Rectangle {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onEntered: {
-                    if(titleBar.orange){
+                    if(titleBar.gold){
                         maximizeButton.color = titleBar.buttonHoverColorOrange;
                     } else {
                         maximizeButton.color = titleBar.buttonHoverColor;
@@ -295,7 +295,7 @@ Rectangle {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onEntered: {
-                    if(titleBar.orange){
+                    if(titleBar.gold){
                         closeButton.color = titleBar.buttonHoverColorOrange;
                     } else {
                         closeButton.color = titleBar.buttonHoverColor;
@@ -308,7 +308,7 @@ Rectangle {
 
     // window borders
     Rectangle {
-        visible: !titleBar.orange
+        visible: !titleBar.gold
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.left: parent.left
@@ -318,7 +318,7 @@ Rectangle {
     }
 
     Rectangle {
-        visible: titleBar.small && !titleBar.orange
+        visible: titleBar.small && !titleBar.gold
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.left: parent.left

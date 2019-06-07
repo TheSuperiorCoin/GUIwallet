@@ -409,7 +409,7 @@ Item {
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onEntered: {
-                                parent.color = SuperiorComponents.Style.orange
+                                parent.color = SuperiorComponents.Style.gold
                             }
                             onExited: {
                                 parent.color = parent._color

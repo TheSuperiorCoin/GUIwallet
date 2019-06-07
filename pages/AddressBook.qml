@@ -310,7 +310,7 @@ Rectangle {
                 inlineButton.fontPixelSize: 22
                 inlineButton.fontFamily: FontAwesome.fontFamily
                 inlineButton.textColor: SuperiorComponents.Style.defaultFontColor
-                inlineButton.buttonColor: SuperiorComponents.Style.orange
+                inlineButton.buttonColor: SuperiorComponents.Style.gold
                 inlineButton.onClicked: {
                     cameraUi.state = "Capture"
                     cameraUi.qrcode_decoded.connect(root.updateFromQrCode)

@@ -215,7 +215,7 @@ Rectangle {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         onEntered: {
-                            parent.color = SuperiorComponents.Style.orange
+                            parent.color = SuperiorComponents.Style.gold
                         }
                         onExited: {
                             parent.color = SuperiorComponents.Style.white
@@ -253,7 +253,7 @@ Rectangle {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         onEntered: {
-                            parent.color = SuperiorComponents.Style.orange
+                            parent.color = SuperiorComponents.Style.gold
                         }
                         onExited: {
                             parent.color = SuperiorComponents.Style.white

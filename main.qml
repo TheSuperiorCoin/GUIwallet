@@ -1982,9 +1982,9 @@ ApplicationWindow {
     function titlebarToggleOrange(flag){
         // toggle titlebar orange style
         if(flag !== undefined){
-            titleBar.orange = flag;
+            titleBar.gold = flag;
         } else {
-            titleBar.orange = !titleBar.orange;
+            titleBar.gold = !titleBar.gold;
         }
     }
 

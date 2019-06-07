@@ -62,7 +62,7 @@ Item {
             return t < 50 ? 50 : t
         }
         y: 0; x: 0
-        color: SuperiorComponents.Style.orange
+        color: SuperiorComponents.Style.gold
         opacity: flickable.moving || handleArea.pressed || scrollArea.containsMouse ? 0.8 : 0
         visible: flickable.contentHeight > flickable.height
 

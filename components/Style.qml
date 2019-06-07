@@ -14,7 +14,7 @@ QtObject {
     property QtObject fontMonoRegular: FontLoader { id: _fontMonoRegular; source: "qrc:/fonts/RobotoMono-Regular.ttf"; }
 
     property string grey: "#404040"
-    property string orange: "#B79B0F"
+    property string gold: "#000000"
     property string white: "#FFFFFF"
     property string green: "#2EB358"
     property string superiorGrey: "#4C4C4C"
@@ -24,7 +24,7 @@ QtObject {
     property string lightGreyFontColor: "#DFDFDF"
     property string greyFontColor: "#808080"
     property string warningColor: "#963E00"
-    property string errorColor: "#FA6800"
+    property string errorColor: "#DAA520"
     property string inputBoxBackground: "black"
     property string inputBoxBackgroundError: "#FFDDDD"
     property string inputBoxColor: "white"
@@ -33,7 +33,7 @@ QtObject {
     property string inputBorderColorInActive: Qt.rgba(255, 255, 255, 0.32)
     property string inputBorderColorInvalid: Qt.rgba(255, 0, 0, 0.40)
 
-    property string buttonBackgroundColor: "#FA6800"
+    property string buttonBackgroundColor: "#DAA520"
     property string buttonBackgroundColorHover: "#E65E00"
     property string buttonBackgroundColorDisabled: "#707070"
     property string buttonBackgroundColorDisabledHover: "#808080"
